@@ -1,0 +1,1 @@
+编写git hooks脚本，将它们复制到.git/hooks中生效

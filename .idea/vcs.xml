@@ -2,6 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/tools/go-gitlint" vcs="Git" />
+  </component>
+  <component name="VcsDirectoxfMappings">
+    <mapping directoxf="" vcs="Git" />
   </component>
 </project>

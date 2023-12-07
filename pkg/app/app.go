@@ -2,11 +2,15 @@
 package app
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/user823/Sophie/pkg/utils"
 	"io"
+	"log"
 	"os"
+	"text/tabwriter"
 )
 
 var (
@@ -15,9 +19,11 @@ var (
 
 type App struct {
 	// 实例名
-	name         string
-	description  string
-	silence      bool
+	name        string
+	description string
+	verbose     bool
+	// 设置App是否可配置
+	// 如果可配置则配置使用顺序为：命令行 > 环境变量 > 配置文件 > 配置中心
 	configurable bool
 	options      CliOptions
 	runE         RunFunction
@@ -27,7 +33,7 @@ type App struct {
 	output       io.Writer
 }
 
-type RunFunction func(cmd *cobra.Command, args []string) error
+type RunFunction func(name string) error
 
 type Option func(*App)
 
@@ -39,9 +45,9 @@ func WithDescription(description string) Option {
 }
 
 // 设置为静默启动
-func WithSilence() Option {
+func WithVerbose() Option {
 	return func(app *App) {
-		app.silence = true
+		app.verbose = true
 	}
 }
 
@@ -94,6 +100,13 @@ func WithConfigurable() Option {
 	}
 }
 
+// 添加子命令
+func WithCommands(cmds ...*Command) Option {
+	return func(app *App) {
+		app.commands = append(app.commands, cmds...)
+	}
+}
+
 // 通过NewApp(xxx).Run()运行
 func NewApp(name string, options ...Option) *App {
 	app := &App{name: name, output: os.Stdout}
@@ -112,8 +125,8 @@ func (a *App) buildCommand() {
 		Use:           a.name + " [command] [flags]",
 		Short:         a.name,
 		Long:          a.description,
-		SilenceUsage:  a.silence,
-		SilenceErrors: a.silence,
+		SilenceUsage:  a.verbose,
+		SilenceErrors: a.verbose,
 		Args:          a.args,
 	}
 	cmd.SetOut(a.output)
@@ -121,13 +134,14 @@ func (a *App) buildCommand() {
 	fs := cmd.Flags()
 	InitFlags(fs)
 
+	// 添加子命令
 	for _, command := range a.commands {
-		cmd.AddCommand(command.cobraCommand())
+		cmd.AddCommand(command.CobraCommand())
 	}
 
 	cmd.SetHelpCommand(helpCommand(a.name))
 	if a.runE != nil {
-		cmd.RunE = a.runE
+		cmd.RunE = a.runCommand()
 	}
 
 	flagGroup := NewFlagGroup()
@@ -141,18 +155,79 @@ func (a *App) buildCommand() {
 
 	// 设置App启动的默认参数
 	SetDefaultConfig()
+	// 尝试从配置文件或者配置中心拉取配置
 	if a.configurable {
-		addConfigFlag(a.name, flagGroup.FlagSet("global"))
+		flagGroup.AddGlobalFlags(addConfigFlag(a.name))
 	}
-	flagGroup.AddGlobalFlags(cmd.Name())
+
+	flagGroup.AddGlobalFlags(addHelpFlag(a.name))
 	fs.AddFlagSet(flagGroup.FlagSet("global"))
 	addCmdTemplate(cmd, flagGroup)
 	a.cmd = cmd
 }
 
-// 为App添加子命令
-func (a *App) AddCommand(cmds ...*Command) {
-	a.commands = append(a.commands, cmds...)
+func (a *App) runCommand() func(*cobra.Command, []string) error {
+	return func(*cobra.Command, []string) error {
+		printWorkingDir()
+		printFlags(a.cmd.Flags())
+
+		if a.configurable {
+			if err := viper.BindPFlags(a.cmd.Flags()); err != nil {
+				return err
+			}
+		}
+
+		if a.verbose {
+			log.Printf("%v Starting %s ...", progressMessage, a.name)
+			if a.configurable && viper.ConfigFileUsed() != "" {
+				log.Printf("%v Config file used: `%s`", progressMessage, viper.ConfigFileUsed())
+			}
+		}
+
+		if a.options != nil {
+			if err := a.applyOptionRules(); err != nil {
+				return err
+			}
+		}
+
+		if a.runE != nil {
+			return a.runE(a.name)
+		}
+		return nil
+	}
+}
+
+func (a *App) Run() {
+	if err := a.cmd.Execute(); err != nil {
+		fmt.Printf("%v %v\n", "Error:", err)
+		os.Exit(1)
+	}
+}
+
+// 应用选项规则
+func (a *App) applyOptionRules() error {
+	if c, ok := a.options.(CompletableOptions); ok {
+		if err := c.Complete(); err != nil {
+			return err
+		}
+	}
+
+	if v, ok := a.options.(ValidatableOptions); ok {
+		if err := v.Validate(); err != nil {
+			return err
+		}
+	}
+
+	if p, ok := a.options.(PrintableOptions); ok {
+		log.Printf("%v Config: `%s`", progressMessage, p.String())
+	}
+	return nil
+}
+
+// 打印工作目录
+func printWorkingDir() {
+	wd, _ := os.Getwd()
+	log.Printf("%v WorkingDir: %s", progressMessage, wd)
 }
 
 // 为cobra 命令添加模版化信息
@@ -161,12 +236,33 @@ func addCmdTemplate(cmd *cobra.Command, fg FlagGroup) {
 	cols, _, _ := utils.GetTermInfo(cmd.OutOrStdout())
 	cmd.SetUsageFunc(func(cmd *cobra.Command) error {
 		fmt.Fprintf(cmd.OutOrStderr(), usageFmt, cmd.UseLine())
-		PrintFlags(cmd.OutOrStderr(), fg, cols)
-
+		// 打印子命令信息
+		fmt.Fprintf(cmd.OutOrStderr(), subCmdText(cmd, cols))
+		// 分组打印flag信息
+		fg.PrintFlags(cmd.OutOrStderr(), cols)
 		return nil
 	})
 	cmd.SetHelpFunc(func(cmd *cobra.Command, args []string) {
 		fmt.Fprintf(cmd.OutOrStdout(), "%s\n\n"+usageFmt, cmd.Long, cmd.UseLine())
-		PrintFlags(cmd.OutOrStdout(), fg, cols)
+		// 打印子命令信息
+		fmt.Fprintf(cmd.OutOrStderr(), subCmdText(cmd, cols))
+		// 分组打印flag信息
+		fg.PrintFlags(cmd.OutOrStdout(), cols)
 	})
+}
+
+func subCmdText(cmd *cobra.Command, maxWidth int) string {
+	if len(cmd.Commands()) == 0 {
+		return ""
+	}
+
+	var buf bytes.Buffer
+	tw := tabwriter.NewWriter(&buf, 0, 0, 2, ' ', 0)
+	tw.Write([]byte("\n\nCommands:\n\n"))
+	for _, command := range cmd.Commands() {
+		fmt.Fprintf(tw, "\t%s\t%s\n", command.Name(), limitWidth(command.Short, maxWidth-2-len(command.Name())))
+		//buf.WriteString(command.Name() + " " + command.Short + "\n")
+	}
+	tw.Flush()
+	return buf.String()
 }

@@ -53,7 +53,7 @@ create table sys_user (
     remark varchar(500) default null comment '备注',
     primaxf key (id),
     CONSTRAINT `fk_user_dept` FOREIGN KEY (`dept_id`) REFERENCES `sys_dept` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) engine = innodb auto_increment = 100 comment = '用户信息表';
+) engine = innodb auto_increment = 100 comment = '用户信息表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 3、岗位信息表
@@ -73,7 +73,7 @@ create table sys_post (
     post_sort int(4) not null comment '显示顺序',
     remark varchar(500) default null comment '备注',
     primaxf key (id)
-) engine = innodb comment = '岗位信息表';
+) engine = innodb comment = '岗位信息表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 4、角色信息表
@@ -97,7 +97,7 @@ create table sys_role (
     del_flag char(1) default '0' comment '删除标志（0代表存在 2代表删除）',
     remark varchar(500) default null comment '备注',
     primaxf key (id)
-) engine = innodb auto_increment = 100 comment = '角色信息表';
+) engine = innodb auto_increment = 100 comment = '角色信息表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 5、菜单权限表
@@ -127,7 +127,7 @@ create table sys_menu (
     remark varchar(500) default '' comment '备注',
     primaxf key (id),
     CONSTRAINT `fk_menu_menu` FOREIGN key (`parent_id`) REFERENCES `sys_menu` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) engine = innodb auto_increment = 2000 comment = '菜单权限表';
+) engine = innodb auto_increment = 2000 comment = '菜单权限表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 6、用户和角色关联表  用户N-1角色
@@ -138,7 +138,7 @@ create table sys_user_role (
     user_id bigint(20) not null comment '用户ID',
     role_id bigint(20) not null comment '角色ID',
     primaxf key(user_id, role_id)
-) engine = innodb comment = '用户和角色关联表';
+) engine = innodb comment = '用户和角色关联表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 7、角色和菜单关联表  角色1-N菜单
@@ -149,7 +149,7 @@ create table sys_role_menu (
     role_id bigint(20) not null comment '角色ID',
     menu_id bigint(20) not null comment '菜单ID',
     primaxf key(role_id, menu_id)
-) engine = innodb comment = '角色和菜单关联表';
+) engine = innodb comment = '角色和菜单关联表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 8、角色和部门关联表  角色1-N部门
@@ -160,7 +160,7 @@ create table sys_role_dept (
     role_id bigint(20) not null comment '角色ID',
     dept_id bigint(20) not null comment '部门ID',
     primaxf key(role_id, dept_id)
-) engine = innodb comment = '角色和部门关联表';
+) engine = innodb comment = '角色和部门关联表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 9、用户与岗位关联表  用户1-N岗位
@@ -171,7 +171,7 @@ create table sys_user_post (
     user_id bigint(20) not null comment '用户ID',
     post_id bigint(20) not null comment '岗位ID',
     primaxf key (user_id, post_id)
-) engine = innodb comment = '用户与岗位关联表';
+) engine = innodb comment = '用户与岗位关联表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 10、操作日志记录
@@ -197,7 +197,7 @@ create table sys_oper_log (
     oper_time datetime comment '操作时间',
     cost_time bigint(20) default 0 comment '消耗时间',
     primaxf key (id),
-) engine = innodb auto_increment = 100 comment = '操作日志记录';
+) engine = innodb auto_increment = 100 comment = '操作日志记录' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 11、字典类型表
@@ -217,7 +217,7 @@ create table sys_dict_type (
     remark varchar(500) default null comment '备注',
     primaxf key (id),
     unique (dict_type)
-) engine = innodb auto_increment = 100 comment = '字典类型表';
+) engine = innodb auto_increment = 100 comment = '字典类型表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 12、字典数据表
@@ -242,7 +242,7 @@ create table sys_dict_data (
     is_default char(1) default 'N' comment '是否默认（Y是 N否）',
     remark varchar(500) default null comment '备注',
     primaxf key (id)
-) engine = innodb auto_increment = 100 comment = '字典数据表';
+) engine = innodb auto_increment = 100 comment = '字典数据表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 13、参数配置表
@@ -263,7 +263,7 @@ create table sys_config (
     config_type char(1) default 'N' comment '系统内置（Y是 N否）',
     remark varchar(500) default null comment '备注',
     primaxf key (id)
-) engine = innodb auto_increment = 100 comment = '参数配置表';
+) engine = innodb auto_increment = 100 comment = '参数配置表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 14、系统访问记录
@@ -278,7 +278,7 @@ create table sys_logininfor (
     msg varchar(255) default '' comment '提示信息',
     access_time datetime comment '访问时间',
     primaxf key (id),
-) engine = innodb auto_increment = 100 comment = '系统访问记录';
+) engine = innodb auto_increment = 100 comment = '系统访问记录' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 15、定时任务调度表
@@ -301,7 +301,7 @@ create table sys_job (
     concurrent char(1) default '1' comment '是否并发执行（0允许 1禁止）',
     remark varchar(500) default '' comment '备注信息',
     primaxf key (id, job_name, job_group)
-) engine = innodb auto_increment = 100 comment = '定时任务调度表';
+) engine = innodb auto_increment = 100 comment = '定时任务调度表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 16、定时任务调度日志表
@@ -318,7 +318,7 @@ create table sys_job_log (
     exception_info varchar(2000) default '' comment '异常信息',
     create_time datetime comment '创建时间',
     primaxf key (id)
-) engine = innodb comment = '定时任务调度日志表';
+) engine = innodb comment = '定时任务调度日志表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 17、通知公告表
@@ -338,7 +338,7 @@ create table sys_notice (
     notice_content longblob default null comment '公告内容',
     remark varchar(255) default null comment '备注',
     primaxf key (id)
-) engine = innodb auto_increment = 10 comment = '通知公告表';
+) engine = innodb auto_increment = 10 comment = '通知公告表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 18、代码生成业务表
@@ -369,7 +369,7 @@ create table gen_table (
     options varchar(1000) comment '其它生成选项',
     remark varchar(500) default null comment '备注',
     primaxf key (id)
-) engine = innodb auto_increment = 1 comment = '代码生成业务表';
+) engine = innodb auto_increment = 1 comment = '代码生成业务表' charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 -- ----------------------------
 -- 19、代码生成业务表字段
@@ -402,4 +402,4 @@ create table gen_table_column (
     dict_type varchar(200) default '' comment '字典类型',
     sort int comment '排序',
     primaxf key (id)
-) engine = innodb auto_increment = 1 comment = '代码生成业务表字段';
+) engine = innodb auto_increment = 1 comment = '代码生成业务表字段' charset=utf8mb4 collate=utf8mb4_unicode_ci;

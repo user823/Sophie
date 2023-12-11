@@ -135,11 +135,13 @@ func (a *App) buildCommand() {
 	InitFlags(fs)
 
 	// 添加子命令
-	for _, command := range a.commands {
-		cmd.AddCommand(command.CobraCommand())
+	if len(a.commands) > 0 {
+		for _, command := range a.commands {
+			cmd.AddCommand(command.CobraCommand())
+		}
+		cmd.SetHelpCommand(helpCommand(a.name))
 	}
 
-	cmd.SetHelpCommand(helpCommand(a.name))
 	if a.runE != nil {
 		cmd.RunE = a.runCommand()
 	}
@@ -148,6 +150,7 @@ func (a *App) buildCommand() {
 	if a.options != nil {
 		fg := a.options.Flags()
 		flagGroup.Merge(fg)
+		// 将options 中的flagset都添加进来
 		for _, f := range fg {
 			fs.AddFlagSet(f)
 		}
@@ -172,7 +175,14 @@ func (a *App) runCommand() func(*cobra.Command, []string) error {
 		printFlags(a.cmd.Flags())
 
 		if a.configurable {
+			// 通过命令行更新viper中的配置
 			if err := viper.BindPFlags(a.cmd.Flags()); err != nil {
+				return err
+			}
+
+			// 将viper的配置导出到options中
+			// options 通过mapstructure 来设置键值, 注意options中的未导出字段会被decoder忽略掉
+			if err := viper.Unmarshal(a.options); err != nil {
 				return err
 			}
 		}

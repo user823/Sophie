@@ -75,7 +75,7 @@ func InitFlags(flags *flag.FlagSet) {
 // WordSepNormalizeFunc changes all flags that contain "_" separators.
 func WordSepNormalizeFunc(f *flag.FlagSet, name string) flag.NormalizedName {
 	if strings.Contains(name, "_") {
-		return flag.NormalizedName(strings.ReplaceAll(name, "_", "-"))
+		return flag.NormalizedName(strings.ReplaceAll(name, "-", "_"))
 	}
 	return flag.NormalizedName(name)
 }

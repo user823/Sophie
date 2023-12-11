@@ -15,4 +15,9 @@ log包基于zap进行的二次开发，主要用于对接Sophie-log系统的Log 
 1. 可以在命令行中通过 --aggregation 开启日志聚合
 2. 可以调用SetAggregation API 来开启日志聚合
 
-如果使用日志聚合，为了与Sophie-log子模块结合必须附带必要的环境信息，调用WithValues添加环境信息
+日志聚合使用步骤：
+1. 调用NewAnalytics 创建日志聚合基础组件
+2. 调用Start方法（阻塞连接redis）开启日志聚合
+3. 为logger设置必要的环境信息：系统模块、日志类型
+4. 调用相应的日志记录方法
+5. 调用Stop方法 关闭日志聚合

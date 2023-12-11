@@ -1,16 +1,14 @@
 package log
 
-import "go.uber.org/zap"
-
-type environment map[string]zap.Field
+type environment map[string]string
 
 // 后加入的key 会替代原先的key
-func (e environment) addValues(fields ...zap.Field) {
-	for _, f := range fields {
-		e[f.Key] = f
+func (e environment) addValues(fields ...string) {
+	for i := 0; i < len(fields); i += 2 {
+		e[fields[i]] = fields[i+1]
 	}
 }
 
 func newEnvironment() environment {
-	return make(map[string]zap.Field)
+	return make(map[string]string)
 }

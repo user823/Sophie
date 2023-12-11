@@ -7,8 +7,6 @@ import (
 	"os"
 )
 
-// 创建zapLogger 配置，用来构建zap.core
-// 字段不可访问，只能通过api修改
 type Config struct {
 	encoderConfig     zapcore.EncoderConfig
 	outputWss         []zapcore.WriteSyncer
@@ -17,6 +15,8 @@ type Config struct {
 	development       bool
 	disableCaller     bool
 	disableStacktrace bool
+	aggregation       bool
+	skipCaller        int
 	// 初始logger的名字，一般为根模块的名字
 	Name string
 }
@@ -82,15 +82,21 @@ func createConfigFromOptions(opts *Option) (*Config, error) {
 		development:       opts.Development,
 		disableCaller:     opts.DisableCaller,
 		disableStacktrace: opts.DisableStacktrace,
+		skipCaller:        opts.SkipCaller,
 	}, nil
 }
 
-func (c *Config) build() *zap.Logger {
+func (c *Config) build() *zapLogger {
+	L := &zapLogger{env: newEnvironment(), level: c.level}
+
+	// 添加buf通道
+	c.AddOutput(zapcore.AddSync(&logbuf))
+
 	jsonEncoder := zapcore.NewJSONEncoder(c.encoderConfig)
 	output := zapcore.NewMultiWriteSyncer(c.outputWss...)
 	errput := zapcore.NewMultiWriteSyncer(c.errorWss...)
 	allowPriority := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
-		return level >= c.level && level < zap.ErrorLevel
+		return level >= L.level && level < zap.ErrorLevel
 	})
 	highPriority := zap.LevelEnablerFunc(func(level zapcore.Level) bool {
 		return level >= zap.ErrorLevel
@@ -104,18 +110,26 @@ func (c *Config) build() *zap.Logger {
 	var opts []zap.Option
 	if !c.disableCaller {
 		opts = append(opts, zap.AddCaller())
-		opts = append(opts, zap.AddCallerSkip(1))
+		opts = append(opts, zap.AddCallerSkip(c.skipCaller))
 	}
 	if !c.disableStacktrace {
 		opts = append(opts, zap.AddStacktrace(zapcore.PanicLevel))
 	}
-	l := zap.New(core, opts...)
-	return l.Named(c.Name)
+
+	logger := zap.New(core, opts...).Named(c.Name)
+	L.zlogger = logger
+
+	// 设置启用日志聚合
+	L.SetAggregation(c.aggregation)
+	return L
 }
 
-func (c *Config) SetOutput(w io.Writer) {
-	c.CleanOutputWriters()
+func (c *Config) SetOutput(w io.Writer) error {
+	if err := c.CleanOutputWriters(); err != nil {
+		return err
+	}
 	c.outputWss = append(c.outputWss, zapcore.AddSync(w))
+	return nil
 }
 
 func (c *Config) AddOutput(w io.Writer) {
@@ -123,21 +137,27 @@ func (c *Config) AddOutput(w io.Writer) {
 }
 
 // 全部清除
-func (c *Config) CleanOutputWriters() {
+func (c *Config) CleanOutputWriters() error {
 	for _, ws := range c.outputWss {
 		if closer, ok := ws.(io.Closer); ok {
-			closer.Close()
+			if err := closer.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	c.outputWss = []zapcore.WriteSyncer{}
+	return nil
 }
 
 // 全部清除
-func (c *Config) CleanErrorWriters() {
+func (c *Config) CleanErrorWriters() error {
 	for _, ws := range c.errorWss {
 		if closer, ok := ws.(io.Closer); ok {
-			closer.Close()
+			if err := closer.Close(); err != nil {
+				return err
+			}
 		}
 	}
 	c.errorWss = []zapcore.WriteSyncer{}
+	return nil
 }

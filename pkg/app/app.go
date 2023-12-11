@@ -175,6 +175,10 @@ func (a *App) runCommand() func(*cobra.Command, []string) error {
 			if err := viper.BindPFlags(a.cmd.Flags()); err != nil {
 				return err
 			}
+
+			if err := viper.Unmarshal(a.options); err != nil {
+				return err
+			}
 		}
 
 		if a.verbose {

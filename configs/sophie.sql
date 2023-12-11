@@ -7,7 +7,7 @@ drop table if EXISTS sys_dept;
 
 CREATE table sys_dept (
     id bigint(20) not null auto_increment comment '部门id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text comment '扩展字段',
     status char(1) default '0' comment '部门状态（0正常 1停用）',
     created_by varchar(64) default '' comment '创建者',
     created_at dateTime comment '创建时间',
@@ -32,7 +32,7 @@ drop table if exists sys_user;
 
 create table sys_user (
     id bigint(20) not null auto_increment comment '用户id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '帐号状态（0正常 1停用）',
     created_by varchar(64) default '' comment '创建者',
     created_at dateTime comment '创建时间',
@@ -62,7 +62,7 @@ drop table if exists sys_post;
 
 create table sys_post (
     id bigint(20) not null auto_increment comment '岗位id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '岗位状态（0正常 1停用）',
     created_by varchar(64) default '' comment '创建者',
     created_at dateTime comment '创建时间',
@@ -82,7 +82,7 @@ drop table if exists sys_role;
 
 create table sys_role (
     id bigint(20) not null auto_increment comment '角色id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '角色状态（0正常 1停用）',
     created_by varchar(64) default '' comment '创建者',
     created_at dateTime comment '创建时间',
@@ -106,7 +106,7 @@ drop table if exists sys_menu;
 
 create table sys_menu (
     id bigint(20) not null auto_increment comment '菜单id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '菜单状态（0正常 1停用）',
     created_by varchar(64) default '' comment '创建者',
     created_at dateTime comment '创建时间',
@@ -180,7 +180,7 @@ drop table if exists sys_oper_log;
 
 create table sys_oper_log (
     id bigint(20) not null auto_increment comment '日志主键',
-    title varchar(50) default '' comment '模块标题',
+    title varchar(50)  comment '模块标题',
     business_type int(2) default 0 comment '业务类型（0其它 1新增 2修改 3删除）',
     method varchar(100) default '' comment '方法名称',
     request_method varchar(10) default '' comment '请求方式',
@@ -206,7 +206,7 @@ drop table if exists sys_dict_type;
 
 create table sys_dict_type (
     id bigint(20) not null auto_increment comment '字典主键',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
@@ -226,13 +226,13 @@ drop table if exists sys_dict_data;
 
 create table sys_dict_data (
     id bigint(20) not null auto_increment comment '字典主键',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
     update_by varchar(64) default '' comment '更新者',
     update_time datetime comment '更新时间',
-    dict_code bigint(20) not null unique auto_increment comment '字典编码',
+    dict_code bigint(20) not null unique comment '字典编码',
     dict_sort int(4) default 0 comment '字典排序',
     dict_label varchar(100) default '' comment '字典标签',
     dict_value varchar(100) default '' comment '字典键值',
@@ -251,7 +251,7 @@ drop table if exists sys_config;
 
 create table sys_config (
     id bigint(20) not null auto_increment comment '参数主键',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
@@ -287,7 +287,7 @@ drop table if exists sys_job;
 
 create table sys_job (
     id bigint(20) not null auto_increment comment '定时任务主键',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
@@ -327,7 +327,7 @@ drop table if exists sys_notice;
 
 create table sys_notice (
     id bigint(20) not null auto_increment comment '公告id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
@@ -347,7 +347,7 @@ drop table if exists gen_table;
 
 create table gen_table (
     id bigint(20) not null auto_increment comment '业务id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',
@@ -378,7 +378,7 @@ drop table if exists gen_table_column;
 
 create table gen_table_column (
     id bigint(20) not null auto_increment comment '代码生成业务id',
-    extend_shadow longtext default '' comment '扩展字段',
+    extend_shadow text  comment '扩展字段',
     status char(1) default '0' comment '状态（0正常 1停用）',
     create_by varchar(64) default '' comment '创建者',
     create_time datetime comment '创建时间',

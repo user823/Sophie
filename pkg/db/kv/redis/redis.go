@@ -1,4 +1,4 @@
-package kv
+package redis
 
 import (
 	"context"
@@ -48,6 +48,7 @@ var (
 
 // true 表示禁用redis
 var disableRedis atomic.Value
+var ErrKeyNotFound = errors.New("key not found")
 
 func DisableRedis(disable bool) {
 	if disable {
@@ -204,7 +205,7 @@ func Disconnect() error {
 	return nil
 }
 
-func NewRedisClient() KeyValueStore {
+func NewRedisClient() *RedisClient {
 	return &RedisClient{}
 }
 
@@ -731,7 +732,7 @@ func (r *RedisClient) GetAndDeleteSet(ctx context.Context, key string) []interfa
 
 	log.Debugf("Unpacked vals: %d", len(vals))
 	result := make([]interface{}, len(vals))
-	for i, v := range result {
+	for i, v := range vals {
 		result[i] = v
 	}
 	return result

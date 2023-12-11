@@ -1,31 +1,27 @@
-package db
+package kv
 
 import (
 	"context"
-	"errors"
-	"github.com/user823/Sophie/pkg/db/redis"
-	"github.com/user823/Sophie/pkg/log"
+	"github.com/user823/Sophie/pkg/db/kv/redis"
 )
-
-var ErrKeyNotFound = errors.New("key not found")
 
 // KeyValueStore 是所有k/v数据库存储后端的标准接口
 type KeyValueStore interface {
 	Connect(ctx context.Context, config any)
 	Connected() bool
 	Disconnect() error
-	GetKey(context.Context, string) (string, error)
-	GetMultiKey(context.Context, []string) ([]string, error)
-	SetKey(context.Context, string, string, int64) error
+	GetKey(context.Context, string) (string, error)          // 获取key 对应的值。如果不存在返回ErrkeyNotFound
+	GetMultiKey(context.Context, []string) ([]string, error) // 如果所有键都没有值，则返回ErrkeyNotFound
+	SetKey(context.Context, string, string, int64) error     // 设置键值，过期时间单位是纳秒
 	SetExp(context.Context, string, int64) error
 	GetExp(context.Context, string) (int64, error)
-	GetKeys(context.Context, string) []string
+	GetKeys(context.Context, string) []string // 不要对匹配模式filter进行hash
 	DeleteKey(context.Context, string) bool
 	DeleteAllKeys(context.Context) bool
 	GetKeysAndValues(context.Context) map[string]string
 	GetKeysAndValuesWithFilter(context.Context, string) map[string]string
 	DeleteKeys(context.Context, []string) bool
-	Decrement(context.Context, string)
+	Decrement(context.Context, string) int64
 	IncrememntWithExpire(context.Context, string, int64) int64
 	SetRollingWindow(ctx context.Context, key string, per int64, val string, pipeline bool) (int, []interface{})
 	GetRollingWindow(ctx context.Context, key string, per int64, pipeline bool) (int, []interface{})
@@ -43,6 +39,7 @@ type KeyValueStore interface {
 	Exists(context.Context, string) (bool, error)
 }
 
+// redis 一般要结合keyprefix 和 hash一起使用
 type RedisStore interface {
 	KeyValueStore
 	SetKeyPrefix(string)
@@ -52,6 +49,7 @@ type RedisStore interface {
 	GetRawKey(context.Context, string) (string, error)
 	SetRawKey(context.Context, string, string, int64) error
 	DeleteRawKey(context.Context, string) bool
+	AppendToSetPipelined(context.Context, string, []string)
 }
 
 func NewKVStore(name string) KeyValueStore {
@@ -59,7 +57,6 @@ func NewKVStore(name string) KeyValueStore {
 	case "redis":
 		return redis.NewRedisClient()
 	default:
-		log.Warn("Cannot match any key-value instance. return redisclient")
 		return redis.NewRedisClient()
 	}
 }

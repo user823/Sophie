@@ -1,11 +1,11 @@
-package log
+package aggregation
 
 import (
 	"context"
 	"github.com/user823/Sophie/pkg/db/kv"
+	"github.com/user823/Sophie/pkg/log"
 	"go.uber.org/zap/zapcore"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -33,45 +33,35 @@ var (
 type Analytics struct {
 	store            kv.RedisStore
 	poolSize         int
-	recordsChan      chan string
 	workerBufferSize uint64
+	recordBufferSize uint64
 	// 单位毫秒
 	recordsBufferFlushInterval uint64
-	shouldStop                 uint32
 	poolWg                     sync.WaitGroup
+	rchManager                 *log.RecordChManager
 }
 
-func NewAnalytics(options *AnalyticsOptions, store kv.RedisStore) {
+func NewAnalytics(options *AnalyticsOptions, store kv.RedisStore, rchManager *log.RecordChManager) {
 	once.Do(func() {
 		poolsize := options.PoolSize
 		recordsBufferSize := options.RecordsBufferSize
 		workerBufferSize := recordsBufferSize / uint64(poolsize)
-		Debug("Analytics pool worker buffer size", "workerBufferSize", workerBufferSize)
-		recordsChan := make(chan string, recordsBufferSize)
+		log.Debug("Analytics pool worker buffer size", "workerBufferSize", workerBufferSize)
 		store.SetKeyPrefix(LogKeyPrefix)
 		store.SetHashKey(true)
 		analytics = &Analytics{
 			store:                      store,
 			poolSize:                   poolsize,
-			recordsChan:                recordsChan,
 			workerBufferSize:           workerBufferSize,
 			recordsBufferFlushInterval: options.FlushInterval,
+			rchManager:                 rchManager,
+			recordBufferSize:           recordsBufferSize,
 		}
 	})
 }
 
 func GetAnalytics() *Analytics {
 	return analytics
-}
-
-func Start() {
-	Info("===> starting log aggregation system")
-	analytics.Start()
-}
-
-func Stop() {
-	Info("===> stopping log aggregation system")
-	analytics.Stop()
 }
 
 func (r *Analytics) Start() {
@@ -84,7 +74,7 @@ func (r *Analytics) Start() {
 		}
 	}()
 	wg.Wait()
-	atomic.SwapUint32(&r.shouldStop, 0)
+	r.rchManager.Start(r.recordBufferSize)
 	for i := 0; i < r.poolSize; i++ {
 		r.poolWg.Add(1)
 		go r.recordWorker()
@@ -92,26 +82,26 @@ func (r *Analytics) Start() {
 }
 
 func (r *Analytics) Stop() {
-	atomic.SwapUint32(&r.shouldStop, 1)
-	close(r.recordsChan)
+	r.rchManager.Stop()
 	r.poolWg.Wait()
 }
 
 func (r *Analytics) RecordHit(record string) {
-	if atomic.LoadUint32(&r.shouldStop) > 0 {
+	if r.rchManager.ShouldStop() {
 		return
 	}
-	r.recordsChan <- record
+	r.rchManager.RecordCh <- record
 }
 
 func (r *Analytics) recordWorker() {
 	defer r.poolWg.Done()
 	recordsBuffer := make([]string, 0, r.workerBufferSize)
+	var readyToSend bool
 	lastSent := time.Now()
 	for {
-		var readyToSend bool
+		readyToSend = false
 		select {
-		case record, ok := <-r.recordsChan:
+		case record, ok := <-r.rchManager.RecordCh:
 			// 通道关闭
 			if !ok {
 				r.store.AppendToSetPipelined(context.Background(), RecordkeyName, recordsBuffer)
@@ -124,7 +114,6 @@ func (r *Analytics) recordWorker() {
 			readyToSend = true
 
 		}
-
 		if len(recordsBuffer) > 0 && (readyToSend || time.Since(lastSent) >= recoredsBufferForcedFlushInterval) {
 			r.store.AppendToSetPipelined(context.Background(), RecordkeyName, recordsBuffer)
 			recordsBuffer = recordsBuffer[:0]

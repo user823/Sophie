@@ -10,15 +10,15 @@ import (
 )
 
 const (
-	levelFlag             = "log.level"
-	disableCallerFlag     = "log.disable_caller"
-	disableStacktraceFlag = "log.disable_stacktrace"
-	outputPathsFlag       = "log.output_paths"
-	errPathsFlag          = "log.error_output_paths"
-	developmentFlag       = "log.development"
-	aggregationFlag       = "log.aggregation"
-	nameFlag              = "log.name"
-	disableLoggerFlag     = "log.disableLogger"
+	flagLevel             = "log.level"
+	flagDisableCaller     = "log.disable_caller"
+	flagDisableStacktrace = "log.disable_stacktrace"
+	flagOutputPaths       = "log.output_paths"
+	flagErrPaths          = "log.error_output_paths"
+	flagDevelopment       = "log.development"
+	flagAggregation       = "log.aggregation"
+	flagName              = "log.name"
+	flagDisableLogger     = "log.disableLogger"
 
 	stdout = "stdout"
 	stderr = "stderr"
@@ -35,6 +35,7 @@ type Option struct {
 	Development       bool     `json:"development" mapstructure:"development"`
 	Aggregation       bool     `json:"aggregation" mapstructure:"aggregation"`
 	DisableLogger     bool     `json:"disable_logger" mapstructure:"disable_logger"`
+	SkipCaller        int      `json:"skip_caller" mapstructure:"skip_caller"`
 	Name              string   `json:"name" mapstructure:"name"`
 }
 
@@ -48,6 +49,7 @@ func DefaultOptions() *Option {
 		DisableStacktrace: false,
 		Aggregation:       false,
 		DisableLogger:     false,
+		SkipCaller:        2,
 	}
 }
 
@@ -88,22 +90,22 @@ func isValidPath(path string) bool {
 func (o *Option) Flags() app.FlagGroup {
 	fg := app.NewFlagGroup()
 	fs := fg.FlagSet("logger")
-	fs.StringVar(&o.Level, levelFlag, o.Level, "Mininum log output `LEVEL`.")
-	fs.BoolVar(&o.DisableCaller, disableCallerFlag, o.DisableCaller, "Disable output of caller information in the log.")
-	fs.BoolVar(&o.DisableStacktrace, disableStacktraceFlag,
+	fs.StringVar(&o.Level, flagLevel, o.Level, "Mininum log output `LEVEL`.")
+	fs.BoolVar(&o.DisableCaller, flagDisableCaller, o.DisableCaller, "Disable output of caller information in the log.")
+	fs.BoolVar(&o.DisableStacktrace, flagDisableStacktrace,
 		o.DisableStacktrace, "Disable the log to record a stack trace for all messages at or above panic level.")
-	fs.StringSliceVar(&o.OutputPaths, outputPathsFlag, o.OutputPaths, "Output paths of log.")
-	fs.StringSliceVar(&o.ErrorOutputPaths, errPathsFlag, o.ErrorOutputPaths, "Error output paths of log.")
-	fs.BoolVar(&o.Aggregation, aggregationFlag, o.Aggregation, "Enable log aggregation, and store log records in Sophie-log.")
-	fs.BoolVar(&o.DisableLogger, disableLoggerFlag, o.DisableLogger, "Disable logger in app.")
+	fs.StringSliceVar(&o.OutputPaths, flagOutputPaths, o.OutputPaths, "Output paths of log.")
+	fs.StringSliceVar(&o.ErrorOutputPaths, flagErrPaths, o.ErrorOutputPaths, "Error output paths of log.")
+	fs.BoolVar(&o.Aggregation, flagAggregation, o.Aggregation, "Enable log aggregation, and store log records in Sophie-log.")
+	fs.BoolVar(&o.DisableLogger, flagDisableLogger, o.DisableLogger, "Disable logger in app.")
 	fs.BoolVar(
 		&o.Development,
-		developmentFlag,
+		flagDevelopment,
 		o.Development,
 		"Development puts the logger in development mode, which changes "+
 			"the behavior of DPanicLevel and takes stacktraces more liberally.",
 	)
-	fs.StringVar(&o.Name, nameFlag, o.Name, "The name of the logger.")
+	fs.StringVar(&o.Name, flagName, o.Name, "The name of the logger.")
 	return fg
 }
 

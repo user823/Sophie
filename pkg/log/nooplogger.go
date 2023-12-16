@@ -32,7 +32,7 @@ func (l *noopLogger) Errorln(v ...any)                        {}
 func (l *noopLogger) Errorw(msg string, keysAndValues ...any) {}
 func (l *noopLogger) Write(p []byte) (n int, err error)       { return 0, nil }
 func (l *noopLogger) SetAggregation(bool)                     {}
-func (l *noopLogger) SetLevel(lvl string)                     {}
+func (l *noopLogger) SetLevel(lvl Level)                      {}
 func (l *noopLogger) WithValues(keysAndValues ...string)      {}
 func (l *noopLogger) WithName(name string) Logger             { return nil }
 func (l *noopLogger) Name() string                            { return "" }

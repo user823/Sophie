@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"sync/atomic"
 )
 
@@ -53,12 +52,10 @@ type Logger interface {
 	WithName(name string) Logger
 
 	// SetLevel 设置输出级别
-	SetLevel(lvl string)
+	SetLevel(lvl Level)
 	Name() string
 	Flush()
 }
-
-type Level = zapcore.Level
 
 // 基于zap实现logger
 type zapLogger struct {
@@ -431,12 +428,8 @@ func (l *zapLogger) WithName(name string) Logger {
 	}
 }
 
-func (l *zapLogger) SetLevel(lvl string) {
-	var zapLevel zapcore.Level
-	if err := zapLevel.UnmarshalText([]byte(lvl)); err != nil {
-		l.zlogger.DPanic("Invalid output level be set", zap.String("setting_level", lvl))
-	}
-	l.level = zapLevel
+func (l *zapLogger) SetLevel(lvl Level) {
+	l.level = lvl
 }
 
 func (l *zapLogger) Name() string {

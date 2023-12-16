@@ -1,4 +1,5 @@
 deployments/mysql/data/
 deployments/mysql/log/
+
 deployments/redis/data/
 deployments/redis/log/

@@ -1,0 +1,1 @@
+sudo docker run -d --name sophie-mysql -p 3306:3306 -v ./conf:/etc/mysql/conf.d -v ./data:/var/lib/mysql -v ./log:/var/log/mysql -e MYSQL_ROOT_PASSWORD=agkjrspoldhhhacb mysql:latest --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci

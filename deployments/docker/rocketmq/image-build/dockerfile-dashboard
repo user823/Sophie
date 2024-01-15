@@ -1,0 +1,59 @@
+FROM eclipse-temurin:11
+
+#  update
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y openssl, which gnupg, wget curl; \
+    rm -rf /var/lib/apt/lists/*
+
+ARG user=rocketmq
+ARG group=rocketmq
+ARG uid=3000
+ARG gid=3000
+
+RUN groupadd -g ${gid} ${group} \
+    && useradd -u ${uid} -g ${gid} -m -s /bin/bash ${user}
+
+ARG version
+ARG MAVEN_VERSION=3.9.6
+ARG MAVEN_DOWNLOAD_URL=http://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref && \
+    wget -O /tmp/apache-maven.tar.gz ${MAVEN_DOWNLOAD_URL} --no-check-certificate && \
+    tar -xzf /tmp/apache-maven.tar.gz -C /usr/share/maven --strip-components=1 && \
+    rm -f /tmp/apache-maven.tar.gz && \
+    ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+RUN cat /usr/share/maven/conf/settings.xml
+
+ENV ROCKETMQ_DASHBOARD_VERSION ${version}
+ENV ROCKETMQ_DASHBOARD_HOME  /home/rocketmq/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}
+WORKDIR ${ROCKETMQ_DASHBOARD_HOME}
+
+# download rocketmq-dashboard
+RUN set -eux; \
+    curl -L http://dist.apache.org/repos/dist/release/rocketmq/rocketmq-dashboard/${ROCKETMQ_DASHBOARD_VERSION}/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}-source-release.zip -o rocketmq-dashboard.zip; \
+    unzip rocketmq-dashboard.zip ; \
+    rm rocketmq-dashboard.zip
+
+ARG dashboard_port=8080
+
+RUN cd rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION} ; \
+    sed -i "s/port: 8080/port: ${dashboard_port}/g" src/main/resources/application.properties; \
+    mvn -DskipTests clean install ;\
+    ls -l target ;
+
+RUN mkdir bin; \
+    mv rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}/target/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}.jar bin/ ; \
+    mv bin/rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}.jar bin/rocketmq-dashboard.jar; \
+    ls -l bin; \
+    rm -rf rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}
+
+RUN rm -rf /root/.m2/repository/*
+RUN rm -rf /usr/share/maven
+RUN yum remove wget unzip openssl -y
+
+RUN chown -R ${uid}:${gid} ${ROCKETMQ_DASHBOARD_HOME}
+EXPOSE ${dashboard_port}
+# 可以通过docker run 命令提供额外参数
+ENTRYPOINT ["java", "-jar", "bin/rocketmq-dashboard.jar"]

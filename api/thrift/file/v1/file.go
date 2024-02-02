@@ -11,9 +11,8 @@ import (
 )
 
 type BaseResp struct {
-	Code        int64  `thrift:"code,1" frugal:"1,default,i64" json:"code"`
-	Message     string `thrift:"message,2" frugal:"2,default,string" json:"message"`
-	ServiceTime int64  `thrift:"service_time,3" frugal:"3,default,i64" json:"service_time"`
+	Code int64  `thrift:"code,1" frugal:"1,default,i64" json:"code"`
+	Msg  string `thrift:"msg,2" frugal:"2,default,string" json:"msg"`
 }
 
 func NewBaseResp() *BaseResp {
@@ -28,27 +27,19 @@ func (p *BaseResp) GetCode() (v int64) {
 	return p.Code
 }
 
-func (p *BaseResp) GetMessage() (v string) {
-	return p.Message
-}
-
-func (p *BaseResp) GetServiceTime() (v int64) {
-	return p.ServiceTime
+func (p *BaseResp) GetMsg() (v string) {
+	return p.Msg
 }
 func (p *BaseResp) SetCode(val int64) {
 	p.Code = val
 }
-func (p *BaseResp) SetMessage(val string) {
-	p.Message = val
-}
-func (p *BaseResp) SetServiceTime(val int64) {
-	p.ServiceTime = val
+func (p *BaseResp) SetMsg(val string) {
+	p.Msg = val
 }
 
 var fieldIDToName_BaseResp = map[int16]string{
 	1: "code",
-	2: "message",
-	3: "service_time",
+	2: "msg",
 }
 
 func (p *BaseResp) Read(iprot thrift.TProtocol) (err error) {
@@ -81,14 +72,6 @@ func (p *BaseResp) Read(iprot thrift.TProtocol) (err error) {
 		case 2:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 3:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -137,16 +120,7 @@ func (p *BaseResp) ReadField2(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Message = v
-	}
-	return nil
-}
-func (p *BaseResp) ReadField3(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.ServiceTime = v
+		p.Msg = v
 	}
 	return nil
 }
@@ -163,10 +137,6 @@ func (p *BaseResp) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -205,10 +175,10 @@ WriteFieldEndError:
 }
 
 func (p *BaseResp) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("message", thrift.STRING, 2); err != nil {
+	if err = oprot.WriteFieldBegin("msg", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Message); err != nil {
+	if err := oprot.WriteString(p.Msg); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -219,23 +189,6 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *BaseResp) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("service_time", thrift.I64, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.ServiceTime); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *BaseResp) String() string {
@@ -255,10 +208,7 @@ func (p *BaseResp) DeepEqual(ano *BaseResp) bool {
 	if !p.Field1DeepEqual(ano.Code) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.Message) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.ServiceTime) {
+	if !p.Field2DeepEqual(ano.Msg) {
 		return false
 	}
 	return true
@@ -273,14 +223,7 @@ func (p *BaseResp) Field1DeepEqual(src int64) bool {
 }
 func (p *BaseResp) Field2DeepEqual(src string) bool {
 
-	if strings.Compare(p.Message, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *BaseResp) Field3DeepEqual(src int64) bool {
-
-	if p.ServiceTime != src {
+	if strings.Compare(p.Msg, src) != 0 {
 		return false
 	}
 	return true
@@ -506,7 +449,7 @@ func (p *FileInfo) Field2DeepEqual(src string) bool {
 }
 
 type UploadRequest struct {
-	FileData []byte `thrift:"file_data,1" frugal:"1,default,binary" json:"file_data"`
+	FileData []byte `thrift:"fileData,1" frugal:"1,default,binary" json:"fileData"`
 }
 
 func NewUploadRequest() *UploadRequest {
@@ -525,7 +468,7 @@ func (p *UploadRequest) SetFileData(val []byte) {
 }
 
 var fieldIDToName_UploadRequest = map[int16]string{
-	1: "file_data",
+	1: "fileData",
 }
 
 func (p *UploadRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -623,7 +566,7 @@ WriteStructEndError:
 }
 
 func (p *UploadRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("file_data", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("fileData", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteBinary([]byte(p.FileData)); err != nil {
@@ -667,57 +610,57 @@ func (p *UploadRequest) Field1DeepEqual(src []byte) bool {
 	return true
 }
 
-type FileInfoResponse struct {
-	BaseResp *BaseResp `thrift:"base_resp,1" frugal:"1,default,BaseResp" json:"base_resp"`
-	FileInfo *FileInfo `thrift:"file_info,2" frugal:"2,default,FileInfo" json:"file_info"`
+type UploadResponse struct {
+	BaseResp *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
+	Data     *FileInfo `thrift:"data,2" frugal:"2,default,FileInfo" json:"data"`
 }
 
-func NewFileInfoResponse() *FileInfoResponse {
-	return &FileInfoResponse{}
+func NewUploadResponse() *UploadResponse {
+	return &UploadResponse{}
 }
 
-func (p *FileInfoResponse) InitDefault() {
-	*p = FileInfoResponse{}
+func (p *UploadResponse) InitDefault() {
+	*p = UploadResponse{}
 }
 
-var FileInfoResponse_BaseResp_DEFAULT *BaseResp
+var UploadResponse_BaseResp_DEFAULT *BaseResp
 
-func (p *FileInfoResponse) GetBaseResp() (v *BaseResp) {
+func (p *UploadResponse) GetBaseResp() (v *BaseResp) {
 	if !p.IsSetBaseResp() {
-		return FileInfoResponse_BaseResp_DEFAULT
+		return UploadResponse_BaseResp_DEFAULT
 	}
 	return p.BaseResp
 }
 
-var FileInfoResponse_FileInfo_DEFAULT *FileInfo
+var UploadResponse_Data_DEFAULT *FileInfo
 
-func (p *FileInfoResponse) GetFileInfo() (v *FileInfo) {
-	if !p.IsSetFileInfo() {
-		return FileInfoResponse_FileInfo_DEFAULT
+func (p *UploadResponse) GetData() (v *FileInfo) {
+	if !p.IsSetData() {
+		return UploadResponse_Data_DEFAULT
 	}
-	return p.FileInfo
+	return p.Data
 }
-func (p *FileInfoResponse) SetBaseResp(val *BaseResp) {
+func (p *UploadResponse) SetBaseResp(val *BaseResp) {
 	p.BaseResp = val
 }
-func (p *FileInfoResponse) SetFileInfo(val *FileInfo) {
-	p.FileInfo = val
+func (p *UploadResponse) SetData(val *FileInfo) {
+	p.Data = val
 }
 
-var fieldIDToName_FileInfoResponse = map[int16]string{
-	1: "base_resp",
-	2: "file_info",
+var fieldIDToName_UploadResponse = map[int16]string{
+	1: "baseResp",
+	2: "data",
 }
 
-func (p *FileInfoResponse) IsSetBaseResp() bool {
+func (p *UploadResponse) IsSetBaseResp() bool {
 	return p.BaseResp != nil
 }
 
-func (p *FileInfoResponse) IsSetFileInfo() bool {
-	return p.FileInfo != nil
+func (p *UploadResponse) IsSetData() bool {
+	return p.Data != nil
 }
 
-func (p *FileInfoResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *UploadResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -771,7 +714,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_FileInfoResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UploadResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -781,24 +724,24 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *FileInfoResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *UploadResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.BaseResp = NewBaseResp()
 	if err := p.BaseResp.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *FileInfoResponse) ReadField2(iprot thrift.TProtocol) error {
-	p.FileInfo = NewFileInfo()
-	if err := p.FileInfo.Read(iprot); err != nil {
+func (p *UploadResponse) ReadField2(iprot thrift.TProtocol) error {
+	p.Data = NewFileInfo()
+	if err := p.Data.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *FileInfoResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *UploadResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("FileInfoResponse"); err != nil {
+	if err = oprot.WriteStructBegin("UploadResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -828,8 +771,8 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *FileInfoResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("base_resp", thrift.STRUCT, 1); err != nil {
+func (p *UploadResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := p.BaseResp.Write(oprot); err != nil {
@@ -845,11 +788,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *FileInfoResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("file_info", thrift.STRUCT, 2); err != nil {
+func (p *UploadResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.FileInfo.Write(oprot); err != nil {
+	if err := p.Data.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -862,15 +805,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *FileInfoResponse) String() string {
+func (p *UploadResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("FileInfoResponse(%+v)", *p)
+	return fmt.Sprintf("UploadResponse(%+v)", *p)
 
 }
 
-func (p *FileInfoResponse) DeepEqual(ano *FileInfoResponse) bool {
+func (p *UploadResponse) DeepEqual(ano *UploadResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -879,29 +822,29 @@ func (p *FileInfoResponse) DeepEqual(ano *FileInfoResponse) bool {
 	if !p.Field1DeepEqual(ano.BaseResp) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.FileInfo) {
+	if !p.Field2DeepEqual(ano.Data) {
 		return false
 	}
 	return true
 }
 
-func (p *FileInfoResponse) Field1DeepEqual(src *BaseResp) bool {
+func (p *UploadResponse) Field1DeepEqual(src *BaseResp) bool {
 
 	if !p.BaseResp.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *FileInfoResponse) Field2DeepEqual(src *FileInfo) bool {
+func (p *UploadResponse) Field2DeepEqual(src *FileInfo) bool {
 
-	if !p.FileInfo.DeepEqual(src) {
+	if !p.Data.DeepEqual(src) {
 		return false
 	}
 	return true
 }
 
 type FileService interface {
-	Upload(ctx context.Context, req *UploadRequest) (r *FileInfoResponse, err error)
+	Upload(ctx context.Context, req *UploadRequest) (r *UploadResponse, err error)
 }
 
 type FileServiceClient struct {
@@ -930,7 +873,7 @@ func (p *FileServiceClient) Client_() thrift.TClient {
 	return p.c
 }
 
-func (p *FileServiceClient) Upload(ctx context.Context, req *UploadRequest) (r *FileInfoResponse, err error) {
+func (p *FileServiceClient) Upload(ctx context.Context, req *UploadRequest) (r *UploadResponse, err error) {
 	var _args FileServiceUploadArgs
 	_args.Req = req
 	var _result FileServiceUploadResult
@@ -1000,7 +943,7 @@ func (p *fileServiceProcessorUpload) Process(ctx context.Context, seqId int32, i
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := FileServiceUploadResult{}
-	var retval *FileInfoResponse
+	var retval *UploadResponse
 	if retval, err2 = p.handler.Upload(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing Upload: "+err2.Error())
 		oprot.WriteMessageBegin("Upload", thrift.EXCEPTION, seqId)
@@ -1199,7 +1142,7 @@ func (p *FileServiceUploadArgs) Field1DeepEqual(src *UploadRequest) bool {
 }
 
 type FileServiceUploadResult struct {
-	Success *FileInfoResponse `thrift:"success,0,optional" frugal:"0,optional,FileInfoResponse" json:"success,omitempty"`
+	Success *UploadResponse `thrift:"success,0,optional" frugal:"0,optional,UploadResponse" json:"success,omitempty"`
 }
 
 func NewFileServiceUploadResult() *FileServiceUploadResult {
@@ -1210,16 +1153,16 @@ func (p *FileServiceUploadResult) InitDefault() {
 	*p = FileServiceUploadResult{}
 }
 
-var FileServiceUploadResult_Success_DEFAULT *FileInfoResponse
+var FileServiceUploadResult_Success_DEFAULT *UploadResponse
 
-func (p *FileServiceUploadResult) GetSuccess() (v *FileInfoResponse) {
+func (p *FileServiceUploadResult) GetSuccess() (v *UploadResponse) {
 	if !p.IsSetSuccess() {
 		return FileServiceUploadResult_Success_DEFAULT
 	}
 	return p.Success
 }
 func (p *FileServiceUploadResult) SetSuccess(x interface{}) {
-	p.Success = x.(*FileInfoResponse)
+	p.Success = x.(*UploadResponse)
 }
 
 var fieldIDToName_FileServiceUploadResult = map[int16]string{
@@ -1287,7 +1230,7 @@ ReadStructEndError:
 }
 
 func (p *FileServiceUploadResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewFileInfoResponse()
+	p.Success = NewUploadResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -1361,7 +1304,7 @@ func (p *FileServiceUploadResult) DeepEqual(ano *FileServiceUploadResult) bool {
 	return true
 }
 
-func (p *FileServiceUploadResult) Field0DeepEqual(src *FileInfoResponse) bool {
+func (p *FileServiceUploadResult) Field0DeepEqual(src *UploadResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

@@ -11,7 +11,7 @@ import (
 
 // Client is designed to provide IDL-compatible methods with call-option parameter for kitex framework.
 type Client interface {
-	Upload(ctx context.Context, req *v1.UploadRequest, callOptions ...callopt.Option) (r *v1.FileInfoResponse, err error)
+	Upload(ctx context.Context, req *v1.UploadRequest, callOptions ...callopt.Option) (r *v1.UploadResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -43,7 +43,7 @@ type kFileServiceClient struct {
 	*kClient
 }
 
-func (p *kFileServiceClient) Upload(ctx context.Context, req *v1.UploadRequest, callOptions ...callopt.Option) (r *v1.FileInfoResponse, err error) {
+func (p *kFileServiceClient) Upload(ctx context.Context, req *v1.UploadRequest, callOptions ...callopt.Option) (r *v1.UploadResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.Upload(ctx, req)
 }

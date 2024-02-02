@@ -64,7 +64,7 @@ func newServiceClient(c client.Client) *kClient {
 	}
 }
 
-func (p *kClient) Upload(ctx context.Context, req *v1.UploadRequest) (r *v1.FileInfoResponse, err error) {
+func (p *kClient) Upload(ctx context.Context, req *v1.UploadRequest) (r *v1.UploadResponse, err error) {
 	var _args v1.FileServiceUploadArgs
 	_args.Req = req
 	var _result v1.FileServiceUploadResult

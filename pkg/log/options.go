@@ -3,7 +3,8 @@ package log
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/user823/Sophie/pkg/app"
+	flag "github.com/spf13/pflag"
+	"github.com/user823/Sophie/pkg/ds"
 	"go.uber.org/zap/zapcore"
 	"os"
 	"path/filepath"
@@ -26,7 +27,7 @@ const (
 
 // 用于配置logger
 // 配置可通过命令行参数进行修改
-type Option struct {
+type Options struct {
 	OutputPaths       []string `json:"output_paths" mapstructure:"output_paths" `
 	ErrorOutputPaths  []string `json:"error_output_paths" mapstructure:"error_output_paths"`
 	Level             string   `json:"level" mapstructure:"level"`
@@ -39,8 +40,8 @@ type Option struct {
 	Name              string   `json:"name" mapstructure:"name"`
 }
 
-func DefaultOptions() *Option {
-	return &Option{
+func DefaultOptions() *Options {
+	return &Options{
 		Development:       false,
 		OutputPaths:       []string{stdout},
 		ErrorOutputPaths:  []string{stderr},
@@ -49,11 +50,11 @@ func DefaultOptions() *Option {
 		DisableStacktrace: false,
 		Aggregation:       false,
 		DisableLogger:     false,
-		SkipCaller:        2,
+		SkipCaller:        3,
 	}
 }
 
-func (o *Option) Validate() []error {
+func (o *Options) Validate() []error {
 	var errs []error
 
 	var zapLevel zapcore.Level
@@ -87,8 +88,8 @@ func isValidPath(path string) bool {
 	return true
 }
 
-func (o *Option) Flags() app.FlagGroup {
-	fg := app.NewFlagGroup()
+func (o *Options) Flags() *ds.FlagGroup {
+	fg := ds.NewFlagGroup()
 	fs := fg.FlagSet("logger")
 	fs.StringVar(&o.Level, flagLevel, o.Level, "Mininum log output `LEVEL`.")
 	fs.BoolVar(&o.DisableCaller, flagDisableCaller, o.DisableCaller, "Disable output of caller information in the log.")
@@ -109,7 +110,26 @@ func (o *Option) Flags() app.FlagGroup {
 	return fg
 }
 
-func (o *Option) String() string {
+func (o *Options) AddFlags(fs *flag.FlagSet) {
+	fs.StringVar(&o.Level, flagLevel, o.Level, "Mininum log output `LEVEL`.")
+	fs.BoolVar(&o.DisableCaller, flagDisableCaller, o.DisableCaller, "Disable output of caller information in the log.")
+	fs.BoolVar(&o.DisableStacktrace, flagDisableStacktrace,
+		o.DisableStacktrace, "Disable the log to record a stack trace for all messages at or above panic level.")
+	fs.StringSliceVar(&o.OutputPaths, flagOutputPaths, o.OutputPaths, "Output paths of log.")
+	fs.StringSliceVar(&o.ErrorOutputPaths, flagErrPaths, o.ErrorOutputPaths, "Error output paths of log.")
+	fs.BoolVar(&o.Aggregation, flagAggregation, o.Aggregation, "Enable log aggregation, and store log records in Sophie-log.")
+	fs.BoolVar(&o.DisableLogger, flagDisableLogger, o.DisableLogger, "Disable logger in app.")
+	fs.BoolVar(
+		&o.Development,
+		flagDevelopment,
+		o.Development,
+		"Development puts the logger in development mode, which changes "+
+			"the behavior of DPanicLevel and takes stacktraces more liberally.",
+	)
+	fs.StringVar(&o.Name, flagName, o.Name, "The name of the logger.")
+}
+
+func (o *Options) String() string {
 	data, _ := json.Marshal(o)
 	return string(data)
 }

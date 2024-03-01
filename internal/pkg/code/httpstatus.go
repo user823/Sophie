@@ -29,7 +29,7 @@ func init() {
 	register(NO_CONTENT, NO_CONTENT, "操作已经执行成功，但是没有返回数据")
 	register(MOVED_PERM, MOVED_PERM, "资源已被移除")
 	register(SEE_OTHER, SEE_OTHER, "重定向")
-	register(NOT_FOUND, NOT_FOUND, "资源没有被修改")
+	register(NOT_MODIFIED, NOT_MODIFIED, "资源没有被修改")
 	register(BAD_REQUEST, BAD_REQUEST, "参数列表错误（缺少，格式不匹配）")
 	register(UNAUTHRIZED, UNAUTHRIZED, "未授权")
 	register(FORBIDDEN, FORBIDDEN, "访问受限，授权过期")

@@ -3,6 +3,7 @@ package options
 import (
 	"crypto/tls"
 	"fmt"
+
 	flag "github.com/spf13/pflag"
 	"github.com/user823/Sophie/pkg/utils"
 )
@@ -19,15 +20,15 @@ type SecureServingOptions struct {
 
 type CertKey struct {
 	// 证书文件
-	Cert string `json:"cert" mapstructure:"cert"`
+	Cert string `json:"cert_file" mapstructure:"cert_file"`
 	// 私钥文件
-	Key string `json:"key" mapstructure:"key"`
+	Key string `json:"private_key_file" mapstructure:"private_key_file"`
 }
 
 func NewSecureServingOptions() *SecureServingOptions {
 	return &SecureServingOptions{
 		BindAddress: "0.0.0.0",
-		BindPort:    8443,
+		BindPort:    8081,
 		Required:    true,
 		// 证书和私钥默认存放位置：
 		ServerCert: CertKey{
@@ -49,11 +50,11 @@ func (o *SecureServingOptions) Validate() error {
 		return nil
 	}
 	if !utils.IsValidIP(o.BindAddress) {
-		return fmt.Errorf("Error insecure bind address %s, please use ipv4 or ipv6 ", o.BindAddress)
+		return fmt.Errorf("Error secure bind address %s, please use ipv4 or ipv6 ", o.BindAddress)
 	}
 	if o.Required {
 		if o.BindPort < 1 || o.BindPort > 65535 {
-			return fmt.Errorf("--secure.bind_point %v must be between 1 and 65535", o.BindAddress)
+			return fmt.Errorf("Error secure bind port %v must be between 1 and 65535", o.BindPort)
 		}
 
 		if !utils.FileExists(o.ServerCert.Cert) || !utils.FileExists(o.ServerCert.Key) {
@@ -67,8 +68,8 @@ func (o *SecureServingOptions) AddFlags(fs *flag.FlagSet) {
 	if fs == nil {
 		return
 	}
-	fs.StringVar(&o.BindAddress, "secure.bind-address", o.BindAddress, ""+
-		"The IP address on which to listen for the --secure.bind-port port. The "+
+	fs.StringVar(&o.BindAddress, "secure.bind_address", o.BindAddress, ""+
+		"The IP address on which to listen for the tls port. The "+
 		"associated interface(s) must be reachable by the rest of the engine, and by CLI/web "+
 		"clients. If blank, all interfaces will be used (0.0.0.0 for all IPv4 interfaces and :: for all IPv6 interfaces).")
 	desc := "The port on which to serve HTTPS with authentication and authorization."
@@ -77,12 +78,12 @@ func (o *SecureServingOptions) AddFlags(fs *flag.FlagSet) {
 	} else {
 		desc += " If 0, don't serve HTTPS at all."
 	}
-	fs.IntVar(&o.BindPort, "secure.bind-port", o.BindPort, desc)
-	fs.StringVar(&o.ServerCert.Cert, "secure.tls.cert-key.cert-file", o.ServerCert.Cert, ""+
+	fs.IntVar(&o.BindPort, "secure.bind_port", o.BindPort, desc)
+	fs.StringVar(&o.ServerCert.Cert, "secure.tls.cert_file", o.ServerCert.Cert, ""+
 		"File containing the default x509 Certificate for HTTPS. (CA cert, if any, concatenated "+
 		"after server cert).")
 
-	fs.StringVar(&o.ServerCert.Key, "secure.tls.cert-key.private-key-file",
+	fs.StringVar(&o.ServerCert.Key, "secure.tls.private_key_file",
 		o.ServerCert.Key, ""+
 			"File containing the default x509 private key matching --secure.tls.cert-key.cert-file.")
 }

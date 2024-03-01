@@ -1,7 +1,5 @@
 package hash
 
-import "github.com/user823/Sophie/pkg/log"
-
 const DefaultHashAlgorithm = "fnv"
 
 type Hasher interface {
@@ -19,7 +17,6 @@ func NewHasher(strategy string) Hasher {
 	case "maphash":
 		return newMapHasher()
 	default:
-		log.Debugln("Default choose fnv hash algo.")
 		return newFnvHasher()
 	}
 }

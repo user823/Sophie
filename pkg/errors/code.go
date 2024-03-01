@@ -58,7 +58,7 @@ func MustRegister(coder Coder) {
 	}
 }
 
-func ParseCoder(namespace string, err error) Coder {
+func ParseCoder(err error) Coder {
 	if err == nil {
 		return nil
 	}

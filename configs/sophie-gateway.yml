@@ -1,0 +1,16 @@
+generic:
+  healthz: true
+  middlewares: accesslog
+
+insecure:
+  bind_port: 8080
+
+secure:
+  bind_port: 8081
+  tls:
+    cert_file: /home/amber/.cert/sophie-gateway.pem
+    private_key_file: /home/amber/.cert/sophie-gateway-key.pem
+
+log:
+  aggregation: false
+  name: sophie-gateway-logger

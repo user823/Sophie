@@ -1,0 +1,12 @@
+dataSourceKey: defaultDS
+destination: example
+outerAdapterKey: es
+groupId: g1
+esMapping:
+  _index: sys_oper_log
+  _id: _id
+  sql: "select o.oper_id as _id, o.oper_id as operId, o.title as title, o.business_type as businessType, o.method as method, o.request_method as requestMethod,
+        o.operator_type as operatorType, o.oper_name as operName, o.dept_name as deptName, o.oper_url as operUrl, o.oper_ip as operIp, o.oper_param as operParam,
+        o.json_result as jsonResult, o.status as status, o.error_msg as errorMsg, o.oper_time as operTime, o.cost_time as costTime
+        from sys_oper_log o"
+  commitBatch: 3000

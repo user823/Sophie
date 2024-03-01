@@ -1,4 +1,4 @@
-package core
+package ds
 
 import (
 	"bytes"
@@ -11,23 +11,31 @@ import (
 )
 
 // 将多个FlagSet合并，每个FlagSet 打印一组信息
-type FlagGroup map[string]*flag.FlagSet
+type FlagGroup struct {
+	elems map[string]*flag.FlagSet
+	order []string
+}
 
-func NewFlagGroup() FlagGroup {
-	return map[string]*flag.FlagSet{}
+func NewFlagGroup() *FlagGroup {
+	return &FlagGroup{
+		elems: map[string]*flag.FlagSet{},
+		order: []string{},
+	}
 }
 
 func (f *FlagGroup) FlagSet(name string) *flag.FlagSet {
-	if _, ok := (*f)[name]; !ok {
-		(*f)[name] = flag.NewFlagSet(name, flag.ExitOnError)
+	if _, ok := f.elems[name]; !ok {
+		f.elems[name] = flag.NewFlagSet(name, flag.ExitOnError)
+		f.order = append(f.order, name)
 	}
-	return (*f)[name]
+	return f.elems[name]
 }
 
-func (f *FlagGroup) Merge(fg FlagGroup) {
-	for k, v := range fg {
-		if _, ok := (*f)[k]; !ok {
-			(*f)[k] = v
+func (f *FlagGroup) Merge(fg *FlagGroup) {
+	for _, k := range fg.order {
+		if _, ok := f.elems[k]; !ok {
+			f.elems[k] = fg.elems[k]
+			f.order = append(f.order, k)
 		}
 	}
 }
@@ -39,7 +47,8 @@ func (f *FlagGroup) AddGlobalFlags(flag *flag.Flag) {
 
 // 分组打印flag的帮助信息
 func (f *FlagGroup) PrintFlags(w io.Writer, maxWidth int) {
-	for name, fs := range *f {
+	for _, name := range f.order {
+		fs := f.elems[name]
 		fmt.Fprintf(w, "\n%s flags:\n\n", strings.ToUpper(name[:1])+name[1:])
 		tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 		fs.VisitAll(func(f *flag.Flag) {
@@ -53,6 +62,13 @@ func (f *FlagGroup) PrintFlags(w io.Writer, maxWidth int) {
 			tw.Flush()
 		})
 	}
+}
+
+func (f *FlagGroup) FlagSets() (res []*flag.FlagSet) {
+	for _, name := range f.order {
+		res = append(res, f.elems[name])
+	}
+	return
 }
 
 func LimitWidth(s string, maxWidth int) string {

@@ -1,4 +1,4 @@
-package errors
+package ds
 
 import (
 	"fmt"
@@ -31,11 +31,11 @@ func formatFrame(f *runtime.Frame, s fmt.State, verb rune) {
 	}
 }
 
-type stack struct {
+type Stack struct {
 	fs *runtime.Frames
 }
 
-func (s *stack) Format(st fmt.State, verb rune) {
+func (s *Stack) Format(st fmt.State, verb rune) {
 	switch verb {
 	case 'v':
 		switch {
@@ -52,11 +52,11 @@ func (s *stack) Format(st fmt.State, verb rune) {
 	}
 }
 
-func callers() *stack {
+func Callers() *Stack {
 	const depth = 32
 	var pcs [depth]uintptr
 	n := runtime.Callers(3, pcs[:])
-	return &stack{
+	return &Stack{
 		fs: runtime.CallersFrames(pcs[:n]),
 	}
 }

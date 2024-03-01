@@ -1,0 +1,19 @@
+{
+  "CN": "sophie-ca",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "user823",
+      "OU": "sophie"
+    }
+  ],
+  "ca": {
+    "expiry": "876000h"
+  }
+}

@@ -22,6 +22,7 @@ create table sys_dept
     create_time   datetime comment '创建时间',
     update_by     varchar(64)  default '' comment '更新者',
     update_time   datetime comment '更新时间',
+    remark        varchar(64) default '' comment '评论',
     extend_shadow varchar(255) default null comment '扩展字段',
     primary key (dept_id)
 ) engine = innodb
@@ -204,7 +205,7 @@ create table sys_oper_log
     oper_location  varchar(255)  default '' comment '操作地点',
     oper_param     varchar(2000) default '' comment '请求参数',
     json_result    varchar(2000) default '' comment '返回参数',
-    status         int(1)        default 0 comment '操作状态（0正常 1异常）',
+    status         char(1)        default 0 comment '操作状态（0正常 1异常）',
     error_msg      varchar(2000) default '' comment '错误消息',
     oper_time      datetime comment '操作时间',
     cost_time      bigint(20)    default 0 comment '消耗时间',

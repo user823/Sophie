@@ -35,6 +35,7 @@ type RedisConfig struct {
 type RedisClient struct {
 	KeyPrefix string
 	HashKey   bool
+	RandomExp bool
 }
 
 var ErrRedisIsDown = errors.New("storage: Redis is either down or ws not configured")
@@ -44,6 +45,11 @@ var (
 	singlePool atomic.Value
 	// 关闭redis
 	redisUp atomic.Value
+)
+
+const (
+	// 附加随机有效期占基础有效期的百分比
+	RANDOM_PERCENT = 0.5
 )
 
 // true 表示禁用redis
@@ -211,7 +217,7 @@ func NewRedisClient() *RedisClient {
 
 func (r *RedisClient) Connect(ctx context.Context, config any) {
 	// 如果存在连接则默认使用现有的连接
-	ConnectToRedis(config.(*RedisConfig))
+	connectSingleton(config.(*RedisConfig))
 }
 
 func (r *RedisClient) Connected() bool {
@@ -227,6 +233,10 @@ func (r *RedisClient) SetKeyPrefix(prefix string) {
 
 func (r *RedisClient) SetHashKey(ok bool) {
 	r.HashKey = ok
+}
+
+func (r *RedisClient) SetRandomExp(ok bool) {
+	r.RandomExp = ok
 }
 
 func (r *RedisClient) cacheKey(keyname string) string {
@@ -559,6 +569,9 @@ func (r *RedisClient) IncrememntWithExpire(ctx context.Context, key string, expi
 
 	if val == 1 && expire > 0 {
 		log.Debug("--> Setting Expire")
+		if r.RandomExp {
+			expire += int64(float64(expire) * RANDOM_PERCENT)
+		}
 		singleton().Expire(ctx, cachekey, time.Duration(expire)*time.Second)
 	}
 	return val
@@ -667,10 +680,6 @@ func (r *RedisClient) GetRollingWindow(ctx context.Context, key string, per int6
 	log.Debugf("Returned: %d", intVal)
 
 	return intVal, result
-}
-
-func (r *RedisClient) GetKeyPrefix() string {
-	return r.KeyPrefix
 }
 
 func (r *RedisClient) GetSet(ctx context.Context, key string) (map[string]string, error) {
@@ -894,6 +903,9 @@ func (r *RedisClient) SetExp(ctx context.Context, key string, expire int64) erro
 	}
 
 	log.Debugw("Trying to set expire for key: %s", key)
+	if r.RandomExp {
+		expire += int64(float64(expire) * RANDOM_PERCENT)
+	}
 	if err := singleton().Expire(ctx, r.cacheKey(key), time.Duration(expire)).Err(); err != nil {
 		log.Errorf("Could not EXPIRE key: %s", err.Error())
 		return err
@@ -907,6 +919,9 @@ func (r *RedisClient) SetKey(ctx context.Context, key string, value string, expi
 	}
 
 	log.Debugw("Trying to set key: %s", key)
+	if r.RandomExp {
+		expire += int64(float64(expire) * RANDOM_PERCENT)
+	}
 	if err := singleton().Set(ctx, r.cacheKey(key), value, time.Duration(expire)).Err(); err != nil {
 		log.Errorw("Error to set key", "keyname", key, "error", err.Error())
 		return err
@@ -921,6 +936,9 @@ func (r *RedisClient) SetRawKey(ctx context.Context, key string, value string, e
 
 	cacheKey := r.KeyPrefix + key
 	log.Debugw("Trying to set key: %s", key)
+	if r.RandomExp {
+		expire += int64(float64(expire) * RANDOM_PERCENT)
+	}
 	if err := singleton().Set(ctx, cacheKey, value, time.Duration(expire)).Err(); err != nil {
 		log.Errorw("Error to set key", "keyname", key, "error", err.Error())
 		return err
@@ -946,11 +964,61 @@ func (r *RedisClient) AppendToSetPipelined(ctx context.Context, key string, valu
 		log.Errorf("Error trying to append to set keys: %s", err.Error())
 	}
 
-	if storageExpTime := int64(viper.GetDuration("log-record.storage_expiration_time")); storageExpTime != int64(-1) {
+	if storageExpTime := int64(viper.GetDuration("logRecord.storage_expiration_time")); storageExpTime != int64(-1) {
 		// If there is no expiry on the analytics set, we should set it.
 		exp, _ := r.GetExp(ctx, cacheKey)
 		if exp == -1 {
 			_ = r.SetExp(ctx, cacheKey, utils.SecondToNano(storageExpTime))
 		}
 	}
+}
+
+func (r *RedisClient) Publish(ctx context.Context, channel string, message string) error {
+	if !Connected() {
+		return ErrRedisIsDown
+	}
+
+	if err := singleton().Publish(ctx, channel, message).Err(); err != nil {
+		log.Errorf("Error trying to set value: %s", err.Error())
+		return err
+	}
+	return nil
+}
+
+func (r *RedisClient) StartPubSubHandler(ctx context.Context, channel string, callback func(any)) error {
+	if !Connected() {
+		return ErrRedisIsDown
+	}
+
+	pubsub := singleton().Subscribe(ctx, channel)
+	defer pubsub.Close()
+
+	if _, err := pubsub.Receive(ctx); err != nil {
+		log.Errorf("Error while receiving pubsub message: %s", err.Error())
+
+		return err
+	}
+
+	for msg := range pubsub.Channel() {
+		callback(msg)
+	}
+
+	return nil
+}
+
+func (r *RedisClient) GetAndDelete(ctx context.Context, key string) (string, error) {
+	if !Connected() {
+		return "", ErrRedisIsDown
+	}
+	c := singleton()
+	cacheKey := r.cacheKey(key)
+	var cmd *redis.StringCmd
+
+	_, err := c.TxPipelined(ctx, func(pipe redis.Pipeliner) error {
+		cmd = pipe.Get(ctx, cacheKey)
+		pipe.Del(ctx, cacheKey)
+		return nil
+	})
+
+	return cmd.Val(), err
 }

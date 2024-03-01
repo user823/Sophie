@@ -229,8 +229,10 @@ func (p *BaseResp) Field2DeepEqual(src string) bool {
 }
 
 type PageInfo struct {
-	PageNum  int64 `thrift:"pageNum,1" frugal:"1,default,i64" json:"pageNum"`
-	PageSize int64 `thrift:"pageSize,2" frugal:"2,default,i64" json:"pageSize"`
+	PageNum       int64  `thrift:"pageNum,1" frugal:"1,default,i64" json:"pageNum"`
+	PageSize      int64  `thrift:"pageSize,2" frugal:"2,default,i64" json:"pageSize"`
+	OrderByColumn string `thrift:"orderByColumn,3" frugal:"3,default,string" json:"orderByColumn"`
+	IsAsc         string `thrift:"isAsc,4" frugal:"4,default,string" json:"isAsc"`
 }
 
 func NewPageInfo() *PageInfo {
@@ -248,16 +250,32 @@ func (p *PageInfo) GetPageNum() (v int64) {
 func (p *PageInfo) GetPageSize() (v int64) {
 	return p.PageSize
 }
+
+func (p *PageInfo) GetOrderByColumn() (v string) {
+	return p.OrderByColumn
+}
+
+func (p *PageInfo) GetIsAsc() (v string) {
+	return p.IsAsc
+}
 func (p *PageInfo) SetPageNum(val int64) {
 	p.PageNum = val
 }
 func (p *PageInfo) SetPageSize(val int64) {
 	p.PageSize = val
 }
+func (p *PageInfo) SetOrderByColumn(val string) {
+	p.OrderByColumn = val
+}
+func (p *PageInfo) SetIsAsc(val string) {
+	p.IsAsc = val
+}
 
 var fieldIDToName_PageInfo = map[int16]string{
 	1: "pageNum",
 	2: "pageSize",
+	3: "orderByColumn",
+	4: "isAsc",
 }
 
 func (p *PageInfo) Read(iprot thrift.TProtocol) (err error) {
@@ -290,6 +308,22 @@ func (p *PageInfo) Read(iprot thrift.TProtocol) (err error) {
 		case 2:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -342,6 +376,24 @@ func (p *PageInfo) ReadField2(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
+func (p *PageInfo) ReadField3(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.OrderByColumn = v
+	}
+	return nil
+}
+func (p *PageInfo) ReadField4(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.IsAsc = v
+	}
+	return nil
+}
 
 func (p *PageInfo) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -355,6 +407,14 @@ func (p *PageInfo) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
 			goto WriteFieldError
 		}
 	}
@@ -409,6 +469,40 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
+func (p *PageInfo) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("orderByColumn", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.OrderByColumn); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *PageInfo) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("isAsc", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsAsc); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
 func (p *PageInfo) String() string {
 	if p == nil {
 		return "<nil>"
@@ -429,6 +523,12 @@ func (p *PageInfo) DeepEqual(ano *PageInfo) bool {
 	if !p.Field2DeepEqual(ano.PageSize) {
 		return false
 	}
+	if !p.Field3DeepEqual(ano.OrderByColumn) {
+		return false
+	}
+	if !p.Field4DeepEqual(ano.IsAsc) {
+		return false
+	}
 	return true
 }
 
@@ -446,76 +546,381 @@ func (p *PageInfo) Field2DeepEqual(src int64) bool {
 	}
 	return true
 }
+func (p *PageInfo) Field3DeepEqual(src string) bool {
 
-type BaseInfo struct {
-	CreateBy   string            `thrift:"createBy,1" frugal:"1,default,string" json:"createBy"`
-	CreateTime int64             `thrift:"createTime,2" frugal:"2,default,i64" json:"createTime"`
-	UpdateBy   string            `thrift:"updateBy,3" frugal:"3,default,string" json:"updateBy"`
-	UpdateTime int64             `thrift:"updateTime,4" frugal:"4,default,i64" json:"updateTime"`
-	Remark     string            `thrift:"remark,5" frugal:"5,default,string" json:"remark"`
-	Params     map[string]string `thrift:"params,6" frugal:"6,default,map<string:string>" json:"params"`
+	if strings.Compare(p.OrderByColumn, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *PageInfo) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.IsAsc, src) != 0 {
+		return false
+	}
+	return true
 }
 
-func NewBaseInfo() *BaseInfo {
-	return &BaseInfo{}
+type DateRange struct {
+	BeginTime int64 `thrift:"beginTime,1" frugal:"1,default,i64" json:"beginTime"`
+	EndTime   int64 `thrift:"endTime,2" frugal:"2,default,i64" json:"endTime"`
 }
 
-func (p *BaseInfo) InitDefault() {
-	*p = BaseInfo{}
+func NewDateRange() *DateRange {
+	return &DateRange{}
 }
 
-func (p *BaseInfo) GetCreateBy() (v string) {
+func (p *DateRange) InitDefault() {
+	*p = DateRange{}
+}
+
+func (p *DateRange) GetBeginTime() (v int64) {
+	return p.BeginTime
+}
+
+func (p *DateRange) GetEndTime() (v int64) {
+	return p.EndTime
+}
+func (p *DateRange) SetBeginTime(val int64) {
+	p.BeginTime = val
+}
+func (p *DateRange) SetEndTime(val int64) {
+	p.EndTime = val
+}
+
+var fieldIDToName_DateRange = map[int16]string{
+	1: "beginTime",
+	2: "endTime",
+}
+
+func (p *DateRange) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DateRange[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *DateRange) ReadField1(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.BeginTime = v
+	}
+	return nil
+}
+func (p *DateRange) ReadField2(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.EndTime = v
+	}
+	return nil
+}
+
+func (p *DateRange) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("DateRange"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *DateRange) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("beginTime", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.BeginTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *DateRange) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("endTime", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.EndTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *DateRange) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("DateRange(%+v)", *p)
+
+}
+
+func (p *DateRange) DeepEqual(ano *DateRange) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.BeginTime) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.EndTime) {
+		return false
+	}
+	return true
+}
+
+func (p *DateRange) Field1DeepEqual(src int64) bool {
+
+	if p.BeginTime != src {
+		return false
+	}
+	return true
+}
+func (p *DateRange) Field2DeepEqual(src int64) bool {
+
+	if p.EndTime != src {
+		return false
+	}
+	return true
+}
+
+type JobInfo struct {
+	CreateBy       string            `thrift:"createBy,1" frugal:"1,default,string" json:"createBy"`
+	CreateTime     int64             `thrift:"createTime,2" frugal:"2,default,i64" json:"createTime"`
+	UpdateBy       string            `thrift:"updateBy,3" frugal:"3,default,string" json:"updateBy"`
+	UpdateTime     int64             `thrift:"updateTime,4" frugal:"4,default,i64" json:"updateTime"`
+	Remark         string            `thrift:"remark,5" frugal:"5,default,string" json:"remark"`
+	Params         map[string]string `thrift:"params,6" frugal:"6,default,map<string:string>" json:"params"`
+	JobId          int64             `thrift:"jobId,7" frugal:"7,default,i64" json:"jobId"`
+	JobName        string            `thrift:"jobName,8" frugal:"8,default,string" json:"jobName"`
+	JobGroup       string            `thrift:"jobGroup,9" frugal:"9,default,string" json:"jobGroup"`
+	InvokeTarget   string            `thrift:"invokeTarget,10" frugal:"10,default,string" json:"invokeTarget"`
+	CronExpression string            `thrift:"cronExpression,11" frugal:"11,default,string" json:"cronExpression"`
+	MisfirePolicy  string            `thrift:"misfirePolicy,12" frugal:"12,default,string" json:"misfirePolicy"`
+	Concurrent     string            `thrift:"concurrent,13" frugal:"13,default,string" json:"concurrent"`
+	Status         string            `thrift:"status,14" frugal:"14,default,string" json:"status"`
+}
+
+func NewJobInfo() *JobInfo {
+	return &JobInfo{}
+}
+
+func (p *JobInfo) InitDefault() {
+	*p = JobInfo{}
+}
+
+func (p *JobInfo) GetCreateBy() (v string) {
 	return p.CreateBy
 }
 
-func (p *BaseInfo) GetCreateTime() (v int64) {
+func (p *JobInfo) GetCreateTime() (v int64) {
 	return p.CreateTime
 }
 
-func (p *BaseInfo) GetUpdateBy() (v string) {
+func (p *JobInfo) GetUpdateBy() (v string) {
 	return p.UpdateBy
 }
 
-func (p *BaseInfo) GetUpdateTime() (v int64) {
+func (p *JobInfo) GetUpdateTime() (v int64) {
 	return p.UpdateTime
 }
 
-func (p *BaseInfo) GetRemark() (v string) {
+func (p *JobInfo) GetRemark() (v string) {
 	return p.Remark
 }
 
-func (p *BaseInfo) GetParams() (v map[string]string) {
+func (p *JobInfo) GetParams() (v map[string]string) {
 	return p.Params
 }
-func (p *BaseInfo) SetCreateBy(val string) {
+
+func (p *JobInfo) GetJobId() (v int64) {
+	return p.JobId
+}
+
+func (p *JobInfo) GetJobName() (v string) {
+	return p.JobName
+}
+
+func (p *JobInfo) GetJobGroup() (v string) {
+	return p.JobGroup
+}
+
+func (p *JobInfo) GetInvokeTarget() (v string) {
+	return p.InvokeTarget
+}
+
+func (p *JobInfo) GetCronExpression() (v string) {
+	return p.CronExpression
+}
+
+func (p *JobInfo) GetMisfirePolicy() (v string) {
+	return p.MisfirePolicy
+}
+
+func (p *JobInfo) GetConcurrent() (v string) {
+	return p.Concurrent
+}
+
+func (p *JobInfo) GetStatus() (v string) {
+	return p.Status
+}
+func (p *JobInfo) SetCreateBy(val string) {
 	p.CreateBy = val
 }
-func (p *BaseInfo) SetCreateTime(val int64) {
+func (p *JobInfo) SetCreateTime(val int64) {
 	p.CreateTime = val
 }
-func (p *BaseInfo) SetUpdateBy(val string) {
+func (p *JobInfo) SetUpdateBy(val string) {
 	p.UpdateBy = val
 }
-func (p *BaseInfo) SetUpdateTime(val int64) {
+func (p *JobInfo) SetUpdateTime(val int64) {
 	p.UpdateTime = val
 }
-func (p *BaseInfo) SetRemark(val string) {
+func (p *JobInfo) SetRemark(val string) {
 	p.Remark = val
 }
-func (p *BaseInfo) SetParams(val map[string]string) {
+func (p *JobInfo) SetParams(val map[string]string) {
 	p.Params = val
 }
-
-var fieldIDToName_BaseInfo = map[int16]string{
-	1: "createBy",
-	2: "createTime",
-	3: "updateBy",
-	4: "updateTime",
-	5: "remark",
-	6: "params",
+func (p *JobInfo) SetJobId(val int64) {
+	p.JobId = val
+}
+func (p *JobInfo) SetJobName(val string) {
+	p.JobName = val
+}
+func (p *JobInfo) SetJobGroup(val string) {
+	p.JobGroup = val
+}
+func (p *JobInfo) SetInvokeTarget(val string) {
+	p.InvokeTarget = val
+}
+func (p *JobInfo) SetCronExpression(val string) {
+	p.CronExpression = val
+}
+func (p *JobInfo) SetMisfirePolicy(val string) {
+	p.MisfirePolicy = val
+}
+func (p *JobInfo) SetConcurrent(val string) {
+	p.Concurrent = val
+}
+func (p *JobInfo) SetStatus(val string) {
+	p.Status = val
 }
 
-func (p *BaseInfo) Read(iprot thrift.TProtocol) (err error) {
+var fieldIDToName_JobInfo = map[int16]string{
+	1:  "createBy",
+	2:  "createTime",
+	3:  "updateBy",
+	4:  "updateTime",
+	5:  "remark",
+	6:  "params",
+	7:  "jobId",
+	8:  "jobName",
+	9:  "jobGroup",
+	10: "invokeTarget",
+	11: "cronExpression",
+	12: "misfirePolicy",
+	13: "concurrent",
+	14: "status",
+}
+
+func (p *JobInfo) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -582,6 +987,70 @@ func (p *BaseInfo) Read(iprot thrift.TProtocol) (err error) {
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
 			}
+		case 7:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField7(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 8:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 9:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField9(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 10:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField10(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 11:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField11(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 12:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField12(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 13:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField13(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 14:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField14(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
 		default:
 			if err = iprot.Skip(fieldTypeId); err != nil {
 				goto SkipFieldError
@@ -601,7 +1070,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_BaseInfo[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobInfo[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -611,7 +1080,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *BaseInfo) ReadField1(iprot thrift.TProtocol) error {
+func (p *JobInfo) ReadField1(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -620,7 +1089,7 @@ func (p *BaseInfo) ReadField1(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *BaseInfo) ReadField2(iprot thrift.TProtocol) error {
+func (p *JobInfo) ReadField2(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
@@ -629,7 +1098,7 @@ func (p *BaseInfo) ReadField2(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *BaseInfo) ReadField3(iprot thrift.TProtocol) error {
+func (p *JobInfo) ReadField3(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -638,7 +1107,7 @@ func (p *BaseInfo) ReadField3(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *BaseInfo) ReadField4(iprot thrift.TProtocol) error {
+func (p *JobInfo) ReadField4(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
@@ -647,7 +1116,7 @@ func (p *BaseInfo) ReadField4(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *BaseInfo) ReadField5(iprot thrift.TProtocol) error {
+func (p *JobInfo) ReadField5(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -656,7 +1125,7 @@ func (p *BaseInfo) ReadField5(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *BaseInfo) ReadField6(iprot thrift.TProtocol) error {
+func (p *JobInfo) ReadField6(iprot thrift.TProtocol) error {
 	_, _, size, err := iprot.ReadMapBegin()
 	if err != nil {
 		return err
@@ -684,10 +1153,82 @@ func (p *BaseInfo) ReadField6(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
+func (p *JobInfo) ReadField7(iprot thrift.TProtocol) error {
 
-func (p *BaseInfo) Write(oprot thrift.TProtocol) (err error) {
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.JobId = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField8(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.JobName = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField9(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.JobGroup = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField10(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.InvokeTarget = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField11(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.CronExpression = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField12(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.MisfirePolicy = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField13(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Concurrent = v
+	}
+	return nil
+}
+func (p *JobInfo) ReadField14(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Status = v
+	}
+	return nil
+}
+
+func (p *JobInfo) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("BaseInfo"); err != nil {
+	if err = oprot.WriteStructBegin("JobInfo"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -715,6 +1256,38 @@ func (p *BaseInfo) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 6
 			goto WriteFieldError
 		}
+		if err = p.writeField7(oprot); err != nil {
+			fieldId = 7
+			goto WriteFieldError
+		}
+		if err = p.writeField8(oprot); err != nil {
+			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
+			goto WriteFieldError
+		}
+		if err = p.writeField10(oprot); err != nil {
+			fieldId = 10
+			goto WriteFieldError
+		}
+		if err = p.writeField11(oprot); err != nil {
+			fieldId = 11
+			goto WriteFieldError
+		}
+		if err = p.writeField12(oprot); err != nil {
+			fieldId = 12
+			goto WriteFieldError
+		}
+		if err = p.writeField13(oprot); err != nil {
+			fieldId = 13
+			goto WriteFieldError
+		}
+		if err = p.writeField14(oprot); err != nil {
+			fieldId = 14
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -733,7 +1306,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *BaseInfo) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *JobInfo) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("createBy", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -750,7 +1323,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *BaseInfo) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *JobInfo) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("createTime", thrift.I64, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -767,7 +1340,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *BaseInfo) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *JobInfo) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("updateBy", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -784,7 +1357,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *BaseInfo) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *JobInfo) writeField4(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("updateTime", thrift.I64, 4); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -801,7 +1374,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *BaseInfo) writeField5(oprot thrift.TProtocol) (err error) {
+func (p *JobInfo) writeField5(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("remark", thrift.STRING, 5); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -818,7 +1391,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *BaseInfo) writeField6(oprot thrift.TProtocol) (err error) {
+func (p *JobInfo) writeField6(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("params", thrift.MAP, 6); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -846,15 +1419,151 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *BaseInfo) String() string {
+func (p *JobInfo) writeField7(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobId", thrift.I64, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.JobId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField8(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobName", thrift.STRING, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.JobName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobGroup", thrift.STRING, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.JobGroup); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField10(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("invokeTarget", thrift.STRING, 10); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.InvokeTarget); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField11(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("cronExpression", thrift.STRING, 11); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.CronExpression); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 11 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField12(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("misfirePolicy", thrift.STRING, 12); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.MisfirePolicy); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 12 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 12 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField13(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("concurrent", thrift.STRING, 13); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Concurrent); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 13 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 13 end error: ", p), err)
+}
+
+func (p *JobInfo) writeField14(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("status", thrift.STRING, 14); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Status); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
+}
+
+func (p *JobInfo) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("BaseInfo(%+v)", *p)
+	return fmt.Sprintf("JobInfo(%+v)", *p)
 
 }
 
-func (p *BaseInfo) DeepEqual(ano *BaseInfo) bool {
+func (p *JobInfo) DeepEqual(ano *JobInfo) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -878,45 +1587,69 @@ func (p *BaseInfo) DeepEqual(ano *BaseInfo) bool {
 	if !p.Field6DeepEqual(ano.Params) {
 		return false
 	}
+	if !p.Field7DeepEqual(ano.JobId) {
+		return false
+	}
+	if !p.Field8DeepEqual(ano.JobName) {
+		return false
+	}
+	if !p.Field9DeepEqual(ano.JobGroup) {
+		return false
+	}
+	if !p.Field10DeepEqual(ano.InvokeTarget) {
+		return false
+	}
+	if !p.Field11DeepEqual(ano.CronExpression) {
+		return false
+	}
+	if !p.Field12DeepEqual(ano.MisfirePolicy) {
+		return false
+	}
+	if !p.Field13DeepEqual(ano.Concurrent) {
+		return false
+	}
+	if !p.Field14DeepEqual(ano.Status) {
+		return false
+	}
 	return true
 }
 
-func (p *BaseInfo) Field1DeepEqual(src string) bool {
+func (p *JobInfo) Field1DeepEqual(src string) bool {
 
 	if strings.Compare(p.CreateBy, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *BaseInfo) Field2DeepEqual(src int64) bool {
+func (p *JobInfo) Field2DeepEqual(src int64) bool {
 
 	if p.CreateTime != src {
 		return false
 	}
 	return true
 }
-func (p *BaseInfo) Field3DeepEqual(src string) bool {
+func (p *JobInfo) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.UpdateBy, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *BaseInfo) Field4DeepEqual(src int64) bool {
+func (p *JobInfo) Field4DeepEqual(src int64) bool {
 
 	if p.UpdateTime != src {
 		return false
 	}
 	return true
 }
-func (p *BaseInfo) Field5DeepEqual(src string) bool {
+func (p *JobInfo) Field5DeepEqual(src string) bool {
 
 	if strings.Compare(p.Remark, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *BaseInfo) Field6DeepEqual(src map[string]string) bool {
+func (p *JobInfo) Field6DeepEqual(src map[string]string) bool {
 
 	if len(p.Params) != len(src) {
 		return false
@@ -929,175 +1662,159 @@ func (p *BaseInfo) Field6DeepEqual(src map[string]string) bool {
 	}
 	return true
 }
+func (p *JobInfo) Field7DeepEqual(src int64) bool {
 
-type JobInfo struct {
-	BaseInfo       *BaseInfo `thrift:"baseInfo,1" frugal:"1,default,BaseInfo" json:"baseInfo"`
-	JobId          int64     `thrift:"jobId,2" frugal:"2,default,i64" json:"jobId"`
-	JobName        *string   `thrift:"jobName,3,optional" frugal:"3,optional,string" json:"jobName,omitempty"`
-	JobGroup       *string   `thrift:"jobGroup,4,optional" frugal:"4,optional,string" json:"jobGroup,omitempty"`
-	InvokeTarget   *string   `thrift:"invokeTarget,5,optional" frugal:"5,optional,string" json:"invokeTarget,omitempty"`
-	CronExpression *string   `thrift:"cronExpression,6,optional" frugal:"6,optional,string" json:"cronExpression,omitempty"`
-	MisfirePolicy  *string   `thrift:"misfirePolicy,7,optional" frugal:"7,optional,string" json:"misfirePolicy,omitempty"`
-	Concurrent     *string   `thrift:"concurrent,8,optional" frugal:"8,optional,string" json:"concurrent,omitempty"`
-	Status         *string   `thrift:"status,9,optional" frugal:"9,optional,string" json:"status,omitempty"`
-}
-
-func NewJobInfo() *JobInfo {
-	return &JobInfo{}
-}
-
-func (p *JobInfo) InitDefault() {
-	*p = JobInfo{}
-}
-
-var JobInfo_BaseInfo_DEFAULT *BaseInfo
-
-func (p *JobInfo) GetBaseInfo() (v *BaseInfo) {
-	if !p.IsSetBaseInfo() {
-		return JobInfo_BaseInfo_DEFAULT
+	if p.JobId != src {
+		return false
 	}
-	return p.BaseInfo
+	return true
 }
+func (p *JobInfo) Field8DeepEqual(src string) bool {
 
-func (p *JobInfo) GetJobId() (v int64) {
-	return p.JobId
-}
-
-var JobInfo_JobName_DEFAULT string
-
-func (p *JobInfo) GetJobName() (v string) {
-	if !p.IsSetJobName() {
-		return JobInfo_JobName_DEFAULT
+	if strings.Compare(p.JobName, src) != 0 {
+		return false
 	}
-	return *p.JobName
+	return true
 }
+func (p *JobInfo) Field9DeepEqual(src string) bool {
 
-var JobInfo_JobGroup_DEFAULT string
-
-func (p *JobInfo) GetJobGroup() (v string) {
-	if !p.IsSetJobGroup() {
-		return JobInfo_JobGroup_DEFAULT
+	if strings.Compare(p.JobGroup, src) != 0 {
+		return false
 	}
-	return *p.JobGroup
+	return true
 }
+func (p *JobInfo) Field10DeepEqual(src string) bool {
 
-var JobInfo_InvokeTarget_DEFAULT string
-
-func (p *JobInfo) GetInvokeTarget() (v string) {
-	if !p.IsSetInvokeTarget() {
-		return JobInfo_InvokeTarget_DEFAULT
+	if strings.Compare(p.InvokeTarget, src) != 0 {
+		return false
 	}
-	return *p.InvokeTarget
+	return true
 }
+func (p *JobInfo) Field11DeepEqual(src string) bool {
 
-var JobInfo_CronExpression_DEFAULT string
-
-func (p *JobInfo) GetCronExpression() (v string) {
-	if !p.IsSetCronExpression() {
-		return JobInfo_CronExpression_DEFAULT
+	if strings.Compare(p.CronExpression, src) != 0 {
+		return false
 	}
-	return *p.CronExpression
+	return true
 }
+func (p *JobInfo) Field12DeepEqual(src string) bool {
 
-var JobInfo_MisfirePolicy_DEFAULT string
-
-func (p *JobInfo) GetMisfirePolicy() (v string) {
-	if !p.IsSetMisfirePolicy() {
-		return JobInfo_MisfirePolicy_DEFAULT
+	if strings.Compare(p.MisfirePolicy, src) != 0 {
+		return false
 	}
-	return *p.MisfirePolicy
+	return true
 }
+func (p *JobInfo) Field13DeepEqual(src string) bool {
 
-var JobInfo_Concurrent_DEFAULT string
-
-func (p *JobInfo) GetConcurrent() (v string) {
-	if !p.IsSetConcurrent() {
-		return JobInfo_Concurrent_DEFAULT
+	if strings.Compare(p.Concurrent, src) != 0 {
+		return false
 	}
-	return *p.Concurrent
+	return true
 }
+func (p *JobInfo) Field14DeepEqual(src string) bool {
 
-var JobInfo_Status_DEFAULT string
-
-func (p *JobInfo) GetStatus() (v string) {
-	if !p.IsSetStatus() {
-		return JobInfo_Status_DEFAULT
+	if strings.Compare(p.Status, src) != 0 {
+		return false
 	}
-	return *p.Status
+	return true
 }
-func (p *JobInfo) SetBaseInfo(val *BaseInfo) {
-	p.BaseInfo = val
+
+type JobLog struct {
+	JobLogId      int64  `thrift:"jobLogId,1" frugal:"1,default,i64" json:"jobLogId"`
+	JobName       string `thrift:"jobName,2" frugal:"2,default,string" json:"jobName"`
+	JobGroup      string `thrift:"jobGroup,3" frugal:"3,default,string" json:"jobGroup"`
+	InvokeTarget  string `thrift:"invokeTarget,4" frugal:"4,default,string" json:"invokeTarget"`
+	JobMessage    string `thrift:"jobMessage,5" frugal:"5,default,string" json:"jobMessage"`
+	Status        string `thrift:"status,6" frugal:"6,default,string" json:"status"`
+	ExceptionInfo string `thrift:"exceptionInfo,7" frugal:"7,default,string" json:"exceptionInfo"`
+	StartTime     int64  `thrift:"startTime,8" frugal:"8,default,i64" json:"startTime"`
+	StopTime      int64  `thrift:"stopTime,9" frugal:"9,default,i64" json:"stopTime"`
 }
-func (p *JobInfo) SetJobId(val int64) {
-	p.JobId = val
+
+func NewJobLog() *JobLog {
+	return &JobLog{}
 }
-func (p *JobInfo) SetJobName(val *string) {
+
+func (p *JobLog) InitDefault() {
+	*p = JobLog{}
+}
+
+func (p *JobLog) GetJobLogId() (v int64) {
+	return p.JobLogId
+}
+
+func (p *JobLog) GetJobName() (v string) {
+	return p.JobName
+}
+
+func (p *JobLog) GetJobGroup() (v string) {
+	return p.JobGroup
+}
+
+func (p *JobLog) GetInvokeTarget() (v string) {
+	return p.InvokeTarget
+}
+
+func (p *JobLog) GetJobMessage() (v string) {
+	return p.JobMessage
+}
+
+func (p *JobLog) GetStatus() (v string) {
+	return p.Status
+}
+
+func (p *JobLog) GetExceptionInfo() (v string) {
+	return p.ExceptionInfo
+}
+
+func (p *JobLog) GetStartTime() (v int64) {
+	return p.StartTime
+}
+
+func (p *JobLog) GetStopTime() (v int64) {
+	return p.StopTime
+}
+func (p *JobLog) SetJobLogId(val int64) {
+	p.JobLogId = val
+}
+func (p *JobLog) SetJobName(val string) {
 	p.JobName = val
 }
-func (p *JobInfo) SetJobGroup(val *string) {
+func (p *JobLog) SetJobGroup(val string) {
 	p.JobGroup = val
 }
-func (p *JobInfo) SetInvokeTarget(val *string) {
+func (p *JobLog) SetInvokeTarget(val string) {
 	p.InvokeTarget = val
 }
-func (p *JobInfo) SetCronExpression(val *string) {
-	p.CronExpression = val
+func (p *JobLog) SetJobMessage(val string) {
+	p.JobMessage = val
 }
-func (p *JobInfo) SetMisfirePolicy(val *string) {
-	p.MisfirePolicy = val
-}
-func (p *JobInfo) SetConcurrent(val *string) {
-	p.Concurrent = val
-}
-func (p *JobInfo) SetStatus(val *string) {
+func (p *JobLog) SetStatus(val string) {
 	p.Status = val
 }
-
-var fieldIDToName_JobInfo = map[int16]string{
-	1: "baseInfo",
-	2: "jobId",
-	3: "jobName",
-	4: "jobGroup",
-	5: "invokeTarget",
-	6: "cronExpression",
-	7: "misfirePolicy",
-	8: "concurrent",
-	9: "status",
+func (p *JobLog) SetExceptionInfo(val string) {
+	p.ExceptionInfo = val
+}
+func (p *JobLog) SetStartTime(val int64) {
+	p.StartTime = val
+}
+func (p *JobLog) SetStopTime(val int64) {
+	p.StopTime = val
 }
 
-func (p *JobInfo) IsSetBaseInfo() bool {
-	return p.BaseInfo != nil
+var fieldIDToName_JobLog = map[int16]string{
+	1: "jobLogId",
+	2: "jobName",
+	3: "jobGroup",
+	4: "invokeTarget",
+	5: "jobMessage",
+	6: "status",
+	7: "exceptionInfo",
+	8: "startTime",
+	9: "stopTime",
 }
 
-func (p *JobInfo) IsSetJobName() bool {
-	return p.JobName != nil
-}
-
-func (p *JobInfo) IsSetJobGroup() bool {
-	return p.JobGroup != nil
-}
-
-func (p *JobInfo) IsSetInvokeTarget() bool {
-	return p.InvokeTarget != nil
-}
-
-func (p *JobInfo) IsSetCronExpression() bool {
-	return p.CronExpression != nil
-}
-
-func (p *JobInfo) IsSetMisfirePolicy() bool {
-	return p.MisfirePolicy != nil
-}
-
-func (p *JobInfo) IsSetConcurrent() bool {
-	return p.Concurrent != nil
-}
-
-func (p *JobInfo) IsSetStatus() bool {
-	return p.Status != nil
-}
-
-func (p *JobInfo) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobLog) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -1117,7 +1834,7 @@ func (p *JobInfo) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1125,7 +1842,7 @@ func (p *JobInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1173,7 +1890,7 @@ func (p *JobInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 8:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1181,7 +1898,7 @@ func (p *JobInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 9:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1207,7 +1924,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobInfo[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobLog[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -1217,89 +1934,91 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobInfo) ReadField1(iprot thrift.TProtocol) error {
-	p.BaseInfo = NewBaseInfo()
-	if err := p.BaseInfo.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-func (p *JobInfo) ReadField2(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField1(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.JobId = v
+		p.JobLogId = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField3(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField2(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.JobName = &v
+		p.JobName = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField4(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField3(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.JobGroup = &v
+		p.JobGroup = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField5(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField4(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.InvokeTarget = &v
+		p.InvokeTarget = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField6(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField5(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.CronExpression = &v
+		p.JobMessage = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField7(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField6(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.MisfirePolicy = &v
+		p.Status = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField8(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField7(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.Concurrent = &v
+		p.ExceptionInfo = v
 	}
 	return nil
 }
-func (p *JobInfo) ReadField9(iprot thrift.TProtocol) error {
+func (p *JobLog) ReadField8(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.Status = &v
+		p.StartTime = v
+	}
+	return nil
+}
+func (p *JobLog) ReadField9(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.StopTime = v
 	}
 	return nil
 }
 
-func (p *JobInfo) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobLog) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("JobInfo"); err != nil {
+	if err = oprot.WriteStructBegin("JobLog"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -1357,11 +2076,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobInfo) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("baseInfo", thrift.STRUCT, 1); err != nil {
+func (p *JobLog) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobLogId", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.BaseInfo.Write(oprot); err != nil {
+	if err := oprot.WriteI64(p.JobLogId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1374,11 +2093,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("jobId", thrift.I64, 2); err != nil {
+func (p *JobLog) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobName", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.JobId); err != nil {
+	if err := oprot.WriteString(p.JobName); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -1391,17 +2110,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetJobName() {
-		if err = oprot.WriteFieldBegin("jobName", thrift.STRING, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.JobName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobGroup", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.JobGroup); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1410,17 +2127,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetJobGroup() {
-		if err = oprot.WriteFieldBegin("jobGroup", thrift.STRING, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.JobGroup); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("invokeTarget", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.InvokeTarget); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1429,17 +2144,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetInvokeTarget() {
-		if err = oprot.WriteFieldBegin("invokeTarget", thrift.STRING, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.InvokeTarget); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobMessage", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.JobMessage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1448,17 +2161,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetCronExpression() {
-		if err = oprot.WriteFieldBegin("cronExpression", thrift.STRING, 6); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.CronExpression); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField6(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("status", thrift.STRING, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Status); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1467,17 +2178,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField7(oprot thrift.TProtocol) (err error) {
-	if p.IsSetMisfirePolicy() {
-		if err = oprot.WriteFieldBegin("misfirePolicy", thrift.STRING, 7); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.MisfirePolicy); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField7(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("exceptionInfo", thrift.STRING, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ExceptionInfo); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1486,17 +2195,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField8(oprot thrift.TProtocol) (err error) {
-	if p.IsSetConcurrent() {
-		if err = oprot.WriteFieldBegin("concurrent", thrift.STRING, 8); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Concurrent); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField8(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("startTime", thrift.I64, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.StartTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1505,17 +2212,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
 }
 
-func (p *JobInfo) writeField9(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStatus() {
-		if err = oprot.WriteFieldBegin("status", thrift.STRING, 9); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Status); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+func (p *JobLog) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("stopTime", thrift.I64, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.StopTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -1524,144 +2229,109 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
-func (p *JobInfo) String() string {
+func (p *JobLog) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobInfo(%+v)", *p)
+	return fmt.Sprintf("JobLog(%+v)", *p)
 
 }
 
-func (p *JobInfo) DeepEqual(ano *JobInfo) bool {
+func (p *JobLog) DeepEqual(ano *JobLog) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.BaseInfo) {
+	if !p.Field1DeepEqual(ano.JobLogId) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.JobId) {
+	if !p.Field2DeepEqual(ano.JobName) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.JobName) {
+	if !p.Field3DeepEqual(ano.JobGroup) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.JobGroup) {
+	if !p.Field4DeepEqual(ano.InvokeTarget) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.InvokeTarget) {
+	if !p.Field5DeepEqual(ano.JobMessage) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.CronExpression) {
+	if !p.Field6DeepEqual(ano.Status) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.MisfirePolicy) {
+	if !p.Field7DeepEqual(ano.ExceptionInfo) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.Concurrent) {
+	if !p.Field8DeepEqual(ano.StartTime) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.Status) {
-		return false
-	}
-	return true
-}
-
-func (p *JobInfo) Field1DeepEqual(src *BaseInfo) bool {
-
-	if !p.BaseInfo.DeepEqual(src) {
+	if !p.Field9DeepEqual(ano.StopTime) {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field2DeepEqual(src int64) bool {
 
-	if p.JobId != src {
+func (p *JobLog) Field1DeepEqual(src int64) bool {
+
+	if p.JobLogId != src {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field3DeepEqual(src *string) bool {
+func (p *JobLog) Field2DeepEqual(src string) bool {
 
-	if p.JobName == src {
-		return true
-	} else if p.JobName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.JobName, *src) != 0 {
+	if strings.Compare(p.JobName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field4DeepEqual(src *string) bool {
+func (p *JobLog) Field3DeepEqual(src string) bool {
 
-	if p.JobGroup == src {
-		return true
-	} else if p.JobGroup == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.JobGroup, *src) != 0 {
+	if strings.Compare(p.JobGroup, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field5DeepEqual(src *string) bool {
+func (p *JobLog) Field4DeepEqual(src string) bool {
 
-	if p.InvokeTarget == src {
-		return true
-	} else if p.InvokeTarget == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.InvokeTarget, *src) != 0 {
+	if strings.Compare(p.InvokeTarget, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field6DeepEqual(src *string) bool {
+func (p *JobLog) Field5DeepEqual(src string) bool {
 
-	if p.CronExpression == src {
-		return true
-	} else if p.CronExpression == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.CronExpression, *src) != 0 {
+	if strings.Compare(p.JobMessage, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field7DeepEqual(src *string) bool {
+func (p *JobLog) Field6DeepEqual(src string) bool {
 
-	if p.MisfirePolicy == src {
-		return true
-	} else if p.MisfirePolicy == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.MisfirePolicy, *src) != 0 {
+	if strings.Compare(p.Status, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field8DeepEqual(src *string) bool {
+func (p *JobLog) Field7DeepEqual(src string) bool {
 
-	if p.Concurrent == src {
-		return true
-	} else if p.Concurrent == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.Concurrent, *src) != 0 {
+	if strings.Compare(p.ExceptionInfo, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *JobInfo) Field9DeepEqual(src *string) bool {
+func (p *JobLog) Field8DeepEqual(src int64) bool {
 
-	if p.Status == src {
-		return true
-	} else if p.Status == nil || src == nil {
+	if p.StartTime != src {
 		return false
 	}
-	if strings.Compare(*p.Status, *src) != 0 {
+	return true
+}
+func (p *JobLog) Field9DeepEqual(src int64) bool {
+
+	if p.StopTime != src {
 		return false
 	}
 	return true
@@ -2207,57 +2877,57 @@ func (p *ListJobsResponse) Field3DeepEqual(src []*JobInfo) bool {
 	return true
 }
 
-type ExportJobRequest struct {
+type ExportJobsRequest struct {
 	PageInfo *PageInfo `thrift:"pageInfo,1" frugal:"1,default,PageInfo" json:"pageInfo"`
 	JobInfo  *JobInfo  `thrift:"jobInfo,2" frugal:"2,default,JobInfo" json:"jobInfo"`
 }
 
-func NewExportJobRequest() *ExportJobRequest {
-	return &ExportJobRequest{}
+func NewExportJobsRequest() *ExportJobsRequest {
+	return &ExportJobsRequest{}
 }
 
-func (p *ExportJobRequest) InitDefault() {
-	*p = ExportJobRequest{}
+func (p *ExportJobsRequest) InitDefault() {
+	*p = ExportJobsRequest{}
 }
 
-var ExportJobRequest_PageInfo_DEFAULT *PageInfo
+var ExportJobsRequest_PageInfo_DEFAULT *PageInfo
 
-func (p *ExportJobRequest) GetPageInfo() (v *PageInfo) {
+func (p *ExportJobsRequest) GetPageInfo() (v *PageInfo) {
 	if !p.IsSetPageInfo() {
-		return ExportJobRequest_PageInfo_DEFAULT
+		return ExportJobsRequest_PageInfo_DEFAULT
 	}
 	return p.PageInfo
 }
 
-var ExportJobRequest_JobInfo_DEFAULT *JobInfo
+var ExportJobsRequest_JobInfo_DEFAULT *JobInfo
 
-func (p *ExportJobRequest) GetJobInfo() (v *JobInfo) {
+func (p *ExportJobsRequest) GetJobInfo() (v *JobInfo) {
 	if !p.IsSetJobInfo() {
-		return ExportJobRequest_JobInfo_DEFAULT
+		return ExportJobsRequest_JobInfo_DEFAULT
 	}
 	return p.JobInfo
 }
-func (p *ExportJobRequest) SetPageInfo(val *PageInfo) {
+func (p *ExportJobsRequest) SetPageInfo(val *PageInfo) {
 	p.PageInfo = val
 }
-func (p *ExportJobRequest) SetJobInfo(val *JobInfo) {
+func (p *ExportJobsRequest) SetJobInfo(val *JobInfo) {
 	p.JobInfo = val
 }
 
-var fieldIDToName_ExportJobRequest = map[int16]string{
+var fieldIDToName_ExportJobsRequest = map[int16]string{
 	1: "pageInfo",
 	2: "jobInfo",
 }
 
-func (p *ExportJobRequest) IsSetPageInfo() bool {
+func (p *ExportJobsRequest) IsSetPageInfo() bool {
 	return p.PageInfo != nil
 }
 
-func (p *ExportJobRequest) IsSetJobInfo() bool {
+func (p *ExportJobsRequest) IsSetJobInfo() bool {
 	return p.JobInfo != nil
 }
 
-func (p *ExportJobRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ExportJobsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2311,7 +2981,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2321,14 +2991,14 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ExportJobRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ExportJobsRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.PageInfo = NewPageInfo()
 	if err := p.PageInfo.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *ExportJobRequest) ReadField2(iprot thrift.TProtocol) error {
+func (p *ExportJobsRequest) ReadField2(iprot thrift.TProtocol) error {
 	p.JobInfo = NewJobInfo()
 	if err := p.JobInfo.Read(iprot); err != nil {
 		return err
@@ -2336,9 +3006,9 @@ func (p *ExportJobRequest) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ExportJobRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExportJobRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2368,7 +3038,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ExportJobRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("pageInfo", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2385,7 +3055,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ExportJobRequest) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsRequest) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("jobInfo", thrift.STRUCT, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2402,15 +3072,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ExportJobRequest) String() string {
+func (p *ExportJobsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ExportJobRequest(%+v)", *p)
+	return fmt.Sprintf("ExportJobsRequest(%+v)", *p)
 
 }
 
-func (p *ExportJobRequest) DeepEqual(ano *ExportJobRequest) bool {
+func (p *ExportJobsRequest) DeepEqual(ano *ExportJobsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -2425,14 +3095,14 @@ func (p *ExportJobRequest) DeepEqual(ano *ExportJobRequest) bool {
 	return true
 }
 
-func (p *ExportJobRequest) Field1DeepEqual(src *PageInfo) bool {
+func (p *ExportJobsRequest) Field1DeepEqual(src *PageInfo) bool {
 
 	if !p.PageInfo.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ExportJobRequest) Field2DeepEqual(src *JobInfo) bool {
+func (p *ExportJobsRequest) Field2DeepEqual(src *JobInfo) bool {
 
 	if !p.JobInfo.DeepEqual(src) {
 		return false
@@ -2440,66 +3110,66 @@ func (p *ExportJobRequest) Field2DeepEqual(src *JobInfo) bool {
 	return true
 }
 
-type ExportJobResponse struct {
+type ExportJobsResponse struct {
 	BaseResp  *BaseResp  `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	List      []*JobInfo `thrift:"list,2" frugal:"2,default,list<JobInfo>" json:"list"`
 	SheetName string     `thrift:"sheetName,3" frugal:"3,default,string" json:"sheetName"`
 	Title     string     `thrift:"title,4" frugal:"4,default,string" json:"title"`
 }
 
-func NewExportJobResponse() *ExportJobResponse {
-	return &ExportJobResponse{}
+func NewExportJobsResponse() *ExportJobsResponse {
+	return &ExportJobsResponse{}
 }
 
-func (p *ExportJobResponse) InitDefault() {
-	*p = ExportJobResponse{}
+func (p *ExportJobsResponse) InitDefault() {
+	*p = ExportJobsResponse{}
 }
 
-var ExportJobResponse_BaseResp_DEFAULT *BaseResp
+var ExportJobsResponse_BaseResp_DEFAULT *BaseResp
 
-func (p *ExportJobResponse) GetBaseResp() (v *BaseResp) {
+func (p *ExportJobsResponse) GetBaseResp() (v *BaseResp) {
 	if !p.IsSetBaseResp() {
-		return ExportJobResponse_BaseResp_DEFAULT
+		return ExportJobsResponse_BaseResp_DEFAULT
 	}
 	return p.BaseResp
 }
 
-func (p *ExportJobResponse) GetList() (v []*JobInfo) {
+func (p *ExportJobsResponse) GetList() (v []*JobInfo) {
 	return p.List
 }
 
-func (p *ExportJobResponse) GetSheetName() (v string) {
+func (p *ExportJobsResponse) GetSheetName() (v string) {
 	return p.SheetName
 }
 
-func (p *ExportJobResponse) GetTitle() (v string) {
+func (p *ExportJobsResponse) GetTitle() (v string) {
 	return p.Title
 }
-func (p *ExportJobResponse) SetBaseResp(val *BaseResp) {
+func (p *ExportJobsResponse) SetBaseResp(val *BaseResp) {
 	p.BaseResp = val
 }
-func (p *ExportJobResponse) SetList(val []*JobInfo) {
+func (p *ExportJobsResponse) SetList(val []*JobInfo) {
 	p.List = val
 }
-func (p *ExportJobResponse) SetSheetName(val string) {
+func (p *ExportJobsResponse) SetSheetName(val string) {
 	p.SheetName = val
 }
-func (p *ExportJobResponse) SetTitle(val string) {
+func (p *ExportJobsResponse) SetTitle(val string) {
 	p.Title = val
 }
 
-var fieldIDToName_ExportJobResponse = map[int16]string{
+var fieldIDToName_ExportJobsResponse = map[int16]string{
 	1: "baseResp",
 	2: "list",
 	3: "sheetName",
 	4: "title",
 }
 
-func (p *ExportJobResponse) IsSetBaseResp() bool {
+func (p *ExportJobsResponse) IsSetBaseResp() bool {
 	return p.BaseResp != nil
 }
 
-func (p *ExportJobResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ExportJobsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2569,7 +3239,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2579,14 +3249,14 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ExportJobResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ExportJobsResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.BaseResp = NewBaseResp()
 	if err := p.BaseResp.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *ExportJobResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ExportJobsResponse) ReadField2(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -2605,7 +3275,7 @@ func (p *ExportJobResponse) ReadField2(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *ExportJobResponse) ReadField3(iprot thrift.TProtocol) error {
+func (p *ExportJobsResponse) ReadField3(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -2614,7 +3284,7 @@ func (p *ExportJobResponse) ReadField3(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *ExportJobResponse) ReadField4(iprot thrift.TProtocol) error {
+func (p *ExportJobsResponse) ReadField4(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -2624,9 +3294,9 @@ func (p *ExportJobResponse) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ExportJobResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExportJobResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2664,7 +3334,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ExportJobResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2681,7 +3351,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ExportJobResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("list", thrift.LIST, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2706,7 +3376,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ExportJobResponse) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsResponse) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("sheetName", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2723,7 +3393,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ExportJobResponse) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobsResponse) writeField4(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("title", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2740,15 +3410,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *ExportJobResponse) String() string {
+func (p *ExportJobsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ExportJobResponse(%+v)", *p)
+	return fmt.Sprintf("ExportJobsResponse(%+v)", *p)
 
 }
 
-func (p *ExportJobResponse) DeepEqual(ano *ExportJobResponse) bool {
+func (p *ExportJobsResponse) DeepEqual(ano *ExportJobsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -2769,14 +3439,14 @@ func (p *ExportJobResponse) DeepEqual(ano *ExportJobResponse) bool {
 	return true
 }
 
-func (p *ExportJobResponse) Field1DeepEqual(src *BaseResp) bool {
+func (p *ExportJobsResponse) Field1DeepEqual(src *BaseResp) bool {
 
 	if !p.BaseResp.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ExportJobResponse) Field2DeepEqual(src []*JobInfo) bool {
+func (p *ExportJobsResponse) Field2DeepEqual(src []*JobInfo) bool {
 
 	if len(p.List) != len(src) {
 		return false
@@ -2789,14 +3459,14 @@ func (p *ExportJobResponse) Field2DeepEqual(src []*JobInfo) bool {
 	}
 	return true
 }
-func (p *ExportJobResponse) Field3DeepEqual(src string) bool {
+func (p *ExportJobsResponse) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.SheetName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ExportJobResponse) Field4DeepEqual(src string) bool {
+func (p *ExportJobsResponse) Field4DeepEqual(src string) bool {
 
 	if strings.Compare(p.Title, src) != 0 {
 		return false
@@ -2804,57 +3474,57 @@ func (p *ExportJobResponse) Field4DeepEqual(src string) bool {
 	return true
 }
 
-type JobInfoResponse struct {
+type GetJobInfoResponse struct {
 	BaseResp *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	Data     *JobInfo  `thrift:"data,2" frugal:"2,default,JobInfo" json:"data"`
 }
 
-func NewJobInfoResponse() *JobInfoResponse {
-	return &JobInfoResponse{}
+func NewGetJobInfoResponse() *GetJobInfoResponse {
+	return &GetJobInfoResponse{}
 }
 
-func (p *JobInfoResponse) InitDefault() {
-	*p = JobInfoResponse{}
+func (p *GetJobInfoResponse) InitDefault() {
+	*p = GetJobInfoResponse{}
 }
 
-var JobInfoResponse_BaseResp_DEFAULT *BaseResp
+var GetJobInfoResponse_BaseResp_DEFAULT *BaseResp
 
-func (p *JobInfoResponse) GetBaseResp() (v *BaseResp) {
+func (p *GetJobInfoResponse) GetBaseResp() (v *BaseResp) {
 	if !p.IsSetBaseResp() {
-		return JobInfoResponse_BaseResp_DEFAULT
+		return GetJobInfoResponse_BaseResp_DEFAULT
 	}
 	return p.BaseResp
 }
 
-var JobInfoResponse_Data_DEFAULT *JobInfo
+var GetJobInfoResponse_Data_DEFAULT *JobInfo
 
-func (p *JobInfoResponse) GetData() (v *JobInfo) {
+func (p *GetJobInfoResponse) GetData() (v *JobInfo) {
 	if !p.IsSetData() {
-		return JobInfoResponse_Data_DEFAULT
+		return GetJobInfoResponse_Data_DEFAULT
 	}
 	return p.Data
 }
-func (p *JobInfoResponse) SetBaseResp(val *BaseResp) {
+func (p *GetJobInfoResponse) SetBaseResp(val *BaseResp) {
 	p.BaseResp = val
 }
-func (p *JobInfoResponse) SetData(val *JobInfo) {
+func (p *GetJobInfoResponse) SetData(val *JobInfo) {
 	p.Data = val
 }
 
-var fieldIDToName_JobInfoResponse = map[int16]string{
+var fieldIDToName_GetJobInfoResponse = map[int16]string{
 	1: "baseResp",
 	2: "data",
 }
 
-func (p *JobInfoResponse) IsSetBaseResp() bool {
+func (p *GetJobInfoResponse) IsSetBaseResp() bool {
 	return p.BaseResp != nil
 }
 
-func (p *JobInfoResponse) IsSetData() bool {
+func (p *GetJobInfoResponse) IsSetData() bool {
 	return p.Data != nil
 }
 
-func (p *JobInfoResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetJobInfoResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -2908,7 +3578,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobInfoResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetJobInfoResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -2918,14 +3588,14 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobInfoResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetJobInfoResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.BaseResp = NewBaseResp()
 	if err := p.BaseResp.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *JobInfoResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetJobInfoResponse) ReadField2(iprot thrift.TProtocol) error {
 	p.Data = NewJobInfo()
 	if err := p.Data.Read(iprot); err != nil {
 		return err
@@ -2933,9 +3603,9 @@ func (p *JobInfoResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *JobInfoResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetJobInfoResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("JobInfoResponse"); err != nil {
+	if err = oprot.WriteStructBegin("GetJobInfoResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -2965,7 +3635,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobInfoResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetJobInfoResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2982,7 +3652,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobInfoResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetJobInfoResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -2999,15 +3669,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *JobInfoResponse) String() string {
+func (p *GetJobInfoResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobInfoResponse(%+v)", *p)
+	return fmt.Sprintf("GetJobInfoResponse(%+v)", *p)
 
 }
 
-func (p *JobInfoResponse) DeepEqual(ano *JobInfoResponse) bool {
+func (p *GetJobInfoResponse) DeepEqual(ano *GetJobInfoResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -3022,14 +3692,14 @@ func (p *JobInfoResponse) DeepEqual(ano *JobInfoResponse) bool {
 	return true
 }
 
-func (p *JobInfoResponse) Field1DeepEqual(src *BaseResp) bool {
+func (p *GetJobInfoResponse) Field1DeepEqual(src *BaseResp) bool {
 
 	if !p.BaseResp.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *JobInfoResponse) Field2DeepEqual(src *JobInfo) bool {
+func (p *GetJobInfoResponse) Field2DeepEqual(src *JobInfo) bool {
 
 	if !p.Data.DeepEqual(src) {
 		return false
@@ -3038,7 +3708,7 @@ func (p *JobInfoResponse) Field2DeepEqual(src *JobInfo) bool {
 }
 
 type CreateJobRequest struct {
-	JobInfo *JobInfo `thrift:"jobInfo,1" frugal:"1,default,JobInfo" json:"jobInfo"`
+	Jobinfo *JobInfo `thrift:"jobinfo,1" frugal:"1,default,JobInfo" json:"jobinfo"`
 }
 
 func NewCreateJobRequest() *CreateJobRequest {
@@ -3049,24 +3719,24 @@ func (p *CreateJobRequest) InitDefault() {
 	*p = CreateJobRequest{}
 }
 
-var CreateJobRequest_JobInfo_DEFAULT *JobInfo
+var CreateJobRequest_Jobinfo_DEFAULT *JobInfo
 
-func (p *CreateJobRequest) GetJobInfo() (v *JobInfo) {
-	if !p.IsSetJobInfo() {
-		return CreateJobRequest_JobInfo_DEFAULT
+func (p *CreateJobRequest) GetJobinfo() (v *JobInfo) {
+	if !p.IsSetJobinfo() {
+		return CreateJobRequest_Jobinfo_DEFAULT
 	}
-	return p.JobInfo
+	return p.Jobinfo
 }
-func (p *CreateJobRequest) SetJobInfo(val *JobInfo) {
-	p.JobInfo = val
+func (p *CreateJobRequest) SetJobinfo(val *JobInfo) {
+	p.Jobinfo = val
 }
 
 var fieldIDToName_CreateJobRequest = map[int16]string{
-	1: "jobInfo",
+	1: "jobinfo",
 }
 
-func (p *CreateJobRequest) IsSetJobInfo() bool {
-	return p.JobInfo != nil
+func (p *CreateJobRequest) IsSetJobinfo() bool {
+	return p.Jobinfo != nil
 }
 
 func (p *CreateJobRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -3126,8 +3796,8 @@ ReadStructEndError:
 }
 
 func (p *CreateJobRequest) ReadField1(iprot thrift.TProtocol) error {
-	p.JobInfo = NewJobInfo()
-	if err := p.JobInfo.Read(iprot); err != nil {
+	p.Jobinfo = NewJobInfo()
+	if err := p.Jobinfo.Read(iprot); err != nil {
 		return err
 	}
 	return nil
@@ -3162,10 +3832,10 @@ WriteStructEndError:
 }
 
 func (p *CreateJobRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("jobInfo", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("jobinfo", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.JobInfo.Write(oprot); err != nil {
+	if err := p.Jobinfo.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -3192,7 +3862,7 @@ func (p *CreateJobRequest) DeepEqual(ano *CreateJobRequest) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.JobInfo) {
+	if !p.Field1DeepEqual(ano.Jobinfo) {
 		return false
 	}
 	return true
@@ -3200,7 +3870,7 @@ func (p *CreateJobRequest) DeepEqual(ano *CreateJobRequest) bool {
 
 func (p *CreateJobRequest) Field1DeepEqual(src *JobInfo) bool {
 
-	if !p.JobInfo.DeepEqual(src) {
+	if !p.Jobinfo.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -3375,39 +4045,39 @@ func (p *UpdateJobRequest) Field1DeepEqual(src *JobInfo) bool {
 	return true
 }
 
-type ChangeJobStatusRequest struct {
+type ChangeStatusRequest struct {
 	JobInfo *JobInfo `thrift:"jobInfo,1" frugal:"1,default,JobInfo" json:"jobInfo"`
 }
 
-func NewChangeJobStatusRequest() *ChangeJobStatusRequest {
-	return &ChangeJobStatusRequest{}
+func NewChangeStatusRequest() *ChangeStatusRequest {
+	return &ChangeStatusRequest{}
 }
 
-func (p *ChangeJobStatusRequest) InitDefault() {
-	*p = ChangeJobStatusRequest{}
+func (p *ChangeStatusRequest) InitDefault() {
+	*p = ChangeStatusRequest{}
 }
 
-var ChangeJobStatusRequest_JobInfo_DEFAULT *JobInfo
+var ChangeStatusRequest_JobInfo_DEFAULT *JobInfo
 
-func (p *ChangeJobStatusRequest) GetJobInfo() (v *JobInfo) {
+func (p *ChangeStatusRequest) GetJobInfo() (v *JobInfo) {
 	if !p.IsSetJobInfo() {
-		return ChangeJobStatusRequest_JobInfo_DEFAULT
+		return ChangeStatusRequest_JobInfo_DEFAULT
 	}
 	return p.JobInfo
 }
-func (p *ChangeJobStatusRequest) SetJobInfo(val *JobInfo) {
+func (p *ChangeStatusRequest) SetJobInfo(val *JobInfo) {
 	p.JobInfo = val
 }
 
-var fieldIDToName_ChangeJobStatusRequest = map[int16]string{
+var fieldIDToName_ChangeStatusRequest = map[int16]string{
 	1: "jobInfo",
 }
 
-func (p *ChangeJobStatusRequest) IsSetJobInfo() bool {
+func (p *ChangeStatusRequest) IsSetJobInfo() bool {
 	return p.JobInfo != nil
 }
 
-func (p *ChangeJobStatusRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ChangeStatusRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -3453,7 +4123,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ChangeJobStatusRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ChangeStatusRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -3463,7 +4133,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ChangeJobStatusRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ChangeStatusRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.JobInfo = NewJobInfo()
 	if err := p.JobInfo.Read(iprot); err != nil {
 		return err
@@ -3471,9 +4141,9 @@ func (p *ChangeJobStatusRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ChangeJobStatusRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ChangeStatusRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ChangeJobStatusRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ChangeStatusRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -3499,7 +4169,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ChangeJobStatusRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ChangeStatusRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("jobInfo", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -3516,15 +4186,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ChangeJobStatusRequest) String() string {
+func (p *ChangeStatusRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ChangeJobStatusRequest(%+v)", *p)
+	return fmt.Sprintf("ChangeStatusRequest(%+v)", *p)
 
 }
 
-func (p *ChangeJobStatusRequest) DeepEqual(ano *ChangeJobStatusRequest) bool {
+func (p *ChangeStatusRequest) DeepEqual(ano *ChangeStatusRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -3536,7 +4206,7 @@ func (p *ChangeJobStatusRequest) DeepEqual(ano *ChangeJobStatusRequest) bool {
 	return true
 }
 
-func (p *ChangeJobStatusRequest) Field1DeepEqual(src *JobInfo) bool {
+func (p *ChangeStatusRequest) Field1DeepEqual(src *JobInfo) bool {
 
 	if !p.JobInfo.DeepEqual(src) {
 		return false
@@ -3544,39 +4214,39 @@ func (p *ChangeJobStatusRequest) Field1DeepEqual(src *JobInfo) bool {
 	return true
 }
 
-type RunJobRequest struct {
+type RunRequest struct {
 	JobInfo *JobInfo `thrift:"jobInfo,1" frugal:"1,default,JobInfo" json:"jobInfo"`
 }
 
-func NewRunJobRequest() *RunJobRequest {
-	return &RunJobRequest{}
+func NewRunRequest() *RunRequest {
+	return &RunRequest{}
 }
 
-func (p *RunJobRequest) InitDefault() {
-	*p = RunJobRequest{}
+func (p *RunRequest) InitDefault() {
+	*p = RunRequest{}
 }
 
-var RunJobRequest_JobInfo_DEFAULT *JobInfo
+var RunRequest_JobInfo_DEFAULT *JobInfo
 
-func (p *RunJobRequest) GetJobInfo() (v *JobInfo) {
+func (p *RunRequest) GetJobInfo() (v *JobInfo) {
 	if !p.IsSetJobInfo() {
-		return RunJobRequest_JobInfo_DEFAULT
+		return RunRequest_JobInfo_DEFAULT
 	}
 	return p.JobInfo
 }
-func (p *RunJobRequest) SetJobInfo(val *JobInfo) {
+func (p *RunRequest) SetJobInfo(val *JobInfo) {
 	p.JobInfo = val
 }
 
-var fieldIDToName_RunJobRequest = map[int16]string{
+var fieldIDToName_RunRequest = map[int16]string{
 	1: "jobInfo",
 }
 
-func (p *RunJobRequest) IsSetJobInfo() bool {
+func (p *RunRequest) IsSetJobInfo() bool {
 	return p.JobInfo != nil
 }
 
-func (p *RunJobRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *RunRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -3622,7 +4292,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RunJobRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RunRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -3632,7 +4302,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *RunJobRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *RunRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.JobInfo = NewJobInfo()
 	if err := p.JobInfo.Read(iprot); err != nil {
 		return err
@@ -3640,9 +4310,9 @@ func (p *RunJobRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *RunJobRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *RunRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("RunJobRequest"); err != nil {
+	if err = oprot.WriteStructBegin("RunRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -3668,7 +4338,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *RunJobRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *RunRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("jobInfo", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -3685,15 +4355,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *RunJobRequest) String() string {
+func (p *RunRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("RunJobRequest(%+v)", *p)
+	return fmt.Sprintf("RunRequest(%+v)", *p)
 
 }
 
-func (p *RunJobRequest) DeepEqual(ano *RunJobRequest) bool {
+func (p *RunRequest) DeepEqual(ano *RunRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -3705,7 +4375,7 @@ func (p *RunJobRequest) DeepEqual(ano *RunJobRequest) bool {
 	return true
 }
 
-func (p *RunJobRequest) Field1DeepEqual(src *JobInfo) bool {
+func (p *RunRequest) Field1DeepEqual(src *JobInfo) bool {
 
 	if !p.JobInfo.DeepEqual(src) {
 		return false
@@ -3713,30 +4383,30 @@ func (p *RunJobRequest) Field1DeepEqual(src *JobInfo) bool {
 	return true
 }
 
-type DeleteJobRequest struct {
+type RemoveJobsRequest struct {
 	JobIds []int64 `thrift:"jobIds,1" frugal:"1,default,list<i64>" json:"jobIds"`
 }
 
-func NewDeleteJobRequest() *DeleteJobRequest {
-	return &DeleteJobRequest{}
+func NewRemoveJobsRequest() *RemoveJobsRequest {
+	return &RemoveJobsRequest{}
 }
 
-func (p *DeleteJobRequest) InitDefault() {
-	*p = DeleteJobRequest{}
+func (p *RemoveJobsRequest) InitDefault() {
+	*p = RemoveJobsRequest{}
 }
 
-func (p *DeleteJobRequest) GetJobIds() (v []int64) {
+func (p *RemoveJobsRequest) GetJobIds() (v []int64) {
 	return p.JobIds
 }
-func (p *DeleteJobRequest) SetJobIds(val []int64) {
+func (p *RemoveJobsRequest) SetJobIds(val []int64) {
 	p.JobIds = val
 }
 
-var fieldIDToName_DeleteJobRequest = map[int16]string{
+var fieldIDToName_RemoveJobsRequest = map[int16]string{
 	1: "jobIds",
 }
 
-func (p *DeleteJobRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *RemoveJobsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -3782,7 +4452,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteJobRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RemoveJobsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -3792,7 +4462,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *DeleteJobRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *RemoveJobsRequest) ReadField1(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -3815,9 +4485,9 @@ func (p *DeleteJobRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *DeleteJobRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *RemoveJobsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteJobRequest"); err != nil {
+	if err = oprot.WriteStructBegin("RemoveJobsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -3843,7 +4513,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *DeleteJobRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *RemoveJobsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("jobIds", thrift.LIST, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -3868,15 +4538,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *DeleteJobRequest) String() string {
+func (p *RemoveJobsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("DeleteJobRequest(%+v)", *p)
+	return fmt.Sprintf("RemoveJobsRequest(%+v)", *p)
 
 }
 
-func (p *DeleteJobRequest) DeepEqual(ano *DeleteJobRequest) bool {
+func (p *RemoveJobsRequest) DeepEqual(ano *RemoveJobsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -3888,7 +4558,7 @@ func (p *DeleteJobRequest) DeepEqual(ano *DeleteJobRequest) bool {
 	return true
 }
 
-func (p *DeleteJobRequest) Field1DeepEqual(src []int64) bool {
+func (p *RemoveJobsRequest) Field1DeepEqual(src []int64) bool {
 
 	if len(p.JobIds) != len(src) {
 		return false
@@ -3898,816 +4568,6 @@ func (p *DeleteJobRequest) Field1DeepEqual(src []int64) bool {
 		if v != _src {
 			return false
 		}
-	}
-	return true
-}
-
-type JobLog struct {
-	BaseInfo      *BaseInfo `thrift:"baseInfo,1" frugal:"1,default,BaseInfo" json:"baseInfo"`
-	JobLogId      int64     `thrift:"jobLogId,2" frugal:"2,default,i64" json:"jobLogId"`
-	JobName       *string   `thrift:"jobName,3,optional" frugal:"3,optional,string" json:"jobName,omitempty"`
-	JonGroup      *string   `thrift:"jonGroup,4,optional" frugal:"4,optional,string" json:"jonGroup,omitempty"`
-	InvokeTarget  *string   `thrift:"invokeTarget,5,optional" frugal:"5,optional,string" json:"invokeTarget,omitempty"`
-	JobMessage    *string   `thrift:"jobMessage,6,optional" frugal:"6,optional,string" json:"jobMessage,omitempty"`
-	Status        *string   `thrift:"status,7,optional" frugal:"7,optional,string" json:"status,omitempty"`
-	ExceptionInfo *string   `thrift:"exception_info,8,optional" frugal:"8,optional,string" json:"exception_info,omitempty"`
-	StartTime     *int64    `thrift:"startTime,9,optional" frugal:"9,optional,i64" json:"startTime,omitempty"`
-	StopTime      *int64    `thrift:"stopTime,10,optional" frugal:"10,optional,i64" json:"stopTime,omitempty"`
-}
-
-func NewJobLog() *JobLog {
-	return &JobLog{}
-}
-
-func (p *JobLog) InitDefault() {
-	*p = JobLog{}
-}
-
-var JobLog_BaseInfo_DEFAULT *BaseInfo
-
-func (p *JobLog) GetBaseInfo() (v *BaseInfo) {
-	if !p.IsSetBaseInfo() {
-		return JobLog_BaseInfo_DEFAULT
-	}
-	return p.BaseInfo
-}
-
-func (p *JobLog) GetJobLogId() (v int64) {
-	return p.JobLogId
-}
-
-var JobLog_JobName_DEFAULT string
-
-func (p *JobLog) GetJobName() (v string) {
-	if !p.IsSetJobName() {
-		return JobLog_JobName_DEFAULT
-	}
-	return *p.JobName
-}
-
-var JobLog_JonGroup_DEFAULT string
-
-func (p *JobLog) GetJonGroup() (v string) {
-	if !p.IsSetJonGroup() {
-		return JobLog_JonGroup_DEFAULT
-	}
-	return *p.JonGroup
-}
-
-var JobLog_InvokeTarget_DEFAULT string
-
-func (p *JobLog) GetInvokeTarget() (v string) {
-	if !p.IsSetInvokeTarget() {
-		return JobLog_InvokeTarget_DEFAULT
-	}
-	return *p.InvokeTarget
-}
-
-var JobLog_JobMessage_DEFAULT string
-
-func (p *JobLog) GetJobMessage() (v string) {
-	if !p.IsSetJobMessage() {
-		return JobLog_JobMessage_DEFAULT
-	}
-	return *p.JobMessage
-}
-
-var JobLog_Status_DEFAULT string
-
-func (p *JobLog) GetStatus() (v string) {
-	if !p.IsSetStatus() {
-		return JobLog_Status_DEFAULT
-	}
-	return *p.Status
-}
-
-var JobLog_ExceptionInfo_DEFAULT string
-
-func (p *JobLog) GetExceptionInfo() (v string) {
-	if !p.IsSetExceptionInfo() {
-		return JobLog_ExceptionInfo_DEFAULT
-	}
-	return *p.ExceptionInfo
-}
-
-var JobLog_StartTime_DEFAULT int64
-
-func (p *JobLog) GetStartTime() (v int64) {
-	if !p.IsSetStartTime() {
-		return JobLog_StartTime_DEFAULT
-	}
-	return *p.StartTime
-}
-
-var JobLog_StopTime_DEFAULT int64
-
-func (p *JobLog) GetStopTime() (v int64) {
-	if !p.IsSetStopTime() {
-		return JobLog_StopTime_DEFAULT
-	}
-	return *p.StopTime
-}
-func (p *JobLog) SetBaseInfo(val *BaseInfo) {
-	p.BaseInfo = val
-}
-func (p *JobLog) SetJobLogId(val int64) {
-	p.JobLogId = val
-}
-func (p *JobLog) SetJobName(val *string) {
-	p.JobName = val
-}
-func (p *JobLog) SetJonGroup(val *string) {
-	p.JonGroup = val
-}
-func (p *JobLog) SetInvokeTarget(val *string) {
-	p.InvokeTarget = val
-}
-func (p *JobLog) SetJobMessage(val *string) {
-	p.JobMessage = val
-}
-func (p *JobLog) SetStatus(val *string) {
-	p.Status = val
-}
-func (p *JobLog) SetExceptionInfo(val *string) {
-	p.ExceptionInfo = val
-}
-func (p *JobLog) SetStartTime(val *int64) {
-	p.StartTime = val
-}
-func (p *JobLog) SetStopTime(val *int64) {
-	p.StopTime = val
-}
-
-var fieldIDToName_JobLog = map[int16]string{
-	1:  "baseInfo",
-	2:  "jobLogId",
-	3:  "jobName",
-	4:  "jonGroup",
-	5:  "invokeTarget",
-	6:  "jobMessage",
-	7:  "status",
-	8:  "exception_info",
-	9:  "startTime",
-	10: "stopTime",
-}
-
-func (p *JobLog) IsSetBaseInfo() bool {
-	return p.BaseInfo != nil
-}
-
-func (p *JobLog) IsSetJobName() bool {
-	return p.JobName != nil
-}
-
-func (p *JobLog) IsSetJonGroup() bool {
-	return p.JonGroup != nil
-}
-
-func (p *JobLog) IsSetInvokeTarget() bool {
-	return p.InvokeTarget != nil
-}
-
-func (p *JobLog) IsSetJobMessage() bool {
-	return p.JobMessage != nil
-}
-
-func (p *JobLog) IsSetStatus() bool {
-	return p.Status != nil
-}
-
-func (p *JobLog) IsSetExceptionInfo() bool {
-	return p.ExceptionInfo != nil
-}
-
-func (p *JobLog) IsSetStartTime() bool {
-	return p.StartTime != nil
-}
-
-func (p *JobLog) IsSetStopTime() bool {
-	return p.StopTime != nil
-}
-
-func (p *JobLog) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 3:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 4:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 5:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 6:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField6(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 7:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField7(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 8:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField8(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 9:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField9(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 10:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField10(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobLog[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *JobLog) ReadField1(iprot thrift.TProtocol) error {
-	p.BaseInfo = NewBaseInfo()
-	if err := p.BaseInfo.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-func (p *JobLog) ReadField2(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.JobLogId = v
-	}
-	return nil
-}
-func (p *JobLog) ReadField3(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.JobName = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField4(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.JonGroup = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField5(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.InvokeTarget = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField6(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.JobMessage = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField7(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.Status = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField8(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.ExceptionInfo = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField9(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.StartTime = &v
-	}
-	return nil
-}
-func (p *JobLog) ReadField10(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.StopTime = &v
-	}
-	return nil
-}
-
-func (p *JobLog) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("JobLog"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
-		if err = p.writeField6(oprot); err != nil {
-			fieldId = 6
-			goto WriteFieldError
-		}
-		if err = p.writeField7(oprot); err != nil {
-			fieldId = 7
-			goto WriteFieldError
-		}
-		if err = p.writeField8(oprot); err != nil {
-			fieldId = 8
-			goto WriteFieldError
-		}
-		if err = p.writeField9(oprot); err != nil {
-			fieldId = 9
-			goto WriteFieldError
-		}
-		if err = p.writeField10(oprot); err != nil {
-			fieldId = 10
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *JobLog) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("baseInfo", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.BaseInfo.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *JobLog) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("jobLogId", thrift.I64, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.JobLogId); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *JobLog) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetJobName() {
-		if err = oprot.WriteFieldBegin("jobName", thrift.STRING, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.JobName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *JobLog) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetJonGroup() {
-		if err = oprot.WriteFieldBegin("jonGroup", thrift.STRING, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.JonGroup); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *JobLog) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetInvokeTarget() {
-		if err = oprot.WriteFieldBegin("invokeTarget", thrift.STRING, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.InvokeTarget); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
-}
-
-func (p *JobLog) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetJobMessage() {
-		if err = oprot.WriteFieldBegin("jobMessage", thrift.STRING, 6); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.JobMessage); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *JobLog) writeField7(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStatus() {
-		if err = oprot.WriteFieldBegin("status", thrift.STRING, 7); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Status); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 7 end error: ", p), err)
-}
-
-func (p *JobLog) writeField8(oprot thrift.TProtocol) (err error) {
-	if p.IsSetExceptionInfo() {
-		if err = oprot.WriteFieldBegin("exception_info", thrift.STRING, 8); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ExceptionInfo); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
-}
-
-func (p *JobLog) writeField9(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStartTime() {
-		if err = oprot.WriteFieldBegin("startTime", thrift.I64, 9); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.StartTime); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
-}
-
-func (p *JobLog) writeField10(oprot thrift.TProtocol) (err error) {
-	if p.IsSetStopTime() {
-		if err = oprot.WriteFieldBegin("stopTime", thrift.I64, 10); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.StopTime); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 10 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 10 end error: ", p), err)
-}
-
-func (p *JobLog) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("JobLog(%+v)", *p)
-
-}
-
-func (p *JobLog) DeepEqual(ano *JobLog) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.BaseInfo) {
-		return false
-	}
-	if !p.Field2DeepEqual(ano.JobLogId) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.JobName) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.JonGroup) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.InvokeTarget) {
-		return false
-	}
-	if !p.Field6DeepEqual(ano.JobMessage) {
-		return false
-	}
-	if !p.Field7DeepEqual(ano.Status) {
-		return false
-	}
-	if !p.Field8DeepEqual(ano.ExceptionInfo) {
-		return false
-	}
-	if !p.Field9DeepEqual(ano.StartTime) {
-		return false
-	}
-	if !p.Field10DeepEqual(ano.StopTime) {
-		return false
-	}
-	return true
-}
-
-func (p *JobLog) Field1DeepEqual(src *BaseInfo) bool {
-
-	if !p.BaseInfo.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field2DeepEqual(src int64) bool {
-
-	if p.JobLogId != src {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field3DeepEqual(src *string) bool {
-
-	if p.JobName == src {
-		return true
-	} else if p.JobName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.JobName, *src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field4DeepEqual(src *string) bool {
-
-	if p.JonGroup == src {
-		return true
-	} else if p.JonGroup == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.JonGroup, *src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field5DeepEqual(src *string) bool {
-
-	if p.InvokeTarget == src {
-		return true
-	} else if p.InvokeTarget == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.InvokeTarget, *src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field6DeepEqual(src *string) bool {
-
-	if p.JobMessage == src {
-		return true
-	} else if p.JobMessage == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.JobMessage, *src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field7DeepEqual(src *string) bool {
-
-	if p.Status == src {
-		return true
-	} else if p.Status == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.Status, *src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field8DeepEqual(src *string) bool {
-
-	if p.ExceptionInfo == src {
-		return true
-	} else if p.ExceptionInfo == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ExceptionInfo, *src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field9DeepEqual(src *int64) bool {
-
-	if p.StartTime == src {
-		return true
-	} else if p.StartTime == nil || src == nil {
-		return false
-	}
-	if *p.StartTime != *src {
-		return false
-	}
-	return true
-}
-func (p *JobLog) Field10DeepEqual(src *int64) bool {
-
-	if p.StopTime == src {
-		return true
-	} else if p.StopTime == nil || src == nil {
-		return false
-	}
-	if *p.StopTime != *src {
-		return false
 	}
 	return true
 }
@@ -5252,39 +5112,39 @@ func (p *ListJobLogsResponse) Field3DeepEqual(src []*JobLog) bool {
 	return true
 }
 
-type ExportJobLogRequest struct {
+type ExportJobLogsRequest struct {
 	JobLog *JobLog `thrift:"jobLog,1" frugal:"1,default,JobLog" json:"jobLog"`
 }
 
-func NewExportJobLogRequest() *ExportJobLogRequest {
-	return &ExportJobLogRequest{}
+func NewExportJobLogsRequest() *ExportJobLogsRequest {
+	return &ExportJobLogsRequest{}
 }
 
-func (p *ExportJobLogRequest) InitDefault() {
-	*p = ExportJobLogRequest{}
+func (p *ExportJobLogsRequest) InitDefault() {
+	*p = ExportJobLogsRequest{}
 }
 
-var ExportJobLogRequest_JobLog_DEFAULT *JobLog
+var ExportJobLogsRequest_JobLog_DEFAULT *JobLog
 
-func (p *ExportJobLogRequest) GetJobLog() (v *JobLog) {
+func (p *ExportJobLogsRequest) GetJobLog() (v *JobLog) {
 	if !p.IsSetJobLog() {
-		return ExportJobLogRequest_JobLog_DEFAULT
+		return ExportJobLogsRequest_JobLog_DEFAULT
 	}
 	return p.JobLog
 }
-func (p *ExportJobLogRequest) SetJobLog(val *JobLog) {
+func (p *ExportJobLogsRequest) SetJobLog(val *JobLog) {
 	p.JobLog = val
 }
 
-var fieldIDToName_ExportJobLogRequest = map[int16]string{
+var fieldIDToName_ExportJobLogsRequest = map[int16]string{
 	1: "jobLog",
 }
 
-func (p *ExportJobLogRequest) IsSetJobLog() bool {
+func (p *ExportJobLogsRequest) IsSetJobLog() bool {
 	return p.JobLog != nil
 }
 
-func (p *ExportJobLogRequest) Read(iprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -5330,7 +5190,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobLogRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobLogsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -5340,7 +5200,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ExportJobLogRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *ExportJobLogsRequest) ReadField1(iprot thrift.TProtocol) error {
 	p.JobLog = NewJobLog()
 	if err := p.JobLog.Read(iprot); err != nil {
 		return err
@@ -5348,9 +5208,9 @@ func (p *ExportJobLogRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ExportJobLogRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExportJobLogRequest"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobLogsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -5376,7 +5236,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ExportJobLogRequest) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsRequest) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("jobLog", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5393,15 +5253,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ExportJobLogRequest) String() string {
+func (p *ExportJobLogsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ExportJobLogRequest(%+v)", *p)
+	return fmt.Sprintf("ExportJobLogsRequest(%+v)", *p)
 
 }
 
-func (p *ExportJobLogRequest) DeepEqual(ano *ExportJobLogRequest) bool {
+func (p *ExportJobLogsRequest) DeepEqual(ano *ExportJobLogsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -5413,7 +5273,7 @@ func (p *ExportJobLogRequest) DeepEqual(ano *ExportJobLogRequest) bool {
 	return true
 }
 
-func (p *ExportJobLogRequest) Field1DeepEqual(src *JobLog) bool {
+func (p *ExportJobLogsRequest) Field1DeepEqual(src *JobLog) bool {
 
 	if !p.JobLog.DeepEqual(src) {
 		return false
@@ -5421,66 +5281,66 @@ func (p *ExportJobLogRequest) Field1DeepEqual(src *JobLog) bool {
 	return true
 }
 
-type ExportJobLogResponse struct {
+type ExportJobLogsResponse struct {
 	BaseResp  *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	List      []*JobLog `thrift:"list,2" frugal:"2,default,list<JobLog>" json:"list"`
 	SheetName string    `thrift:"sheetName,3" frugal:"3,default,string" json:"sheetName"`
 	Title     string    `thrift:"title,4" frugal:"4,default,string" json:"title"`
 }
 
-func NewExportJobLogResponse() *ExportJobLogResponse {
-	return &ExportJobLogResponse{}
+func NewExportJobLogsResponse() *ExportJobLogsResponse {
+	return &ExportJobLogsResponse{}
 }
 
-func (p *ExportJobLogResponse) InitDefault() {
-	*p = ExportJobLogResponse{}
+func (p *ExportJobLogsResponse) InitDefault() {
+	*p = ExportJobLogsResponse{}
 }
 
-var ExportJobLogResponse_BaseResp_DEFAULT *BaseResp
+var ExportJobLogsResponse_BaseResp_DEFAULT *BaseResp
 
-func (p *ExportJobLogResponse) GetBaseResp() (v *BaseResp) {
+func (p *ExportJobLogsResponse) GetBaseResp() (v *BaseResp) {
 	if !p.IsSetBaseResp() {
-		return ExportJobLogResponse_BaseResp_DEFAULT
+		return ExportJobLogsResponse_BaseResp_DEFAULT
 	}
 	return p.BaseResp
 }
 
-func (p *ExportJobLogResponse) GetList() (v []*JobLog) {
+func (p *ExportJobLogsResponse) GetList() (v []*JobLog) {
 	return p.List
 }
 
-func (p *ExportJobLogResponse) GetSheetName() (v string) {
+func (p *ExportJobLogsResponse) GetSheetName() (v string) {
 	return p.SheetName
 }
 
-func (p *ExportJobLogResponse) GetTitle() (v string) {
+func (p *ExportJobLogsResponse) GetTitle() (v string) {
 	return p.Title
 }
-func (p *ExportJobLogResponse) SetBaseResp(val *BaseResp) {
+func (p *ExportJobLogsResponse) SetBaseResp(val *BaseResp) {
 	p.BaseResp = val
 }
-func (p *ExportJobLogResponse) SetList(val []*JobLog) {
+func (p *ExportJobLogsResponse) SetList(val []*JobLog) {
 	p.List = val
 }
-func (p *ExportJobLogResponse) SetSheetName(val string) {
+func (p *ExportJobLogsResponse) SetSheetName(val string) {
 	p.SheetName = val
 }
-func (p *ExportJobLogResponse) SetTitle(val string) {
+func (p *ExportJobLogsResponse) SetTitle(val string) {
 	p.Title = val
 }
 
-var fieldIDToName_ExportJobLogResponse = map[int16]string{
+var fieldIDToName_ExportJobLogsResponse = map[int16]string{
 	1: "baseResp",
 	2: "list",
 	3: "sheetName",
 	4: "title",
 }
 
-func (p *ExportJobLogResponse) IsSetBaseResp() bool {
+func (p *ExportJobLogsResponse) IsSetBaseResp() bool {
 	return p.BaseResp != nil
 }
 
-func (p *ExportJobLogResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -5550,7 +5410,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobLogResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ExportJobLogsResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -5560,14 +5420,14 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *ExportJobLogResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *ExportJobLogsResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.BaseResp = NewBaseResp()
 	if err := p.BaseResp.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *ExportJobLogResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *ExportJobLogsResponse) ReadField2(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -5586,7 +5446,7 @@ func (p *ExportJobLogResponse) ReadField2(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *ExportJobLogResponse) ReadField3(iprot thrift.TProtocol) error {
+func (p *ExportJobLogsResponse) ReadField3(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -5595,7 +5455,7 @@ func (p *ExportJobLogResponse) ReadField3(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *ExportJobLogResponse) ReadField4(iprot thrift.TProtocol) error {
+func (p *ExportJobLogsResponse) ReadField4(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
@@ -5605,9 +5465,9 @@ func (p *ExportJobLogResponse) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *ExportJobLogResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExportJobLogResponse"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobLogsResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -5645,7 +5505,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *ExportJobLogResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5662,7 +5522,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *ExportJobLogResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("list", thrift.LIST, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5687,7 +5547,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *ExportJobLogResponse) writeField3(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsResponse) writeField3(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("sheetName", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5704,7 +5564,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
-func (p *ExportJobLogResponse) writeField4(oprot thrift.TProtocol) (err error) {
+func (p *ExportJobLogsResponse) writeField4(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("title", thrift.STRING, 4); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5721,15 +5581,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
-func (p *ExportJobLogResponse) String() string {
+func (p *ExportJobLogsResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("ExportJobLogResponse(%+v)", *p)
+	return fmt.Sprintf("ExportJobLogsResponse(%+v)", *p)
 
 }
 
-func (p *ExportJobLogResponse) DeepEqual(ano *ExportJobLogResponse) bool {
+func (p *ExportJobLogsResponse) DeepEqual(ano *ExportJobLogsResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -5750,14 +5610,14 @@ func (p *ExportJobLogResponse) DeepEqual(ano *ExportJobLogResponse) bool {
 	return true
 }
 
-func (p *ExportJobLogResponse) Field1DeepEqual(src *BaseResp) bool {
+func (p *ExportJobLogsResponse) Field1DeepEqual(src *BaseResp) bool {
 
 	if !p.BaseResp.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *ExportJobLogResponse) Field2DeepEqual(src []*JobLog) bool {
+func (p *ExportJobLogsResponse) Field2DeepEqual(src []*JobLog) bool {
 
 	if len(p.List) != len(src) {
 		return false
@@ -5770,14 +5630,14 @@ func (p *ExportJobLogResponse) Field2DeepEqual(src []*JobLog) bool {
 	}
 	return true
 }
-func (p *ExportJobLogResponse) Field3DeepEqual(src string) bool {
+func (p *ExportJobLogsResponse) Field3DeepEqual(src string) bool {
 
 	if strings.Compare(p.SheetName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *ExportJobLogResponse) Field4DeepEqual(src string) bool {
+func (p *ExportJobLogsResponse) Field4DeepEqual(src string) bool {
 
 	if strings.Compare(p.Title, src) != 0 {
 		return false
@@ -5785,57 +5645,57 @@ func (p *ExportJobLogResponse) Field4DeepEqual(src string) bool {
 	return true
 }
 
-type JobLogInfoResponse struct {
+type GetJobLogInfoResponse struct {
 	BaseResp *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	Data     *JobLog   `thrift:"data,2" frugal:"2,default,JobLog" json:"data"`
 }
 
-func NewJobLogInfoResponse() *JobLogInfoResponse {
-	return &JobLogInfoResponse{}
+func NewGetJobLogInfoResponse() *GetJobLogInfoResponse {
+	return &GetJobLogInfoResponse{}
 }
 
-func (p *JobLogInfoResponse) InitDefault() {
-	*p = JobLogInfoResponse{}
+func (p *GetJobLogInfoResponse) InitDefault() {
+	*p = GetJobLogInfoResponse{}
 }
 
-var JobLogInfoResponse_BaseResp_DEFAULT *BaseResp
+var GetJobLogInfoResponse_BaseResp_DEFAULT *BaseResp
 
-func (p *JobLogInfoResponse) GetBaseResp() (v *BaseResp) {
+func (p *GetJobLogInfoResponse) GetBaseResp() (v *BaseResp) {
 	if !p.IsSetBaseResp() {
-		return JobLogInfoResponse_BaseResp_DEFAULT
+		return GetJobLogInfoResponse_BaseResp_DEFAULT
 	}
 	return p.BaseResp
 }
 
-var JobLogInfoResponse_Data_DEFAULT *JobLog
+var GetJobLogInfoResponse_Data_DEFAULT *JobLog
 
-func (p *JobLogInfoResponse) GetData() (v *JobLog) {
+func (p *GetJobLogInfoResponse) GetData() (v *JobLog) {
 	if !p.IsSetData() {
-		return JobLogInfoResponse_Data_DEFAULT
+		return GetJobLogInfoResponse_Data_DEFAULT
 	}
 	return p.Data
 }
-func (p *JobLogInfoResponse) SetBaseResp(val *BaseResp) {
+func (p *GetJobLogInfoResponse) SetBaseResp(val *BaseResp) {
 	p.BaseResp = val
 }
-func (p *JobLogInfoResponse) SetData(val *JobLog) {
+func (p *GetJobLogInfoResponse) SetData(val *JobLog) {
 	p.Data = val
 }
 
-var fieldIDToName_JobLogInfoResponse = map[int16]string{
+var fieldIDToName_GetJobLogInfoResponse = map[int16]string{
 	1: "baseResp",
 	2: "data",
 }
 
-func (p *JobLogInfoResponse) IsSetBaseResp() bool {
+func (p *GetJobLogInfoResponse) IsSetBaseResp() bool {
 	return p.BaseResp != nil
 }
 
-func (p *JobLogInfoResponse) IsSetData() bool {
+func (p *GetJobLogInfoResponse) IsSetData() bool {
 	return p.Data != nil
 }
 
-func (p *JobLogInfoResponse) Read(iprot thrift.TProtocol) (err error) {
+func (p *GetJobLogInfoResponse) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -5889,7 +5749,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobLogInfoResponse[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetJobLogInfoResponse[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -5899,14 +5759,14 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobLogInfoResponse) ReadField1(iprot thrift.TProtocol) error {
+func (p *GetJobLogInfoResponse) ReadField1(iprot thrift.TProtocol) error {
 	p.BaseResp = NewBaseResp()
 	if err := p.BaseResp.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *JobLogInfoResponse) ReadField2(iprot thrift.TProtocol) error {
+func (p *GetJobLogInfoResponse) ReadField2(iprot thrift.TProtocol) error {
 	p.Data = NewJobLog()
 	if err := p.Data.Read(iprot); err != nil {
 		return err
@@ -5914,9 +5774,9 @@ func (p *JobLogInfoResponse) ReadField2(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *JobLogInfoResponse) Write(oprot thrift.TProtocol) (err error) {
+func (p *GetJobLogInfoResponse) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("JobLogInfoResponse"); err != nil {
+	if err = oprot.WriteStructBegin("GetJobLogInfoResponse"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -5946,7 +5806,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobLogInfoResponse) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *GetJobLogInfoResponse) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5963,7 +5823,7 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobLogInfoResponse) writeField2(oprot thrift.TProtocol) (err error) {
+func (p *GetJobLogInfoResponse) writeField2(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("data", thrift.STRUCT, 2); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5980,15 +5840,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
-func (p *JobLogInfoResponse) String() string {
+func (p *GetJobLogInfoResponse) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobLogInfoResponse(%+v)", *p)
+	return fmt.Sprintf("GetJobLogInfoResponse(%+v)", *p)
 
 }
 
-func (p *JobLogInfoResponse) DeepEqual(ano *JobLogInfoResponse) bool {
+func (p *GetJobLogInfoResponse) DeepEqual(ano *GetJobLogInfoResponse) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -6003,14 +5863,14 @@ func (p *JobLogInfoResponse) DeepEqual(ano *JobLogInfoResponse) bool {
 	return true
 }
 
-func (p *JobLogInfoResponse) Field1DeepEqual(src *BaseResp) bool {
+func (p *GetJobLogInfoResponse) Field1DeepEqual(src *BaseResp) bool {
 
 	if !p.BaseResp.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *JobLogInfoResponse) Field2DeepEqual(src *JobLog) bool {
+func (p *GetJobLogInfoResponse) Field2DeepEqual(src *JobLog) bool {
 
 	if !p.Data.DeepEqual(src) {
 		return false
@@ -6018,30 +5878,48 @@ func (p *JobLogInfoResponse) Field2DeepEqual(src *JobLog) bool {
 	return true
 }
 
-type DeleteJobLogRequest struct {
-	JobLogIds []int64 `thrift:"jobLogIds,1" frugal:"1,default,list<i64>" json:"jobLogIds"`
+type RemoveJobLogsRequest struct {
+	BaseResp *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
+	JobIds   []int64   `thrift:"jobIds,2" frugal:"2,default,list<i64>" json:"jobIds"`
 }
 
-func NewDeleteJobLogRequest() *DeleteJobLogRequest {
-	return &DeleteJobLogRequest{}
+func NewRemoveJobLogsRequest() *RemoveJobLogsRequest {
+	return &RemoveJobLogsRequest{}
 }
 
-func (p *DeleteJobLogRequest) InitDefault() {
-	*p = DeleteJobLogRequest{}
+func (p *RemoveJobLogsRequest) InitDefault() {
+	*p = RemoveJobLogsRequest{}
 }
 
-func (p *DeleteJobLogRequest) GetJobLogIds() (v []int64) {
-	return p.JobLogIds
-}
-func (p *DeleteJobLogRequest) SetJobLogIds(val []int64) {
-	p.JobLogIds = val
+var RemoveJobLogsRequest_BaseResp_DEFAULT *BaseResp
+
+func (p *RemoveJobLogsRequest) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return RemoveJobLogsRequest_BaseResp_DEFAULT
+	}
+	return p.BaseResp
 }
 
-var fieldIDToName_DeleteJobLogRequest = map[int16]string{
-	1: "jobLogIds",
+func (p *RemoveJobLogsRequest) GetJobIds() (v []int64) {
+	return p.JobIds
+}
+func (p *RemoveJobLogsRequest) SetBaseResp(val *BaseResp) {
+	p.BaseResp = val
+}
+func (p *RemoveJobLogsRequest) SetJobIds(val []int64) {
+	p.JobIds = val
 }
 
-func (p *DeleteJobLogRequest) Read(iprot thrift.TProtocol) (err error) {
+var fieldIDToName_RemoveJobLogsRequest = map[int16]string{
+	1: "baseResp",
+	2: "jobIds",
+}
+
+func (p *RemoveJobLogsRequest) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *RemoveJobLogsRequest) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -6061,8 +5939,16 @@ func (p *DeleteJobLogRequest) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -6087,7 +5973,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_DeleteJobLogRequest[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_RemoveJobLogsRequest[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -6097,12 +5983,19 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *DeleteJobLogRequest) ReadField1(iprot thrift.TProtocol) error {
+func (p *RemoveJobLogsRequest) ReadField1(iprot thrift.TProtocol) error {
+	p.BaseResp = NewBaseResp()
+	if err := p.BaseResp.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+func (p *RemoveJobLogsRequest) ReadField2(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
 	}
-	p.JobLogIds = make([]int64, 0, size)
+	p.JobIds = make([]int64, 0, size)
 	for i := 0; i < size; i++ {
 
 		var _elem int64
@@ -6112,7 +6005,7 @@ func (p *DeleteJobLogRequest) ReadField1(iprot thrift.TProtocol) error {
 			_elem = v
 		}
 
-		p.JobLogIds = append(p.JobLogIds, _elem)
+		p.JobIds = append(p.JobIds, _elem)
 	}
 	if err := iprot.ReadListEnd(); err != nil {
 		return err
@@ -6120,14 +6013,18 @@ func (p *DeleteJobLogRequest) ReadField1(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *DeleteJobLogRequest) Write(oprot thrift.TProtocol) (err error) {
+func (p *RemoveJobLogsRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteJobLogRequest"); err != nil {
+	if err = oprot.WriteStructBegin("RemoveJobLogsRequest"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -6148,19 +6045,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *DeleteJobLogRequest) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("jobLogIds", thrift.LIST, 1); err != nil {
+func (p *RemoveJobLogsRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteListBegin(thrift.I64, len(p.JobLogIds)); err != nil {
-		return err
-	}
-	for _, v := range p.JobLogIds {
-		if err := oprot.WriteI64(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
+	if err := p.BaseResp.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -6173,32 +6062,67 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *DeleteJobLogRequest) String() string {
+func (p *RemoveJobLogsRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobIds", thrift.LIST, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.I64, len(p.JobIds)); err != nil {
+		return err
+	}
+	for _, v := range p.JobIds {
+		if err := oprot.WriteI64(v); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *RemoveJobLogsRequest) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("DeleteJobLogRequest(%+v)", *p)
+	return fmt.Sprintf("RemoveJobLogsRequest(%+v)", *p)
 
 }
 
-func (p *DeleteJobLogRequest) DeepEqual(ano *DeleteJobLogRequest) bool {
+func (p *RemoveJobLogsRequest) DeepEqual(ano *RemoveJobLogsRequest) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.JobLogIds) {
+	if !p.Field1DeepEqual(ano.BaseResp) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.JobIds) {
 		return false
 	}
 	return true
 }
 
-func (p *DeleteJobLogRequest) Field1DeepEqual(src []int64) bool {
+func (p *RemoveJobLogsRequest) Field1DeepEqual(src *BaseResp) bool {
 
-	if len(p.JobLogIds) != len(src) {
+	if !p.BaseResp.DeepEqual(src) {
 		return false
 	}
-	for i, v := range p.JobLogIds {
+	return true
+}
+func (p *RemoveJobLogsRequest) Field2DeepEqual(src []int64) bool {
+
+	if len(p.JobIds) != len(src) {
+		return false
+	}
+	for i, v := range p.JobIds {
 		_src := src[i]
 		if v != _src {
 			return false
@@ -6210,27 +6134,27 @@ func (p *DeleteJobLogRequest) Field1DeepEqual(src []int64) bool {
 type JobService interface {
 	ListJobs(ctx context.Context, req *ListJobsRequest) (r *ListJobsResponse, err error)
 
-	Export(ctx context.Context, req *ExportJobRequest) (r *ExportJobResponse, err error)
+	ExportJobs(ctx context.Context, req *ExportJobsRequest) (r *ExportJobsResponse, err error)
 
-	GetJobInfoById(ctx context.Context, id int64) (r *JobInfoResponse, err error)
+	GetJobInfo(ctx context.Context, jobId int64) (r *GetJobInfoResponse, err error)
 
 	CreateJob(ctx context.Context, req *CreateJobRequest) (r *BaseResp, err error)
 
 	UpdateJob(ctx context.Context, req *UpdateJobRequest) (r *BaseResp, err error)
 
-	ChangeJobStatus(ctx context.Context, req *ChangeJobStatusRequest) (r *BaseResp, err error)
+	ChangeStatus(ctx context.Context, req *ChangeStatusRequest) (r *BaseResp, err error)
 
-	Run(ctx context.Context, req *RunJobRequest) (r *BaseResp, err error)
+	Run(ctx context.Context, req *RunRequest) (r *BaseResp, err error)
 
-	DeleteJob(ctx context.Context, req *DeleteJobRequest) (r *BaseResp, err error)
+	RemoveJobs(ctx context.Context, req *RemoveJobsRequest) (r *BaseResp, err error)
 
 	ListJobLogs(ctx context.Context, req *ListJobLogsRequest) (r *ListJobLogsResponse, err error)
 
-	ExportJobLog(ctx context.Context, req *ExportJobLogRequest) (r *ExportJobLogResponse, err error)
+	ExportJobLogs(ctx context.Context, req *ExportJobLogsRequest) (r *ExportJobLogsResponse, err error)
 
-	GetJobLogInfoById(ctx context.Context, id int64) (r *JobLogInfoResponse, err error)
+	GetJobLogInfo(ctx context.Context, jobLogId int64) (r *GetJobLogInfoResponse, err error)
 
-	DeleteJobLog(ctx context.Context, req *DeleteJobLogRequest) (r *BaseResp, err error)
+	RemoveJobLogs(ctx context.Context, req *RemoveJobLogsRequest) (r *BaseResp, err error)
 
 	Clean(ctx context.Context) (r *BaseResp, err error)
 }
@@ -6270,20 +6194,20 @@ func (p *JobServiceClient) ListJobs(ctx context.Context, req *ListJobsRequest) (
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) Export(ctx context.Context, req *ExportJobRequest) (r *ExportJobResponse, err error) {
-	var _args JobServiceExportArgs
+func (p *JobServiceClient) ExportJobs(ctx context.Context, req *ExportJobsRequest) (r *ExportJobsResponse, err error) {
+	var _args JobServiceExportJobsArgs
 	_args.Req = req
-	var _result JobServiceExportResult
-	if err = p.Client_().Call(ctx, "Export", &_args, &_result); err != nil {
+	var _result JobServiceExportJobsResult
+	if err = p.Client_().Call(ctx, "ExportJobs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) GetJobInfoById(ctx context.Context, id int64) (r *JobInfoResponse, err error) {
-	var _args JobServiceGetJobInfoByIdArgs
-	_args.Id = id
-	var _result JobServiceGetJobInfoByIdResult
-	if err = p.Client_().Call(ctx, "GetJobInfoById", &_args, &_result); err != nil {
+func (p *JobServiceClient) GetJobInfo(ctx context.Context, jobId int64) (r *GetJobInfoResponse, err error) {
+	var _args JobServiceGetJobInfoArgs
+	_args.JobId = jobId
+	var _result JobServiceGetJobInfoResult
+	if err = p.Client_().Call(ctx, "GetJobInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -6306,16 +6230,16 @@ func (p *JobServiceClient) UpdateJob(ctx context.Context, req *UpdateJobRequest)
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) ChangeJobStatus(ctx context.Context, req *ChangeJobStatusRequest) (r *BaseResp, err error) {
-	var _args JobServiceChangeJobStatusArgs
+func (p *JobServiceClient) ChangeStatus(ctx context.Context, req *ChangeStatusRequest) (r *BaseResp, err error) {
+	var _args JobServiceChangeStatusArgs
 	_args.Req = req
-	var _result JobServiceChangeJobStatusResult
-	if err = p.Client_().Call(ctx, "ChangeJobStatus", &_args, &_result); err != nil {
+	var _result JobServiceChangeStatusResult
+	if err = p.Client_().Call(ctx, "ChangeStatus", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) Run(ctx context.Context, req *RunJobRequest) (r *BaseResp, err error) {
+func (p *JobServiceClient) Run(ctx context.Context, req *RunRequest) (r *BaseResp, err error) {
 	var _args JobServiceRunArgs
 	_args.Req = req
 	var _result JobServiceRunResult
@@ -6324,11 +6248,11 @@ func (p *JobServiceClient) Run(ctx context.Context, req *RunJobRequest) (r *Base
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) DeleteJob(ctx context.Context, req *DeleteJobRequest) (r *BaseResp, err error) {
-	var _args JobServiceDeleteJobArgs
+func (p *JobServiceClient) RemoveJobs(ctx context.Context, req *RemoveJobsRequest) (r *BaseResp, err error) {
+	var _args JobServiceRemoveJobsArgs
 	_args.Req = req
-	var _result JobServiceDeleteJobResult
-	if err = p.Client_().Call(ctx, "DeleteJob", &_args, &_result); err != nil {
+	var _result JobServiceRemoveJobsResult
+	if err = p.Client_().Call(ctx, "RemoveJobs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -6342,29 +6266,29 @@ func (p *JobServiceClient) ListJobLogs(ctx context.Context, req *ListJobLogsRequ
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) ExportJobLog(ctx context.Context, req *ExportJobLogRequest) (r *ExportJobLogResponse, err error) {
-	var _args JobServiceExportJobLogArgs
+func (p *JobServiceClient) ExportJobLogs(ctx context.Context, req *ExportJobLogsRequest) (r *ExportJobLogsResponse, err error) {
+	var _args JobServiceExportJobLogsArgs
 	_args.Req = req
-	var _result JobServiceExportJobLogResult
-	if err = p.Client_().Call(ctx, "ExportJobLog", &_args, &_result); err != nil {
+	var _result JobServiceExportJobLogsResult
+	if err = p.Client_().Call(ctx, "ExportJobLogs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) GetJobLogInfoById(ctx context.Context, id int64) (r *JobLogInfoResponse, err error) {
-	var _args JobServiceGetJobLogInfoByIdArgs
-	_args.Id = id
-	var _result JobServiceGetJobLogInfoByIdResult
-	if err = p.Client_().Call(ctx, "GetJobLogInfoById", &_args, &_result); err != nil {
+func (p *JobServiceClient) GetJobLogInfo(ctx context.Context, jobLogId int64) (r *GetJobLogInfoResponse, err error) {
+	var _args JobServiceGetJobLogInfoArgs
+	_args.JobLogId = jobLogId
+	var _result JobServiceGetJobLogInfoResult
+	if err = p.Client_().Call(ctx, "GetJobLogInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *JobServiceClient) DeleteJobLog(ctx context.Context, req *DeleteJobLogRequest) (r *BaseResp, err error) {
-	var _args JobServiceDeleteJobLogArgs
+func (p *JobServiceClient) RemoveJobLogs(ctx context.Context, req *RemoveJobLogsRequest) (r *BaseResp, err error) {
+	var _args JobServiceRemoveJobLogsArgs
 	_args.Req = req
-	var _result JobServiceDeleteJobLogResult
-	if err = p.Client_().Call(ctx, "DeleteJobLog", &_args, &_result); err != nil {
+	var _result JobServiceRemoveJobLogsResult
+	if err = p.Client_().Call(ctx, "RemoveJobLogs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -6399,17 +6323,17 @@ func (p *JobServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunctio
 func NewJobServiceProcessor(handler JobService) *JobServiceProcessor {
 	self := &JobServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
 	self.AddToProcessorMap("ListJobs", &jobServiceProcessorListJobs{handler: handler})
-	self.AddToProcessorMap("Export", &jobServiceProcessorExport{handler: handler})
-	self.AddToProcessorMap("GetJobInfoById", &jobServiceProcessorGetJobInfoById{handler: handler})
+	self.AddToProcessorMap("ExportJobs", &jobServiceProcessorExportJobs{handler: handler})
+	self.AddToProcessorMap("GetJobInfo", &jobServiceProcessorGetJobInfo{handler: handler})
 	self.AddToProcessorMap("CreateJob", &jobServiceProcessorCreateJob{handler: handler})
 	self.AddToProcessorMap("UpdateJob", &jobServiceProcessorUpdateJob{handler: handler})
-	self.AddToProcessorMap("ChangeJobStatus", &jobServiceProcessorChangeJobStatus{handler: handler})
+	self.AddToProcessorMap("ChangeStatus", &jobServiceProcessorChangeStatus{handler: handler})
 	self.AddToProcessorMap("Run", &jobServiceProcessorRun{handler: handler})
-	self.AddToProcessorMap("DeleteJob", &jobServiceProcessorDeleteJob{handler: handler})
+	self.AddToProcessorMap("RemoveJobs", &jobServiceProcessorRemoveJobs{handler: handler})
 	self.AddToProcessorMap("ListJobLogs", &jobServiceProcessorListJobLogs{handler: handler})
-	self.AddToProcessorMap("ExportJobLog", &jobServiceProcessorExportJobLog{handler: handler})
-	self.AddToProcessorMap("GetJobLogInfoById", &jobServiceProcessorGetJobLogInfoById{handler: handler})
-	self.AddToProcessorMap("DeleteJobLog", &jobServiceProcessorDeleteJobLog{handler: handler})
+	self.AddToProcessorMap("ExportJobLogs", &jobServiceProcessorExportJobLogs{handler: handler})
+	self.AddToProcessorMap("GetJobLogInfo", &jobServiceProcessorGetJobLogInfo{handler: handler})
+	self.AddToProcessorMap("RemoveJobLogs", &jobServiceProcessorRemoveJobLogs{handler: handler})
 	self.AddToProcessorMap("Clean", &jobServiceProcessorClean{handler: handler})
 	return self
 }
@@ -6479,16 +6403,16 @@ func (p *jobServiceProcessorListJobs) Process(ctx context.Context, seqId int32, 
 	return true, err
 }
 
-type jobServiceProcessorExport struct {
+type jobServiceProcessorExportJobs struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorExport) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceExportArgs{}
+func (p *jobServiceProcessorExportJobs) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceExportJobsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("Export", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ExportJobs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6497,11 +6421,11 @@ func (p *jobServiceProcessorExport) Process(ctx context.Context, seqId int32, ip
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceExportResult{}
-	var retval *ExportJobResponse
-	if retval, err2 = p.handler.Export(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing Export: "+err2.Error())
-		oprot.WriteMessageBegin("Export", thrift.EXCEPTION, seqId)
+	result := JobServiceExportJobsResult{}
+	var retval *ExportJobsResponse
+	if retval, err2 = p.handler.ExportJobs(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ExportJobs: "+err2.Error())
+		oprot.WriteMessageBegin("ExportJobs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6509,7 +6433,7 @@ func (p *jobServiceProcessorExport) Process(ctx context.Context, seqId int32, ip
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("Export", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ExportJobs", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6527,16 +6451,16 @@ func (p *jobServiceProcessorExport) Process(ctx context.Context, seqId int32, ip
 	return true, err
 }
 
-type jobServiceProcessorGetJobInfoById struct {
+type jobServiceProcessorGetJobInfo struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorGetJobInfoById) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceGetJobInfoByIdArgs{}
+func (p *jobServiceProcessorGetJobInfo) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceGetJobInfoArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("GetJobInfoById", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("GetJobInfo", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6545,11 +6469,11 @@ func (p *jobServiceProcessorGetJobInfoById) Process(ctx context.Context, seqId i
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceGetJobInfoByIdResult{}
-	var retval *JobInfoResponse
-	if retval, err2 = p.handler.GetJobInfoById(ctx, args.Id); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetJobInfoById: "+err2.Error())
-		oprot.WriteMessageBegin("GetJobInfoById", thrift.EXCEPTION, seqId)
+	result := JobServiceGetJobInfoResult{}
+	var retval *GetJobInfoResponse
+	if retval, err2 = p.handler.GetJobInfo(ctx, args.JobId); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetJobInfo: "+err2.Error())
+		oprot.WriteMessageBegin("GetJobInfo", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6557,7 +6481,7 @@ func (p *jobServiceProcessorGetJobInfoById) Process(ctx context.Context, seqId i
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("GetJobInfoById", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("GetJobInfo", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6671,16 +6595,16 @@ func (p *jobServiceProcessorUpdateJob) Process(ctx context.Context, seqId int32,
 	return true, err
 }
 
-type jobServiceProcessorChangeJobStatus struct {
+type jobServiceProcessorChangeStatus struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorChangeJobStatus) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceChangeJobStatusArgs{}
+func (p *jobServiceProcessorChangeStatus) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceChangeStatusArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ChangeJobStatus", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ChangeStatus", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6689,11 +6613,11 @@ func (p *jobServiceProcessorChangeJobStatus) Process(ctx context.Context, seqId 
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceChangeJobStatusResult{}
+	result := JobServiceChangeStatusResult{}
 	var retval *BaseResp
-	if retval, err2 = p.handler.ChangeJobStatus(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ChangeJobStatus: "+err2.Error())
-		oprot.WriteMessageBegin("ChangeJobStatus", thrift.EXCEPTION, seqId)
+	if retval, err2 = p.handler.ChangeStatus(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ChangeStatus: "+err2.Error())
+		oprot.WriteMessageBegin("ChangeStatus", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6701,7 +6625,7 @@ func (p *jobServiceProcessorChangeJobStatus) Process(ctx context.Context, seqId 
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ChangeJobStatus", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ChangeStatus", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6767,16 +6691,16 @@ func (p *jobServiceProcessorRun) Process(ctx context.Context, seqId int32, iprot
 	return true, err
 }
 
-type jobServiceProcessorDeleteJob struct {
+type jobServiceProcessorRemoveJobs struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorDeleteJob) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceDeleteJobArgs{}
+func (p *jobServiceProcessorRemoveJobs) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceRemoveJobsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("DeleteJob", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("RemoveJobs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6785,11 +6709,11 @@ func (p *jobServiceProcessorDeleteJob) Process(ctx context.Context, seqId int32,
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceDeleteJobResult{}
+	result := JobServiceRemoveJobsResult{}
 	var retval *BaseResp
-	if retval, err2 = p.handler.DeleteJob(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteJob: "+err2.Error())
-		oprot.WriteMessageBegin("DeleteJob", thrift.EXCEPTION, seqId)
+	if retval, err2 = p.handler.RemoveJobs(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing RemoveJobs: "+err2.Error())
+		oprot.WriteMessageBegin("RemoveJobs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6797,7 +6721,7 @@ func (p *jobServiceProcessorDeleteJob) Process(ctx context.Context, seqId int32,
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("DeleteJob", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("RemoveJobs", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6863,16 +6787,16 @@ func (p *jobServiceProcessorListJobLogs) Process(ctx context.Context, seqId int3
 	return true, err
 }
 
-type jobServiceProcessorExportJobLog struct {
+type jobServiceProcessorExportJobLogs struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorExportJobLog) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceExportJobLogArgs{}
+func (p *jobServiceProcessorExportJobLogs) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceExportJobLogsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ExportJobLog", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("ExportJobLogs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6881,11 +6805,11 @@ func (p *jobServiceProcessorExportJobLog) Process(ctx context.Context, seqId int
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceExportJobLogResult{}
-	var retval *ExportJobLogResponse
-	if retval, err2 = p.handler.ExportJobLog(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ExportJobLog: "+err2.Error())
-		oprot.WriteMessageBegin("ExportJobLog", thrift.EXCEPTION, seqId)
+	result := JobServiceExportJobLogsResult{}
+	var retval *ExportJobLogsResponse
+	if retval, err2 = p.handler.ExportJobLogs(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ExportJobLogs: "+err2.Error())
+		oprot.WriteMessageBegin("ExportJobLogs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6893,7 +6817,7 @@ func (p *jobServiceProcessorExportJobLog) Process(ctx context.Context, seqId int
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ExportJobLog", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("ExportJobLogs", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6911,16 +6835,16 @@ func (p *jobServiceProcessorExportJobLog) Process(ctx context.Context, seqId int
 	return true, err
 }
 
-type jobServiceProcessorGetJobLogInfoById struct {
+type jobServiceProcessorGetJobLogInfo struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorGetJobLogInfoById) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceGetJobLogInfoByIdArgs{}
+func (p *jobServiceProcessorGetJobLogInfo) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceGetJobLogInfoArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("GetJobLogInfoById", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("GetJobLogInfo", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6929,11 +6853,11 @@ func (p *jobServiceProcessorGetJobLogInfoById) Process(ctx context.Context, seqI
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceGetJobLogInfoByIdResult{}
-	var retval *JobLogInfoResponse
-	if retval, err2 = p.handler.GetJobLogInfoById(ctx, args.Id); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetJobLogInfoById: "+err2.Error())
-		oprot.WriteMessageBegin("GetJobLogInfoById", thrift.EXCEPTION, seqId)
+	result := JobServiceGetJobLogInfoResult{}
+	var retval *GetJobLogInfoResponse
+	if retval, err2 = p.handler.GetJobLogInfo(ctx, args.JobLogId); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetJobLogInfo: "+err2.Error())
+		oprot.WriteMessageBegin("GetJobLogInfo", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6941,7 +6865,7 @@ func (p *jobServiceProcessorGetJobLogInfoById) Process(ctx context.Context, seqI
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("GetJobLogInfoById", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("GetJobLogInfo", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -6959,16 +6883,16 @@ func (p *jobServiceProcessorGetJobLogInfoById) Process(ctx context.Context, seqI
 	return true, err
 }
 
-type jobServiceProcessorDeleteJobLog struct {
+type jobServiceProcessorRemoveJobLogs struct {
 	handler JobService
 }
 
-func (p *jobServiceProcessorDeleteJobLog) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := JobServiceDeleteJobLogArgs{}
+func (p *jobServiceProcessorRemoveJobLogs) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := JobServiceRemoveJobLogsArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("DeleteJobLog", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("RemoveJobLogs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6977,11 +6901,11 @@ func (p *jobServiceProcessorDeleteJobLog) Process(ctx context.Context, seqId int
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := JobServiceDeleteJobLogResult{}
+	result := JobServiceRemoveJobLogsResult{}
 	var retval *BaseResp
-	if retval, err2 = p.handler.DeleteJobLog(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing DeleteJobLog: "+err2.Error())
-		oprot.WriteMessageBegin("DeleteJobLog", thrift.EXCEPTION, seqId)
+	if retval, err2 = p.handler.RemoveJobLogs(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing RemoveJobLogs: "+err2.Error())
+		oprot.WriteMessageBegin("RemoveJobLogs", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -6989,7 +6913,7 @@ func (p *jobServiceProcessorDeleteJobLog) Process(ctx context.Context, seqId int
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("DeleteJobLog", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("RemoveJobLogs", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -7395,39 +7319,39 @@ func (p *JobServiceListJobsResult) Field0DeepEqual(src *ListJobsResponse) bool {
 	return true
 }
 
-type JobServiceExportArgs struct {
-	Req *ExportJobRequest `thrift:"req,1" frugal:"1,default,ExportJobRequest" json:"req"`
+type JobServiceExportJobsArgs struct {
+	Req *ExportJobsRequest `thrift:"req,1" frugal:"1,default,ExportJobsRequest" json:"req"`
 }
 
-func NewJobServiceExportArgs() *JobServiceExportArgs {
-	return &JobServiceExportArgs{}
+func NewJobServiceExportJobsArgs() *JobServiceExportJobsArgs {
+	return &JobServiceExportJobsArgs{}
 }
 
-func (p *JobServiceExportArgs) InitDefault() {
-	*p = JobServiceExportArgs{}
+func (p *JobServiceExportJobsArgs) InitDefault() {
+	*p = JobServiceExportJobsArgs{}
 }
 
-var JobServiceExportArgs_Req_DEFAULT *ExportJobRequest
+var JobServiceExportJobsArgs_Req_DEFAULT *ExportJobsRequest
 
-func (p *JobServiceExportArgs) GetReq() (v *ExportJobRequest) {
+func (p *JobServiceExportJobsArgs) GetReq() (v *ExportJobsRequest) {
 	if !p.IsSetReq() {
-		return JobServiceExportArgs_Req_DEFAULT
+		return JobServiceExportJobsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *JobServiceExportArgs) SetReq(val *ExportJobRequest) {
+func (p *JobServiceExportJobsArgs) SetReq(val *ExportJobsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_JobServiceExportArgs = map[int16]string{
+var fieldIDToName_JobServiceExportJobsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *JobServiceExportArgs) IsSetReq() bool {
+func (p *JobServiceExportJobsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *JobServiceExportArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7473,7 +7397,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportJobsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7483,17 +7407,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceExportArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewExportJobRequest()
+func (p *JobServiceExportJobsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewExportJobsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceExportArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("Export_args"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobs_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7519,7 +7443,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceExportArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -7536,15 +7460,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceExportArgs) String() string {
+func (p *JobServiceExportJobsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceExportArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceExportJobsArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceExportArgs) DeepEqual(ano *JobServiceExportArgs) bool {
+func (p *JobServiceExportJobsArgs) DeepEqual(ano *JobServiceExportJobsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -7556,7 +7480,7 @@ func (p *JobServiceExportArgs) DeepEqual(ano *JobServiceExportArgs) bool {
 	return true
 }
 
-func (p *JobServiceExportArgs) Field1DeepEqual(src *ExportJobRequest) bool {
+func (p *JobServiceExportJobsArgs) Field1DeepEqual(src *ExportJobsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -7564,39 +7488,39 @@ func (p *JobServiceExportArgs) Field1DeepEqual(src *ExportJobRequest) bool {
 	return true
 }
 
-type JobServiceExportResult struct {
-	Success *ExportJobResponse `thrift:"success,0,optional" frugal:"0,optional,ExportJobResponse" json:"success,omitempty"`
+type JobServiceExportJobsResult struct {
+	Success *ExportJobsResponse `thrift:"success,0,optional" frugal:"0,optional,ExportJobsResponse" json:"success,omitempty"`
 }
 
-func NewJobServiceExportResult() *JobServiceExportResult {
-	return &JobServiceExportResult{}
+func NewJobServiceExportJobsResult() *JobServiceExportJobsResult {
+	return &JobServiceExportJobsResult{}
 }
 
-func (p *JobServiceExportResult) InitDefault() {
-	*p = JobServiceExportResult{}
+func (p *JobServiceExportJobsResult) InitDefault() {
+	*p = JobServiceExportJobsResult{}
 }
 
-var JobServiceExportResult_Success_DEFAULT *ExportJobResponse
+var JobServiceExportJobsResult_Success_DEFAULT *ExportJobsResponse
 
-func (p *JobServiceExportResult) GetSuccess() (v *ExportJobResponse) {
+func (p *JobServiceExportJobsResult) GetSuccess() (v *ExportJobsResponse) {
 	if !p.IsSetSuccess() {
-		return JobServiceExportResult_Success_DEFAULT
+		return JobServiceExportJobsResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceExportResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ExportJobResponse)
+func (p *JobServiceExportJobsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*ExportJobsResponse)
 }
 
-var fieldIDToName_JobServiceExportResult = map[int16]string{
+var fieldIDToName_JobServiceExportJobsResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceExportResult) IsSetSuccess() bool {
+func (p *JobServiceExportJobsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceExportResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7642,7 +7566,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportJobsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7652,17 +7576,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceExportResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewExportJobResponse()
+func (p *JobServiceExportJobsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewExportJobsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceExportResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("Export_result"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobs_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7688,7 +7612,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceExportResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -7707,15 +7631,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceExportResult) String() string {
+func (p *JobServiceExportJobsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceExportResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceExportJobsResult(%+v)", *p)
 
 }
 
-func (p *JobServiceExportResult) DeepEqual(ano *JobServiceExportResult) bool {
+func (p *JobServiceExportJobsResult) DeepEqual(ano *JobServiceExportJobsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -7727,7 +7651,7 @@ func (p *JobServiceExportResult) DeepEqual(ano *JobServiceExportResult) bool {
 	return true
 }
 
-func (p *JobServiceExportResult) Field0DeepEqual(src *ExportJobResponse) bool {
+func (p *JobServiceExportJobsResult) Field0DeepEqual(src *ExportJobsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -7735,30 +7659,30 @@ func (p *JobServiceExportResult) Field0DeepEqual(src *ExportJobResponse) bool {
 	return true
 }
 
-type JobServiceGetJobInfoByIdArgs struct {
-	Id int64 `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+type JobServiceGetJobInfoArgs struct {
+	JobId int64 `thrift:"jobId,1" frugal:"1,default,i64" json:"jobId"`
 }
 
-func NewJobServiceGetJobInfoByIdArgs() *JobServiceGetJobInfoByIdArgs {
-	return &JobServiceGetJobInfoByIdArgs{}
+func NewJobServiceGetJobInfoArgs() *JobServiceGetJobInfoArgs {
+	return &JobServiceGetJobInfoArgs{}
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) InitDefault() {
-	*p = JobServiceGetJobInfoByIdArgs{}
+func (p *JobServiceGetJobInfoArgs) InitDefault() {
+	*p = JobServiceGetJobInfoArgs{}
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) GetId() (v int64) {
-	return p.Id
+func (p *JobServiceGetJobInfoArgs) GetJobId() (v int64) {
+	return p.JobId
 }
-func (p *JobServiceGetJobInfoByIdArgs) SetId(val int64) {
-	p.Id = val
-}
-
-var fieldIDToName_JobServiceGetJobInfoByIdArgs = map[int16]string{
-	1: "id",
+func (p *JobServiceGetJobInfoArgs) SetJobId(val int64) {
+	p.JobId = val
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) Read(iprot thrift.TProtocol) (err error) {
+var fieldIDToName_JobServiceGetJobInfoArgs = map[int16]string{
+	1: "jobId",
+}
+
+func (p *JobServiceGetJobInfoArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7804,7 +7728,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobInfoByIdArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobInfoArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7814,19 +7738,19 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *JobServiceGetJobInfoArgs) ReadField1(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.Id = v
+		p.JobId = v
 	}
 	return nil
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobInfoArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetJobInfoById_args"); err != nil {
+	if err = oprot.WriteStructBegin("GetJobInfo_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -7852,11 +7776,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+func (p *JobServiceGetJobInfoArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobId", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Id); err != nil {
+	if err := oprot.WriteI64(p.JobId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -7869,67 +7793,67 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) String() string {
+func (p *JobServiceGetJobInfoArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceGetJobInfoByIdArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceGetJobInfoArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) DeepEqual(ano *JobServiceGetJobInfoByIdArgs) bool {
+func (p *JobServiceGetJobInfoArgs) DeepEqual(ano *JobServiceGetJobInfoArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.JobId) {
 		return false
 	}
 	return true
 }
 
-func (p *JobServiceGetJobInfoByIdArgs) Field1DeepEqual(src int64) bool {
+func (p *JobServiceGetJobInfoArgs) Field1DeepEqual(src int64) bool {
 
-	if p.Id != src {
+	if p.JobId != src {
 		return false
 	}
 	return true
 }
 
-type JobServiceGetJobInfoByIdResult struct {
-	Success *JobInfoResponse `thrift:"success,0,optional" frugal:"0,optional,JobInfoResponse" json:"success,omitempty"`
+type JobServiceGetJobInfoResult struct {
+	Success *GetJobInfoResponse `thrift:"success,0,optional" frugal:"0,optional,GetJobInfoResponse" json:"success,omitempty"`
 }
 
-func NewJobServiceGetJobInfoByIdResult() *JobServiceGetJobInfoByIdResult {
-	return &JobServiceGetJobInfoByIdResult{}
+func NewJobServiceGetJobInfoResult() *JobServiceGetJobInfoResult {
+	return &JobServiceGetJobInfoResult{}
 }
 
-func (p *JobServiceGetJobInfoByIdResult) InitDefault() {
-	*p = JobServiceGetJobInfoByIdResult{}
+func (p *JobServiceGetJobInfoResult) InitDefault() {
+	*p = JobServiceGetJobInfoResult{}
 }
 
-var JobServiceGetJobInfoByIdResult_Success_DEFAULT *JobInfoResponse
+var JobServiceGetJobInfoResult_Success_DEFAULT *GetJobInfoResponse
 
-func (p *JobServiceGetJobInfoByIdResult) GetSuccess() (v *JobInfoResponse) {
+func (p *JobServiceGetJobInfoResult) GetSuccess() (v *GetJobInfoResponse) {
 	if !p.IsSetSuccess() {
-		return JobServiceGetJobInfoByIdResult_Success_DEFAULT
+		return JobServiceGetJobInfoResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceGetJobInfoByIdResult) SetSuccess(x interface{}) {
-	p.Success = x.(*JobInfoResponse)
+func (p *JobServiceGetJobInfoResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetJobInfoResponse)
 }
 
-var fieldIDToName_JobServiceGetJobInfoByIdResult = map[int16]string{
+var fieldIDToName_JobServiceGetJobInfoResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceGetJobInfoByIdResult) IsSetSuccess() bool {
+func (p *JobServiceGetJobInfoResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceGetJobInfoByIdResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobInfoResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -7975,7 +7899,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobInfoByIdResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobInfoResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -7985,17 +7909,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobInfoByIdResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewJobInfoResponse()
+func (p *JobServiceGetJobInfoResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewGetJobInfoResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceGetJobInfoByIdResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobInfoResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetJobInfoById_result"); err != nil {
+	if err = oprot.WriteStructBegin("GetJobInfo_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -8021,7 +7945,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobInfoByIdResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobInfoResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -8040,15 +7964,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceGetJobInfoByIdResult) String() string {
+func (p *JobServiceGetJobInfoResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceGetJobInfoByIdResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceGetJobInfoResult(%+v)", *p)
 
 }
 
-func (p *JobServiceGetJobInfoByIdResult) DeepEqual(ano *JobServiceGetJobInfoByIdResult) bool {
+func (p *JobServiceGetJobInfoResult) DeepEqual(ano *JobServiceGetJobInfoResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -8060,7 +7984,7 @@ func (p *JobServiceGetJobInfoByIdResult) DeepEqual(ano *JobServiceGetJobInfoById
 	return true
 }
 
-func (p *JobServiceGetJobInfoByIdResult) Field0DeepEqual(src *JobInfoResponse) bool {
+func (p *JobServiceGetJobInfoResult) Field0DeepEqual(src *GetJobInfoResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -8748,39 +8672,39 @@ func (p *JobServiceUpdateJobResult) Field0DeepEqual(src *BaseResp) bool {
 	return true
 }
 
-type JobServiceChangeJobStatusArgs struct {
-	Req *ChangeJobStatusRequest `thrift:"req,1" frugal:"1,default,ChangeJobStatusRequest" json:"req"`
+type JobServiceChangeStatusArgs struct {
+	Req *ChangeStatusRequest `thrift:"req,1" frugal:"1,default,ChangeStatusRequest" json:"req"`
 }
 
-func NewJobServiceChangeJobStatusArgs() *JobServiceChangeJobStatusArgs {
-	return &JobServiceChangeJobStatusArgs{}
+func NewJobServiceChangeStatusArgs() *JobServiceChangeStatusArgs {
+	return &JobServiceChangeStatusArgs{}
 }
 
-func (p *JobServiceChangeJobStatusArgs) InitDefault() {
-	*p = JobServiceChangeJobStatusArgs{}
+func (p *JobServiceChangeStatusArgs) InitDefault() {
+	*p = JobServiceChangeStatusArgs{}
 }
 
-var JobServiceChangeJobStatusArgs_Req_DEFAULT *ChangeJobStatusRequest
+var JobServiceChangeStatusArgs_Req_DEFAULT *ChangeStatusRequest
 
-func (p *JobServiceChangeJobStatusArgs) GetReq() (v *ChangeJobStatusRequest) {
+func (p *JobServiceChangeStatusArgs) GetReq() (v *ChangeStatusRequest) {
 	if !p.IsSetReq() {
-		return JobServiceChangeJobStatusArgs_Req_DEFAULT
+		return JobServiceChangeStatusArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *JobServiceChangeJobStatusArgs) SetReq(val *ChangeJobStatusRequest) {
+func (p *JobServiceChangeStatusArgs) SetReq(val *ChangeStatusRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_JobServiceChangeJobStatusArgs = map[int16]string{
+var fieldIDToName_JobServiceChangeStatusArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *JobServiceChangeJobStatusArgs) IsSetReq() bool {
+func (p *JobServiceChangeStatusArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *JobServiceChangeJobStatusArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceChangeStatusArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -8826,7 +8750,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceChangeJobStatusArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceChangeStatusArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -8836,17 +8760,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceChangeJobStatusArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewChangeJobStatusRequest()
+func (p *JobServiceChangeStatusArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewChangeStatusRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceChangeJobStatusArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceChangeStatusArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ChangeJobStatus_args"); err != nil {
+	if err = oprot.WriteStructBegin("ChangeStatus_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -8872,7 +8796,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceChangeJobStatusArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceChangeStatusArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -8889,15 +8813,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceChangeJobStatusArgs) String() string {
+func (p *JobServiceChangeStatusArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceChangeJobStatusArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceChangeStatusArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceChangeJobStatusArgs) DeepEqual(ano *JobServiceChangeJobStatusArgs) bool {
+func (p *JobServiceChangeStatusArgs) DeepEqual(ano *JobServiceChangeStatusArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -8909,7 +8833,7 @@ func (p *JobServiceChangeJobStatusArgs) DeepEqual(ano *JobServiceChangeJobStatus
 	return true
 }
 
-func (p *JobServiceChangeJobStatusArgs) Field1DeepEqual(src *ChangeJobStatusRequest) bool {
+func (p *JobServiceChangeStatusArgs) Field1DeepEqual(src *ChangeStatusRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -8917,39 +8841,39 @@ func (p *JobServiceChangeJobStatusArgs) Field1DeepEqual(src *ChangeJobStatusRequ
 	return true
 }
 
-type JobServiceChangeJobStatusResult struct {
+type JobServiceChangeStatusResult struct {
 	Success *BaseResp `thrift:"success,0,optional" frugal:"0,optional,BaseResp" json:"success,omitempty"`
 }
 
-func NewJobServiceChangeJobStatusResult() *JobServiceChangeJobStatusResult {
-	return &JobServiceChangeJobStatusResult{}
+func NewJobServiceChangeStatusResult() *JobServiceChangeStatusResult {
+	return &JobServiceChangeStatusResult{}
 }
 
-func (p *JobServiceChangeJobStatusResult) InitDefault() {
-	*p = JobServiceChangeJobStatusResult{}
+func (p *JobServiceChangeStatusResult) InitDefault() {
+	*p = JobServiceChangeStatusResult{}
 }
 
-var JobServiceChangeJobStatusResult_Success_DEFAULT *BaseResp
+var JobServiceChangeStatusResult_Success_DEFAULT *BaseResp
 
-func (p *JobServiceChangeJobStatusResult) GetSuccess() (v *BaseResp) {
+func (p *JobServiceChangeStatusResult) GetSuccess() (v *BaseResp) {
 	if !p.IsSetSuccess() {
-		return JobServiceChangeJobStatusResult_Success_DEFAULT
+		return JobServiceChangeStatusResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceChangeJobStatusResult) SetSuccess(x interface{}) {
+func (p *JobServiceChangeStatusResult) SetSuccess(x interface{}) {
 	p.Success = x.(*BaseResp)
 }
 
-var fieldIDToName_JobServiceChangeJobStatusResult = map[int16]string{
+var fieldIDToName_JobServiceChangeStatusResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceChangeJobStatusResult) IsSetSuccess() bool {
+func (p *JobServiceChangeStatusResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceChangeJobStatusResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceChangeStatusResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -8995,7 +8919,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceChangeJobStatusResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceChangeStatusResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -9005,7 +8929,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceChangeJobStatusResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *JobServiceChangeStatusResult) ReadField0(iprot thrift.TProtocol) error {
 	p.Success = NewBaseResp()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
@@ -9013,9 +8937,9 @@ func (p *JobServiceChangeJobStatusResult) ReadField0(iprot thrift.TProtocol) err
 	return nil
 }
 
-func (p *JobServiceChangeJobStatusResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceChangeStatusResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ChangeJobStatus_result"); err != nil {
+	if err = oprot.WriteStructBegin("ChangeStatus_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -9041,7 +8965,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceChangeJobStatusResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceChangeStatusResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -9060,15 +8984,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceChangeJobStatusResult) String() string {
+func (p *JobServiceChangeStatusResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceChangeJobStatusResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceChangeStatusResult(%+v)", *p)
 
 }
 
-func (p *JobServiceChangeJobStatusResult) DeepEqual(ano *JobServiceChangeJobStatusResult) bool {
+func (p *JobServiceChangeStatusResult) DeepEqual(ano *JobServiceChangeStatusResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -9080,7 +9004,7 @@ func (p *JobServiceChangeJobStatusResult) DeepEqual(ano *JobServiceChangeJobStat
 	return true
 }
 
-func (p *JobServiceChangeJobStatusResult) Field0DeepEqual(src *BaseResp) bool {
+func (p *JobServiceChangeStatusResult) Field0DeepEqual(src *BaseResp) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -9089,7 +9013,7 @@ func (p *JobServiceChangeJobStatusResult) Field0DeepEqual(src *BaseResp) bool {
 }
 
 type JobServiceRunArgs struct {
-	Req *RunJobRequest `thrift:"req,1" frugal:"1,default,RunJobRequest" json:"req"`
+	Req *RunRequest `thrift:"req,1" frugal:"1,default,RunRequest" json:"req"`
 }
 
 func NewJobServiceRunArgs() *JobServiceRunArgs {
@@ -9100,15 +9024,15 @@ func (p *JobServiceRunArgs) InitDefault() {
 	*p = JobServiceRunArgs{}
 }
 
-var JobServiceRunArgs_Req_DEFAULT *RunJobRequest
+var JobServiceRunArgs_Req_DEFAULT *RunRequest
 
-func (p *JobServiceRunArgs) GetReq() (v *RunJobRequest) {
+func (p *JobServiceRunArgs) GetReq() (v *RunRequest) {
 	if !p.IsSetReq() {
 		return JobServiceRunArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *JobServiceRunArgs) SetReq(val *RunJobRequest) {
+func (p *JobServiceRunArgs) SetReq(val *RunRequest) {
 	p.Req = val
 }
 
@@ -9177,7 +9101,7 @@ ReadStructEndError:
 }
 
 func (p *JobServiceRunArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewRunJobRequest()
+	p.Req = NewRunRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
@@ -9249,7 +9173,7 @@ func (p *JobServiceRunArgs) DeepEqual(ano *JobServiceRunArgs) bool {
 	return true
 }
 
-func (p *JobServiceRunArgs) Field1DeepEqual(src *RunJobRequest) bool {
+func (p *JobServiceRunArgs) Field1DeepEqual(src *RunRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -9428,39 +9352,39 @@ func (p *JobServiceRunResult) Field0DeepEqual(src *BaseResp) bool {
 	return true
 }
 
-type JobServiceDeleteJobArgs struct {
-	Req *DeleteJobRequest `thrift:"req,1" frugal:"1,default,DeleteJobRequest" json:"req"`
+type JobServiceRemoveJobsArgs struct {
+	Req *RemoveJobsRequest `thrift:"req,1" frugal:"1,default,RemoveJobsRequest" json:"req"`
 }
 
-func NewJobServiceDeleteJobArgs() *JobServiceDeleteJobArgs {
-	return &JobServiceDeleteJobArgs{}
+func NewJobServiceRemoveJobsArgs() *JobServiceRemoveJobsArgs {
+	return &JobServiceRemoveJobsArgs{}
 }
 
-func (p *JobServiceDeleteJobArgs) InitDefault() {
-	*p = JobServiceDeleteJobArgs{}
+func (p *JobServiceRemoveJobsArgs) InitDefault() {
+	*p = JobServiceRemoveJobsArgs{}
 }
 
-var JobServiceDeleteJobArgs_Req_DEFAULT *DeleteJobRequest
+var JobServiceRemoveJobsArgs_Req_DEFAULT *RemoveJobsRequest
 
-func (p *JobServiceDeleteJobArgs) GetReq() (v *DeleteJobRequest) {
+func (p *JobServiceRemoveJobsArgs) GetReq() (v *RemoveJobsRequest) {
 	if !p.IsSetReq() {
-		return JobServiceDeleteJobArgs_Req_DEFAULT
+		return JobServiceRemoveJobsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *JobServiceDeleteJobArgs) SetReq(val *DeleteJobRequest) {
+func (p *JobServiceRemoveJobsArgs) SetReq(val *RemoveJobsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_JobServiceDeleteJobArgs = map[int16]string{
+var fieldIDToName_JobServiceRemoveJobsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *JobServiceDeleteJobArgs) IsSetReq() bool {
+func (p *JobServiceRemoveJobsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *JobServiceDeleteJobArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -9506,7 +9430,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceDeleteJobArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceRemoveJobsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -9516,17 +9440,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewDeleteJobRequest()
+func (p *JobServiceRemoveJobsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewRemoveJobsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceDeleteJobArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteJob_args"); err != nil {
+	if err = oprot.WriteStructBegin("RemoveJobs_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -9552,7 +9476,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -9569,15 +9493,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobArgs) String() string {
+func (p *JobServiceRemoveJobsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceDeleteJobArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceRemoveJobsArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceDeleteJobArgs) DeepEqual(ano *JobServiceDeleteJobArgs) bool {
+func (p *JobServiceRemoveJobsArgs) DeepEqual(ano *JobServiceRemoveJobsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -9589,7 +9513,7 @@ func (p *JobServiceDeleteJobArgs) DeepEqual(ano *JobServiceDeleteJobArgs) bool {
 	return true
 }
 
-func (p *JobServiceDeleteJobArgs) Field1DeepEqual(src *DeleteJobRequest) bool {
+func (p *JobServiceRemoveJobsArgs) Field1DeepEqual(src *RemoveJobsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -9597,39 +9521,39 @@ func (p *JobServiceDeleteJobArgs) Field1DeepEqual(src *DeleteJobRequest) bool {
 	return true
 }
 
-type JobServiceDeleteJobResult struct {
+type JobServiceRemoveJobsResult struct {
 	Success *BaseResp `thrift:"success,0,optional" frugal:"0,optional,BaseResp" json:"success,omitempty"`
 }
 
-func NewJobServiceDeleteJobResult() *JobServiceDeleteJobResult {
-	return &JobServiceDeleteJobResult{}
+func NewJobServiceRemoveJobsResult() *JobServiceRemoveJobsResult {
+	return &JobServiceRemoveJobsResult{}
 }
 
-func (p *JobServiceDeleteJobResult) InitDefault() {
-	*p = JobServiceDeleteJobResult{}
+func (p *JobServiceRemoveJobsResult) InitDefault() {
+	*p = JobServiceRemoveJobsResult{}
 }
 
-var JobServiceDeleteJobResult_Success_DEFAULT *BaseResp
+var JobServiceRemoveJobsResult_Success_DEFAULT *BaseResp
 
-func (p *JobServiceDeleteJobResult) GetSuccess() (v *BaseResp) {
+func (p *JobServiceRemoveJobsResult) GetSuccess() (v *BaseResp) {
 	if !p.IsSetSuccess() {
-		return JobServiceDeleteJobResult_Success_DEFAULT
+		return JobServiceRemoveJobsResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceDeleteJobResult) SetSuccess(x interface{}) {
+func (p *JobServiceRemoveJobsResult) SetSuccess(x interface{}) {
 	p.Success = x.(*BaseResp)
 }
 
-var fieldIDToName_JobServiceDeleteJobResult = map[int16]string{
+var fieldIDToName_JobServiceRemoveJobsResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceDeleteJobResult) IsSetSuccess() bool {
+func (p *JobServiceRemoveJobsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceDeleteJobResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -9675,7 +9599,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceDeleteJobResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceRemoveJobsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -9685,7 +9609,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *JobServiceRemoveJobsResult) ReadField0(iprot thrift.TProtocol) error {
 	p.Success = NewBaseResp()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
@@ -9693,9 +9617,9 @@ func (p *JobServiceDeleteJobResult) ReadField0(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *JobServiceDeleteJobResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteJob_result"); err != nil {
+	if err = oprot.WriteStructBegin("RemoveJobs_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -9721,7 +9645,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -9740,15 +9664,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobResult) String() string {
+func (p *JobServiceRemoveJobsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceDeleteJobResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceRemoveJobsResult(%+v)", *p)
 
 }
 
-func (p *JobServiceDeleteJobResult) DeepEqual(ano *JobServiceDeleteJobResult) bool {
+func (p *JobServiceRemoveJobsResult) DeepEqual(ano *JobServiceRemoveJobsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -9760,7 +9684,7 @@ func (p *JobServiceDeleteJobResult) DeepEqual(ano *JobServiceDeleteJobResult) bo
 	return true
 }
 
-func (p *JobServiceDeleteJobResult) Field0DeepEqual(src *BaseResp) bool {
+func (p *JobServiceRemoveJobsResult) Field0DeepEqual(src *BaseResp) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -10108,39 +10032,39 @@ func (p *JobServiceListJobLogsResult) Field0DeepEqual(src *ListJobLogsResponse) 
 	return true
 }
 
-type JobServiceExportJobLogArgs struct {
-	Req *ExportJobLogRequest `thrift:"req,1" frugal:"1,default,ExportJobLogRequest" json:"req"`
+type JobServiceExportJobLogsArgs struct {
+	Req *ExportJobLogsRequest `thrift:"req,1" frugal:"1,default,ExportJobLogsRequest" json:"req"`
 }
 
-func NewJobServiceExportJobLogArgs() *JobServiceExportJobLogArgs {
-	return &JobServiceExportJobLogArgs{}
+func NewJobServiceExportJobLogsArgs() *JobServiceExportJobLogsArgs {
+	return &JobServiceExportJobLogsArgs{}
 }
 
-func (p *JobServiceExportJobLogArgs) InitDefault() {
-	*p = JobServiceExportJobLogArgs{}
+func (p *JobServiceExportJobLogsArgs) InitDefault() {
+	*p = JobServiceExportJobLogsArgs{}
 }
 
-var JobServiceExportJobLogArgs_Req_DEFAULT *ExportJobLogRequest
+var JobServiceExportJobLogsArgs_Req_DEFAULT *ExportJobLogsRequest
 
-func (p *JobServiceExportJobLogArgs) GetReq() (v *ExportJobLogRequest) {
+func (p *JobServiceExportJobLogsArgs) GetReq() (v *ExportJobLogsRequest) {
 	if !p.IsSetReq() {
-		return JobServiceExportJobLogArgs_Req_DEFAULT
+		return JobServiceExportJobLogsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *JobServiceExportJobLogArgs) SetReq(val *ExportJobLogRequest) {
+func (p *JobServiceExportJobLogsArgs) SetReq(val *ExportJobLogsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_JobServiceExportJobLogArgs = map[int16]string{
+var fieldIDToName_JobServiceExportJobLogsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *JobServiceExportJobLogArgs) IsSetReq() bool {
+func (p *JobServiceExportJobLogsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *JobServiceExportJobLogArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobLogsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -10186,7 +10110,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportJobLogArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportJobLogsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -10196,17 +10120,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceExportJobLogArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewExportJobLogRequest()
+func (p *JobServiceExportJobLogsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewExportJobLogsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceExportJobLogArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobLogsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExportJobLog_args"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobLogs_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -10232,7 +10156,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceExportJobLogArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobLogsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -10249,15 +10173,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceExportJobLogArgs) String() string {
+func (p *JobServiceExportJobLogsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceExportJobLogArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceExportJobLogsArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceExportJobLogArgs) DeepEqual(ano *JobServiceExportJobLogArgs) bool {
+func (p *JobServiceExportJobLogsArgs) DeepEqual(ano *JobServiceExportJobLogsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -10269,7 +10193,7 @@ func (p *JobServiceExportJobLogArgs) DeepEqual(ano *JobServiceExportJobLogArgs) 
 	return true
 }
 
-func (p *JobServiceExportJobLogArgs) Field1DeepEqual(src *ExportJobLogRequest) bool {
+func (p *JobServiceExportJobLogsArgs) Field1DeepEqual(src *ExportJobLogsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -10277,39 +10201,39 @@ func (p *JobServiceExportJobLogArgs) Field1DeepEqual(src *ExportJobLogRequest) b
 	return true
 }
 
-type JobServiceExportJobLogResult struct {
-	Success *ExportJobLogResponse `thrift:"success,0,optional" frugal:"0,optional,ExportJobLogResponse" json:"success,omitempty"`
+type JobServiceExportJobLogsResult struct {
+	Success *ExportJobLogsResponse `thrift:"success,0,optional" frugal:"0,optional,ExportJobLogsResponse" json:"success,omitempty"`
 }
 
-func NewJobServiceExportJobLogResult() *JobServiceExportJobLogResult {
-	return &JobServiceExportJobLogResult{}
+func NewJobServiceExportJobLogsResult() *JobServiceExportJobLogsResult {
+	return &JobServiceExportJobLogsResult{}
 }
 
-func (p *JobServiceExportJobLogResult) InitDefault() {
-	*p = JobServiceExportJobLogResult{}
+func (p *JobServiceExportJobLogsResult) InitDefault() {
+	*p = JobServiceExportJobLogsResult{}
 }
 
-var JobServiceExportJobLogResult_Success_DEFAULT *ExportJobLogResponse
+var JobServiceExportJobLogsResult_Success_DEFAULT *ExportJobLogsResponse
 
-func (p *JobServiceExportJobLogResult) GetSuccess() (v *ExportJobLogResponse) {
+func (p *JobServiceExportJobLogsResult) GetSuccess() (v *ExportJobLogsResponse) {
 	if !p.IsSetSuccess() {
-		return JobServiceExportJobLogResult_Success_DEFAULT
+		return JobServiceExportJobLogsResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceExportJobLogResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ExportJobLogResponse)
+func (p *JobServiceExportJobLogsResult) SetSuccess(x interface{}) {
+	p.Success = x.(*ExportJobLogsResponse)
 }
 
-var fieldIDToName_JobServiceExportJobLogResult = map[int16]string{
+var fieldIDToName_JobServiceExportJobLogsResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceExportJobLogResult) IsSetSuccess() bool {
+func (p *JobServiceExportJobLogsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceExportJobLogResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobLogsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -10355,7 +10279,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportJobLogResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceExportJobLogsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -10365,17 +10289,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceExportJobLogResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewExportJobLogResponse()
+func (p *JobServiceExportJobLogsResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewExportJobLogsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceExportJobLogResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobLogsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ExportJobLog_result"); err != nil {
+	if err = oprot.WriteStructBegin("ExportJobLogs_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -10401,7 +10325,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceExportJobLogResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceExportJobLogsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -10420,15 +10344,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceExportJobLogResult) String() string {
+func (p *JobServiceExportJobLogsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceExportJobLogResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceExportJobLogsResult(%+v)", *p)
 
 }
 
-func (p *JobServiceExportJobLogResult) DeepEqual(ano *JobServiceExportJobLogResult) bool {
+func (p *JobServiceExportJobLogsResult) DeepEqual(ano *JobServiceExportJobLogsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -10440,7 +10364,7 @@ func (p *JobServiceExportJobLogResult) DeepEqual(ano *JobServiceExportJobLogResu
 	return true
 }
 
-func (p *JobServiceExportJobLogResult) Field0DeepEqual(src *ExportJobLogResponse) bool {
+func (p *JobServiceExportJobLogsResult) Field0DeepEqual(src *ExportJobLogsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -10448,30 +10372,30 @@ func (p *JobServiceExportJobLogResult) Field0DeepEqual(src *ExportJobLogResponse
 	return true
 }
 
-type JobServiceGetJobLogInfoByIdArgs struct {
-	Id int64 `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+type JobServiceGetJobLogInfoArgs struct {
+	JobLogId int64 `thrift:"jobLogId,1" frugal:"1,default,i64" json:"jobLogId"`
 }
 
-func NewJobServiceGetJobLogInfoByIdArgs() *JobServiceGetJobLogInfoByIdArgs {
-	return &JobServiceGetJobLogInfoByIdArgs{}
+func NewJobServiceGetJobLogInfoArgs() *JobServiceGetJobLogInfoArgs {
+	return &JobServiceGetJobLogInfoArgs{}
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) InitDefault() {
-	*p = JobServiceGetJobLogInfoByIdArgs{}
+func (p *JobServiceGetJobLogInfoArgs) InitDefault() {
+	*p = JobServiceGetJobLogInfoArgs{}
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) GetId() (v int64) {
-	return p.Id
+func (p *JobServiceGetJobLogInfoArgs) GetJobLogId() (v int64) {
+	return p.JobLogId
 }
-func (p *JobServiceGetJobLogInfoByIdArgs) SetId(val int64) {
-	p.Id = val
-}
-
-var fieldIDToName_JobServiceGetJobLogInfoByIdArgs = map[int16]string{
-	1: "id",
+func (p *JobServiceGetJobLogInfoArgs) SetJobLogId(val int64) {
+	p.JobLogId = val
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) Read(iprot thrift.TProtocol) (err error) {
+var fieldIDToName_JobServiceGetJobLogInfoArgs = map[int16]string{
+	1: "jobLogId",
+}
+
+func (p *JobServiceGetJobLogInfoArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -10517,7 +10441,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobLogInfoByIdArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobLogInfoArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -10527,19 +10451,19 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *JobServiceGetJobLogInfoArgs) ReadField1(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.Id = v
+		p.JobLogId = v
 	}
 	return nil
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobLogInfoArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetJobLogInfoById_args"); err != nil {
+	if err = oprot.WriteStructBegin("GetJobLogInfo_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -10565,11 +10489,11 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+func (p *JobServiceGetJobLogInfoArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("jobLogId", thrift.I64, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Id); err != nil {
+	if err := oprot.WriteI64(p.JobLogId); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -10582,67 +10506,67 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) String() string {
+func (p *JobServiceGetJobLogInfoArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceGetJobLogInfoByIdArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceGetJobLogInfoArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) DeepEqual(ano *JobServiceGetJobLogInfoByIdArgs) bool {
+func (p *JobServiceGetJobLogInfoArgs) DeepEqual(ano *JobServiceGetJobLogInfoArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.JobLogId) {
 		return false
 	}
 	return true
 }
 
-func (p *JobServiceGetJobLogInfoByIdArgs) Field1DeepEqual(src int64) bool {
+func (p *JobServiceGetJobLogInfoArgs) Field1DeepEqual(src int64) bool {
 
-	if p.Id != src {
+	if p.JobLogId != src {
 		return false
 	}
 	return true
 }
 
-type JobServiceGetJobLogInfoByIdResult struct {
-	Success *JobLogInfoResponse `thrift:"success,0,optional" frugal:"0,optional,JobLogInfoResponse" json:"success,omitempty"`
+type JobServiceGetJobLogInfoResult struct {
+	Success *GetJobLogInfoResponse `thrift:"success,0,optional" frugal:"0,optional,GetJobLogInfoResponse" json:"success,omitempty"`
 }
 
-func NewJobServiceGetJobLogInfoByIdResult() *JobServiceGetJobLogInfoByIdResult {
-	return &JobServiceGetJobLogInfoByIdResult{}
+func NewJobServiceGetJobLogInfoResult() *JobServiceGetJobLogInfoResult {
+	return &JobServiceGetJobLogInfoResult{}
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) InitDefault() {
-	*p = JobServiceGetJobLogInfoByIdResult{}
+func (p *JobServiceGetJobLogInfoResult) InitDefault() {
+	*p = JobServiceGetJobLogInfoResult{}
 }
 
-var JobServiceGetJobLogInfoByIdResult_Success_DEFAULT *JobLogInfoResponse
+var JobServiceGetJobLogInfoResult_Success_DEFAULT *GetJobLogInfoResponse
 
-func (p *JobServiceGetJobLogInfoByIdResult) GetSuccess() (v *JobLogInfoResponse) {
+func (p *JobServiceGetJobLogInfoResult) GetSuccess() (v *GetJobLogInfoResponse) {
 	if !p.IsSetSuccess() {
-		return JobServiceGetJobLogInfoByIdResult_Success_DEFAULT
+		return JobServiceGetJobLogInfoResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceGetJobLogInfoByIdResult) SetSuccess(x interface{}) {
-	p.Success = x.(*JobLogInfoResponse)
+func (p *JobServiceGetJobLogInfoResult) SetSuccess(x interface{}) {
+	p.Success = x.(*GetJobLogInfoResponse)
 }
 
-var fieldIDToName_JobServiceGetJobLogInfoByIdResult = map[int16]string{
+var fieldIDToName_JobServiceGetJobLogInfoResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) IsSetSuccess() bool {
+func (p *JobServiceGetJobLogInfoResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobLogInfoResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -10688,7 +10612,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobLogInfoByIdResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceGetJobLogInfoResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -10698,17 +10622,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewJobLogInfoResponse()
+func (p *JobServiceGetJobLogInfoResult) ReadField0(iprot thrift.TProtocol) error {
+	p.Success = NewGetJobLogInfoResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobLogInfoResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("GetJobLogInfoById_result"); err != nil {
+	if err = oprot.WriteStructBegin("GetJobLogInfo_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -10734,7 +10658,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceGetJobLogInfoResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -10753,15 +10677,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) String() string {
+func (p *JobServiceGetJobLogInfoResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceGetJobLogInfoByIdResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceGetJobLogInfoResult(%+v)", *p)
 
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) DeepEqual(ano *JobServiceGetJobLogInfoByIdResult) bool {
+func (p *JobServiceGetJobLogInfoResult) DeepEqual(ano *JobServiceGetJobLogInfoResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -10773,7 +10697,7 @@ func (p *JobServiceGetJobLogInfoByIdResult) DeepEqual(ano *JobServiceGetJobLogIn
 	return true
 }
 
-func (p *JobServiceGetJobLogInfoByIdResult) Field0DeepEqual(src *JobLogInfoResponse) bool {
+func (p *JobServiceGetJobLogInfoResult) Field0DeepEqual(src *GetJobLogInfoResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -10781,39 +10705,39 @@ func (p *JobServiceGetJobLogInfoByIdResult) Field0DeepEqual(src *JobLogInfoRespo
 	return true
 }
 
-type JobServiceDeleteJobLogArgs struct {
-	Req *DeleteJobLogRequest `thrift:"req,1" frugal:"1,default,DeleteJobLogRequest" json:"req"`
+type JobServiceRemoveJobLogsArgs struct {
+	Req *RemoveJobLogsRequest `thrift:"req,1" frugal:"1,default,RemoveJobLogsRequest" json:"req"`
 }
 
-func NewJobServiceDeleteJobLogArgs() *JobServiceDeleteJobLogArgs {
-	return &JobServiceDeleteJobLogArgs{}
+func NewJobServiceRemoveJobLogsArgs() *JobServiceRemoveJobLogsArgs {
+	return &JobServiceRemoveJobLogsArgs{}
 }
 
-func (p *JobServiceDeleteJobLogArgs) InitDefault() {
-	*p = JobServiceDeleteJobLogArgs{}
+func (p *JobServiceRemoveJobLogsArgs) InitDefault() {
+	*p = JobServiceRemoveJobLogsArgs{}
 }
 
-var JobServiceDeleteJobLogArgs_Req_DEFAULT *DeleteJobLogRequest
+var JobServiceRemoveJobLogsArgs_Req_DEFAULT *RemoveJobLogsRequest
 
-func (p *JobServiceDeleteJobLogArgs) GetReq() (v *DeleteJobLogRequest) {
+func (p *JobServiceRemoveJobLogsArgs) GetReq() (v *RemoveJobLogsRequest) {
 	if !p.IsSetReq() {
-		return JobServiceDeleteJobLogArgs_Req_DEFAULT
+		return JobServiceRemoveJobLogsArgs_Req_DEFAULT
 	}
 	return p.Req
 }
-func (p *JobServiceDeleteJobLogArgs) SetReq(val *DeleteJobLogRequest) {
+func (p *JobServiceRemoveJobLogsArgs) SetReq(val *RemoveJobLogsRequest) {
 	p.Req = val
 }
 
-var fieldIDToName_JobServiceDeleteJobLogArgs = map[int16]string{
+var fieldIDToName_JobServiceRemoveJobLogsArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *JobServiceDeleteJobLogArgs) IsSetReq() bool {
+func (p *JobServiceRemoveJobLogsArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *JobServiceDeleteJobLogArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobLogsArgs) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -10859,7 +10783,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceDeleteJobLogArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceRemoveJobLogsArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -10869,17 +10793,17 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobLogArgs) ReadField1(iprot thrift.TProtocol) error {
-	p.Req = NewDeleteJobLogRequest()
+func (p *JobServiceRemoveJobLogsArgs) ReadField1(iprot thrift.TProtocol) error {
+	p.Req = NewRemoveJobLogsRequest()
 	if err := p.Req.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *JobServiceDeleteJobLogArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobLogsArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteJobLog_args"); err != nil {
+	if err = oprot.WriteStructBegin("RemoveJobLogs_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -10905,7 +10829,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobLogArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobLogsArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -10922,15 +10846,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobLogArgs) String() string {
+func (p *JobServiceRemoveJobLogsArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceDeleteJobLogArgs(%+v)", *p)
+	return fmt.Sprintf("JobServiceRemoveJobLogsArgs(%+v)", *p)
 
 }
 
-func (p *JobServiceDeleteJobLogArgs) DeepEqual(ano *JobServiceDeleteJobLogArgs) bool {
+func (p *JobServiceRemoveJobLogsArgs) DeepEqual(ano *JobServiceRemoveJobLogsArgs) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -10942,7 +10866,7 @@ func (p *JobServiceDeleteJobLogArgs) DeepEqual(ano *JobServiceDeleteJobLogArgs) 
 	return true
 }
 
-func (p *JobServiceDeleteJobLogArgs) Field1DeepEqual(src *DeleteJobLogRequest) bool {
+func (p *JobServiceRemoveJobLogsArgs) Field1DeepEqual(src *RemoveJobLogsRequest) bool {
 
 	if !p.Req.DeepEqual(src) {
 		return false
@@ -10950,39 +10874,39 @@ func (p *JobServiceDeleteJobLogArgs) Field1DeepEqual(src *DeleteJobLogRequest) b
 	return true
 }
 
-type JobServiceDeleteJobLogResult struct {
+type JobServiceRemoveJobLogsResult struct {
 	Success *BaseResp `thrift:"success,0,optional" frugal:"0,optional,BaseResp" json:"success,omitempty"`
 }
 
-func NewJobServiceDeleteJobLogResult() *JobServiceDeleteJobLogResult {
-	return &JobServiceDeleteJobLogResult{}
+func NewJobServiceRemoveJobLogsResult() *JobServiceRemoveJobLogsResult {
+	return &JobServiceRemoveJobLogsResult{}
 }
 
-func (p *JobServiceDeleteJobLogResult) InitDefault() {
-	*p = JobServiceDeleteJobLogResult{}
+func (p *JobServiceRemoveJobLogsResult) InitDefault() {
+	*p = JobServiceRemoveJobLogsResult{}
 }
 
-var JobServiceDeleteJobLogResult_Success_DEFAULT *BaseResp
+var JobServiceRemoveJobLogsResult_Success_DEFAULT *BaseResp
 
-func (p *JobServiceDeleteJobLogResult) GetSuccess() (v *BaseResp) {
+func (p *JobServiceRemoveJobLogsResult) GetSuccess() (v *BaseResp) {
 	if !p.IsSetSuccess() {
-		return JobServiceDeleteJobLogResult_Success_DEFAULT
+		return JobServiceRemoveJobLogsResult_Success_DEFAULT
 	}
 	return p.Success
 }
-func (p *JobServiceDeleteJobLogResult) SetSuccess(x interface{}) {
+func (p *JobServiceRemoveJobLogsResult) SetSuccess(x interface{}) {
 	p.Success = x.(*BaseResp)
 }
 
-var fieldIDToName_JobServiceDeleteJobLogResult = map[int16]string{
+var fieldIDToName_JobServiceRemoveJobLogsResult = map[int16]string{
 	0: "success",
 }
 
-func (p *JobServiceDeleteJobLogResult) IsSetSuccess() bool {
+func (p *JobServiceRemoveJobLogsResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *JobServiceDeleteJobLogResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobLogsResult) Read(iprot thrift.TProtocol) (err error) {
 
 	var fieldTypeId thrift.TType
 	var fieldId int16
@@ -11028,7 +10952,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceDeleteJobLogResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_JobServiceRemoveJobLogsResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -11038,7 +10962,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobLogResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *JobServiceRemoveJobLogsResult) ReadField0(iprot thrift.TProtocol) error {
 	p.Success = NewBaseResp()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
@@ -11046,9 +10970,9 @@ func (p *JobServiceDeleteJobLogResult) ReadField0(iprot thrift.TProtocol) error 
 	return nil
 }
 
-func (p *JobServiceDeleteJobLogResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobLogsResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("DeleteJobLog_result"); err != nil {
+	if err = oprot.WriteStructBegin("RemoveJobLogs_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -11074,7 +10998,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobLogResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *JobServiceRemoveJobLogsResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -11093,15 +11017,15 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *JobServiceDeleteJobLogResult) String() string {
+func (p *JobServiceRemoveJobLogsResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("JobServiceDeleteJobLogResult(%+v)", *p)
+	return fmt.Sprintf("JobServiceRemoveJobLogsResult(%+v)", *p)
 
 }
 
-func (p *JobServiceDeleteJobLogResult) DeepEqual(ano *JobServiceDeleteJobLogResult) bool {
+func (p *JobServiceRemoveJobLogsResult) DeepEqual(ano *JobServiceRemoveJobLogsResult) bool {
 	if p == ano {
 		return true
 	} else if p == nil || ano == nil {
@@ -11113,7 +11037,7 @@ func (p *JobServiceDeleteJobLogResult) DeepEqual(ano *JobServiceDeleteJobLogResu
 	return true
 }
 
-func (p *JobServiceDeleteJobLogResult) Field0DeepEqual(src *BaseResp) bool {
+func (p *JobServiceRemoveJobLogsResult) Field0DeepEqual(src *BaseResp) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

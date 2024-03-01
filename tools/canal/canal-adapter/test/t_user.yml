@@ -1,0 +1,12 @@
+dataSourceKey: defaultDS
+destination: example
+outerAdapterKey: es
+groupId: g1
+esMapping:
+  _index: t_user
+  _id: _id
+  sql: "select u.u_id as _id, u.u_id as u_id, u.username as username, 
+        d.d_id as d_id, d.deptname as d_name 
+        from t_user u 
+        left join t_dept d on d.d_id = u.d_id"
+  commitBatch: 3000

@@ -20,16 +20,16 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	handlerType := (*v1.GenService)(nil)
 	methods := map[string]kitex.MethodInfo{
 		"ListGenTables":   kitex.NewMethodInfo(listGenTablesHandler, newGenServiceListGenTablesArgs, newGenServiceListGenTablesResult, false),
-		"GetInfoById":     kitex.NewMethodInfo(getInfoByIdHandler, newGenServiceGetInfoByIdArgs, newGenServiceGetInfoByIdResult, false),
+		"GetInfo":         kitex.NewMethodInfo(getInfoHandler, newGenServiceGetInfoArgs, newGenServiceGetInfoResult, false),
 		"DataList":        kitex.NewMethodInfo(dataListHandler, newGenServiceDataListArgs, newGenServiceDataListResult, false),
-		"ListColumnsById": kitex.NewMethodInfo(listColumnsByIdHandler, newGenServiceListColumnsByIdArgs, newGenServiceListColumnsByIdResult, false),
+		"ColumnList":      kitex.NewMethodInfo(columnListHandler, newGenServiceColumnListArgs, newGenServiceColumnListResult, false),
 		"ImportTableSave": kitex.NewMethodInfo(importTableSaveHandler, newGenServiceImportTableSaveArgs, newGenServiceImportTableSaveResult, false),
 		"EditSave":        kitex.NewMethodInfo(editSaveHandler, newGenServiceEditSaveArgs, newGenServiceEditSaveResult, false),
-		"DeleteTables":    kitex.NewMethodInfo(deleteTablesHandler, newGenServiceDeleteTablesArgs, newGenServiceDeleteTablesResult, false),
-		"PreviewById":     kitex.NewMethodInfo(previewByIdHandler, newGenServicePreviewByIdArgs, newGenServicePreviewByIdResult, false),
-		"DownloadByName":  kitex.NewMethodInfo(downloadByNameHandler, newGenServiceDownloadByNameArgs, newGenServiceDownloadByNameResult, false),
+		"Remove":          kitex.NewMethodInfo(removeHandler, newGenServiceRemoveArgs, newGenServiceRemoveResult, false),
+		"Preview":         kitex.NewMethodInfo(previewHandler, newGenServicePreviewArgs, newGenServicePreviewResult, false),
+		"Download":        kitex.NewMethodInfo(downloadHandler, newGenServiceDownloadArgs, newGenServiceDownloadResult, false),
 		"GenCode":         kitex.NewMethodInfo(genCodeHandler, newGenServiceGenCodeArgs, newGenServiceGenCodeResult, false),
-		"SynchDB":         kitex.NewMethodInfo(synchDBHandler, newGenServiceSynchDBArgs, newGenServiceSynchDBResult, false),
+		"SynchDb":         kitex.NewMethodInfo(synchDbHandler, newGenServiceSynchDbArgs, newGenServiceSynchDbResult, false),
 		"BatchGenCode":    kitex.NewMethodInfo(batchGenCodeHandler, newGenServiceBatchGenCodeArgs, newGenServiceBatchGenCodeResult, false),
 	}
 	extra := map[string]interface{}{
@@ -65,22 +65,22 @@ func newGenServiceListGenTablesResult() interface{} {
 	return v1.NewGenServiceListGenTablesResult()
 }
 
-func getInfoByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.GenServiceGetInfoByIdArgs)
-	realResult := result.(*v1.GenServiceGetInfoByIdResult)
-	success, err := handler.(v1.GenService).GetInfoById(ctx, realArg.Id)
+func getInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.GenServiceGetInfoArgs)
+	realResult := result.(*v1.GenServiceGetInfoResult)
+	success, err := handler.(v1.GenService).GetInfo(ctx, realArg.TableId)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newGenServiceGetInfoByIdArgs() interface{} {
-	return v1.NewGenServiceGetInfoByIdArgs()
+func newGenServiceGetInfoArgs() interface{} {
+	return v1.NewGenServiceGetInfoArgs()
 }
 
-func newGenServiceGetInfoByIdResult() interface{} {
-	return v1.NewGenServiceGetInfoByIdResult()
+func newGenServiceGetInfoResult() interface{} {
+	return v1.NewGenServiceGetInfoResult()
 }
 
 func dataListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -101,22 +101,22 @@ func newGenServiceDataListResult() interface{} {
 	return v1.NewGenServiceDataListResult()
 }
 
-func listColumnsByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.GenServiceListColumnsByIdArgs)
-	realResult := result.(*v1.GenServiceListColumnsByIdResult)
-	success, err := handler.(v1.GenService).ListColumnsById(ctx, realArg.Id)
+func columnListHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.GenServiceColumnListArgs)
+	realResult := result.(*v1.GenServiceColumnListResult)
+	success, err := handler.(v1.GenService).ColumnList(ctx, realArg.TableId)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newGenServiceListColumnsByIdArgs() interface{} {
-	return v1.NewGenServiceListColumnsByIdArgs()
+func newGenServiceColumnListArgs() interface{} {
+	return v1.NewGenServiceColumnListArgs()
 }
 
-func newGenServiceListColumnsByIdResult() interface{} {
-	return v1.NewGenServiceListColumnsByIdResult()
+func newGenServiceColumnListResult() interface{} {
+	return v1.NewGenServiceColumnListResult()
 }
 
 func importTableSaveHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -155,64 +155,64 @@ func newGenServiceEditSaveResult() interface{} {
 	return v1.NewGenServiceEditSaveResult()
 }
 
-func deleteTablesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.GenServiceDeleteTablesArgs)
-	realResult := result.(*v1.GenServiceDeleteTablesResult)
-	success, err := handler.(v1.GenService).DeleteTables(ctx, realArg.Req)
+func removeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.GenServiceRemoveArgs)
+	realResult := result.(*v1.GenServiceRemoveResult)
+	success, err := handler.(v1.GenService).Remove(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newGenServiceDeleteTablesArgs() interface{} {
-	return v1.NewGenServiceDeleteTablesArgs()
+func newGenServiceRemoveArgs() interface{} {
+	return v1.NewGenServiceRemoveArgs()
 }
 
-func newGenServiceDeleteTablesResult() interface{} {
-	return v1.NewGenServiceDeleteTablesResult()
+func newGenServiceRemoveResult() interface{} {
+	return v1.NewGenServiceRemoveResult()
 }
 
-func previewByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.GenServicePreviewByIdArgs)
-	realResult := result.(*v1.GenServicePreviewByIdResult)
-	success, err := handler.(v1.GenService).PreviewById(ctx, realArg.Id)
+func previewHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.GenServicePreviewArgs)
+	realResult := result.(*v1.GenServicePreviewResult)
+	success, err := handler.(v1.GenService).Preview(ctx, realArg.TableId)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newGenServicePreviewByIdArgs() interface{} {
-	return v1.NewGenServicePreviewByIdArgs()
+func newGenServicePreviewArgs() interface{} {
+	return v1.NewGenServicePreviewArgs()
 }
 
-func newGenServicePreviewByIdResult() interface{} {
-	return v1.NewGenServicePreviewByIdResult()
+func newGenServicePreviewResult() interface{} {
+	return v1.NewGenServicePreviewResult()
 }
 
-func downloadByNameHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.GenServiceDownloadByNameArgs)
-	realResult := result.(*v1.GenServiceDownloadByNameResult)
-	success, err := handler.(v1.GenService).DownloadByName(ctx, realArg.Name)
+func downloadHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.GenServiceDownloadArgs)
+	realResult := result.(*v1.GenServiceDownloadResult)
+	success, err := handler.(v1.GenService).Download(ctx, realArg.TableName)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newGenServiceDownloadByNameArgs() interface{} {
-	return v1.NewGenServiceDownloadByNameArgs()
+func newGenServiceDownloadArgs() interface{} {
+	return v1.NewGenServiceDownloadArgs()
 }
 
-func newGenServiceDownloadByNameResult() interface{} {
-	return v1.NewGenServiceDownloadByNameResult()
+func newGenServiceDownloadResult() interface{} {
+	return v1.NewGenServiceDownloadResult()
 }
 
 func genCodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.GenServiceGenCodeArgs)
 	realResult := result.(*v1.GenServiceGenCodeResult)
-	success, err := handler.(v1.GenService).GenCode(ctx, realArg.Name)
+	success, err := handler.(v1.GenService).GenCode(ctx, realArg.TableName)
 	if err != nil {
 		return err
 	}
@@ -227,22 +227,22 @@ func newGenServiceGenCodeResult() interface{} {
 	return v1.NewGenServiceGenCodeResult()
 }
 
-func synchDBHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.GenServiceSynchDBArgs)
-	realResult := result.(*v1.GenServiceSynchDBResult)
-	success, err := handler.(v1.GenService).SynchDB(ctx, realArg.Name)
+func synchDbHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.GenServiceSynchDbArgs)
+	realResult := result.(*v1.GenServiceSynchDbResult)
+	success, err := handler.(v1.GenService).SynchDb(ctx, realArg.TableName)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newGenServiceSynchDBArgs() interface{} {
-	return v1.NewGenServiceSynchDBArgs()
+func newGenServiceSynchDbArgs() interface{} {
+	return v1.NewGenServiceSynchDbArgs()
 }
 
-func newGenServiceSynchDBResult() interface{} {
-	return v1.NewGenServiceSynchDBResult()
+func newGenServiceSynchDbResult() interface{} {
+	return v1.NewGenServiceSynchDbResult()
 }
 
 func batchGenCodeHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -283,11 +283,11 @@ func (p *kClient) ListGenTables(ctx context.Context, req *v1.ListGenTablesReques
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetInfoById(ctx context.Context, id int64) (r *v1.GetInfoResponse, err error) {
-	var _args v1.GenServiceGetInfoByIdArgs
-	_args.Id = id
-	var _result v1.GenServiceGetInfoByIdResult
-	if err = p.c.Call(ctx, "GetInfoById", &_args, &_result); err != nil {
+func (p *kClient) GetInfo(ctx context.Context, tableId int64) (r *v1.GetInfoResponse, err error) {
+	var _args v1.GenServiceGetInfoArgs
+	_args.TableId = tableId
+	var _result v1.GenServiceGetInfoResult
+	if err = p.c.Call(ctx, "GetInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -303,11 +303,11 @@ func (p *kClient) DataList(ctx context.Context, req *v1.DataListRequest) (r *v1.
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListColumnsById(ctx context.Context, id int64) (r *v1.ListGenTablesResponse, err error) {
-	var _args v1.GenServiceListColumnsByIdArgs
-	_args.Id = id
-	var _result v1.GenServiceListColumnsByIdResult
-	if err = p.c.Call(ctx, "ListColumnsById", &_args, &_result); err != nil {
+func (p *kClient) ColumnList(ctx context.Context, tableId int64) (r *v1.ListGenTablesResponse, err error) {
+	var _args v1.GenServiceColumnListArgs
+	_args.TableId = tableId
+	var _result v1.GenServiceColumnListResult
+	if err = p.c.Call(ctx, "ColumnList", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -333,39 +333,39 @@ func (p *kClient) EditSave(ctx context.Context, req *v1.EditSaveRequest) (r *v1.
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) DeleteTables(ctx context.Context, req *v1.DeleteTableRequest) (r *v1.BaseResp, err error) {
-	var _args v1.GenServiceDeleteTablesArgs
+func (p *kClient) Remove(ctx context.Context, req *v1.RemoveRequest) (r *v1.BaseResp, err error) {
+	var _args v1.GenServiceRemoveArgs
 	_args.Req = req
-	var _result v1.GenServiceDeleteTablesResult
-	if err = p.c.Call(ctx, "DeleteTables", &_args, &_result); err != nil {
+	var _result v1.GenServiceRemoveResult
+	if err = p.c.Call(ctx, "Remove", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) PreviewById(ctx context.Context, id int64) (r *v1.PreviewResponse, err error) {
-	var _args v1.GenServicePreviewByIdArgs
-	_args.Id = id
-	var _result v1.GenServicePreviewByIdResult
-	if err = p.c.Call(ctx, "PreviewById", &_args, &_result); err != nil {
+func (p *kClient) Preview(ctx context.Context, tableId int64) (r *v1.PreviewResponse, err error) {
+	var _args v1.GenServicePreviewArgs
+	_args.TableId = tableId
+	var _result v1.GenServicePreviewResult
+	if err = p.c.Call(ctx, "Preview", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) DownloadByName(ctx context.Context, name string) (r *v1.DownloadResponse, err error) {
-	var _args v1.GenServiceDownloadByNameArgs
-	_args.Name = name
-	var _result v1.GenServiceDownloadByNameResult
-	if err = p.c.Call(ctx, "DownloadByName", &_args, &_result); err != nil {
+func (p *kClient) Download(ctx context.Context, tableName string) (r *v1.DownloadResponse, err error) {
+	var _args v1.GenServiceDownloadArgs
+	_args.TableName = tableName
+	var _result v1.GenServiceDownloadResult
+	if err = p.c.Call(ctx, "Download", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GenCode(ctx context.Context, name string) (r *v1.BaseResp, err error) {
+func (p *kClient) GenCode(ctx context.Context, tableName string) (r *v1.BaseResp, err error) {
 	var _args v1.GenServiceGenCodeArgs
-	_args.Name = name
+	_args.TableName = tableName
 	var _result v1.GenServiceGenCodeResult
 	if err = p.c.Call(ctx, "GenCode", &_args, &_result); err != nil {
 		return
@@ -373,11 +373,11 @@ func (p *kClient) GenCode(ctx context.Context, name string) (r *v1.BaseResp, err
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) SynchDB(ctx context.Context, name string) (r *v1.BaseResp, err error) {
-	var _args v1.GenServiceSynchDBArgs
-	_args.Name = name
-	var _result v1.GenServiceSynchDBResult
-	if err = p.c.Call(ctx, "SynchDB", &_args, &_result); err != nil {
+func (p *kClient) SynchDb(ctx context.Context, tableName string) (r *v1.BaseResp, err error) {
+	var _args v1.GenServiceSynchDbArgs
+	_args.TableName = tableName
+	var _result v1.GenServiceSynchDbResult
+	if err = p.c.Call(ctx, "SynchDb", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

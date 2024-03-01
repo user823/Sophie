@@ -3,26 +3,27 @@ package errors
 import (
 	"errors"
 	"fmt"
+	"github.com/user823/Sophie/pkg/ds"
 	"io"
 )
 
 type fundamental struct {
 	msg   string
-	stack *stack
+	stack *ds.Stack
 }
 
 // 新建一个error对象
 func New(message string) error {
 	return &fundamental{
 		msg:   message,
-		stack: callers(),
+		stack: ds.Callers(),
 	}
 }
 
 func Errorf(format string, args ...interface{}) error {
 	return &fundamental{
 		msg:   fmt.Sprintf(format, args...),
-		stack: callers(),
+		stack: ds.Callers(),
 	}
 }
 
@@ -46,7 +47,7 @@ func (f *fundamental) Format(s fmt.State, verb rune) {
 
 type withStack struct {
 	error
-	stack *stack
+	stack *ds.Stack
 }
 
 // 对error 封装调用栈信息
@@ -57,7 +58,7 @@ func WithStack(err error) error {
 	}
 	return &withStack{
 		error: err,
-		stack: callers(),
+		stack: ds.Callers(),
 	}
 }
 
@@ -84,7 +85,7 @@ func Wrap(err error, message string) error {
 	}
 
 	e := &withMessage{err, message}
-	return &withStack{e, callers()}
+	return &withStack{e, ds.Callers()}
 }
 
 func Wrapf(err error, format string, args ...any) error {
@@ -93,7 +94,7 @@ func Wrapf(err error, format string, args ...any) error {
 	}
 
 	e := &withMessage{err, fmt.Sprintf(format, args...)}
-	return &withStack{e, callers()}
+	return &withStack{e, ds.Callers()}
 }
 
 func WithMessage(err error, message string) error {
@@ -137,14 +138,14 @@ func WithCodeMessage(err error, code int, message string) error {
 	if err == nil {
 		return nil
 	}
-	return &withCodeMessage{err, code, message, callers()}
+	return &withCodeMessage{err, code, message, ds.Callers()}
 }
 
 func WithCodeMessagef(err error, code int, format string, args ...any) error {
 	if err == nil {
 		return nil
 	}
-	return &withCodeMessage{err, code, fmt.Sprintf(format, args...), callers()}
+	return &withCodeMessage{err, code, fmt.Sprintf(format, args...), ds.Callers()}
 }
 
 // 对error 封装code 和 msg 信息
@@ -153,7 +154,15 @@ type withCodeMessage struct {
 	error
 	code  int
 	msg   string
-	stack *stack
+	stack *ds.Stack
+}
+
+func CodeMessage(code int, msg string) error {
+	return &withCodeMessage{
+		code:  code,
+		msg:   msg,
+		stack: ds.Callers(),
+	}
 }
 
 func (w *withCodeMessage) Error() string {

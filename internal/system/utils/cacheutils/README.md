@@ -1,0 +1,4 @@
+## cacheutils
+store层 中使用cache 完成对mysql的标准缓存，使用通用的读缓存策略操作db
+cacheutils 包使用cache 完成mysql的特殊缓存目的，主要操作的是缓存
+两者可以同时使用，并且底层的cache可使用不同的实现，类似于一级二级缓存的关系

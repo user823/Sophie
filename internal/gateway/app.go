@@ -1,1 +1,44 @@
 package gateway
+
+import (
+	"github.com/user823/Sophie/api"
+	"github.com/user823/Sophie/pkg/app"
+	"github.com/user823/Sophie/pkg/log"
+)
+
+const (
+	commandDesc = `Sophie gateway is the sole user interaction interface for the system.`
+)
+
+func NewApp(srvname string) *app.App {
+	opts := NewOptions()
+	application := app.NewApp(srvname,
+		app.WithConfigurable(),
+		app.WithOptions(opts),
+		app.WithDescription(commandDesc),
+		app.WithDefaultArgsValidation(),
+		app.WithRunFunc(run(opts)),
+	)
+	return application
+}
+
+func run(opts *Options) app.RunFunction {
+	return func(basename string) error {
+		cfg, err := CreateConfigFromOptions(opts)
+		if err != nil {
+			return err
+		}
+		// 初始化日志组件
+		l, err := log.New(cfg.Log)
+		if err != nil {
+			return err
+		}
+		log.SetGlobal(l.WithValues(api.LOG_SERVICE, basename))
+
+		server, err := createGatewayServer(cfg)
+		if err != nil {
+			return err
+		}
+		return server.PrepareRun().Run()
+	}
+}

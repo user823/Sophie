@@ -57,7 +57,7 @@ func TestAggregation(t *testing.T) {
 	log.SetAggregation(true)
 
 	// 附带环境信息
-	log.WithValues(log.RecordModule, "log", log.RecordTypeKey, log.SystemRecord)
+	log.WithValues(log.RecordModule, "log", log.KeyRecordType, log.SystemRecord)
 	log.Infow("my first log~", "a", "b")
 
 	// 关闭日志聚合刷新缓存

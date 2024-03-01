@@ -20,8 +20,8 @@ func NewServiceDiscoverOptions() *ServiceDiscoverOptions {
 	return &ServiceDiscoverOptions{
 		Addrs:          []string{"127.0.0.1:2379"},
 		MaxAttemtTimes: 5,
-		ObserverDelay:  20 * time.Second,
-		RetryDelay:     10 * time.Second,
+		ObserverDelay:  10 * time.Second,
+		RetryDelay:     5 * time.Second,
 	}
 }
 
@@ -31,10 +31,10 @@ func (o *ServiceDiscoverOptions) AddFlags(fs *flag.FlagSet) {
 	if fs == nil {
 		return
 	}
-	fs.StringSliceVar(&o.Addrs, "etcd.addrs", o.Addrs, "A set of etcd address(format: 127.0.0.1:2379).")
-	fs.StringVar(&o.Username, "etcd.username", o.Username, "Username used to login etcd. ")
-	fs.StringVar(&o.Password, "etcd.password", o.Password, "Password used to login etcd. ")
-	fs.IntVar(&o.MaxAttemtTimes, "etcd.max_retry_times", o.MaxAttemtTimes, "The number of etcd connect retry times. ")
-	fs.DurationVar(&o.ObserverDelay, "etcd.observer_delay", o.ObserverDelay, "ObserverDelay used to connect etcd. ")
-	fs.DurationVar(&o.RetryDelay, "etcd.retry_delay", o.RetryDelay, "RetryDelay used to re-connect etcd. ")
+	fs.StringSliceVar(&o.Addrs, "server_discover.addrs", o.Addrs, "A set of etcd address(format: 127.0.0.1:2379).")
+	fs.StringVar(&o.Username, "server_discover.username", o.Username, "Username used to login etcd. ")
+	fs.StringVar(&o.Password, "server_discover.password", o.Password, "Password used to login etcd. ")
+	fs.IntVar(&o.MaxAttemtTimes, "server_discover.max_retry_times", o.MaxAttemtTimes, "The number of etcd connect retry times. ")
+	fs.DurationVar(&o.ObserverDelay, "server_discover.observer_delay", o.ObserverDelay, "ObserverDelay used to connect etcd. ")
+	fs.DurationVar(&o.RetryDelay, "server_discover.retry_delay", o.RetryDelay, "RetryDelay used to re-connect etcd. ")
 }

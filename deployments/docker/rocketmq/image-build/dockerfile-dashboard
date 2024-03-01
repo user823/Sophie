@@ -3,8 +3,8 @@ FROM eclipse-temurin:11
 #  update
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y openssl, which gnupg, wget curl; \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y curl unzip wget; \
+    rm -rf /var/lib/apt/lists/*;
 
 ARG user=rocketmq
 ARG group=rocketmq
@@ -49,11 +49,11 @@ RUN mkdir bin; \
     ls -l bin; \
     rm -rf rocketmq-dashboard-${ROCKETMQ_DASHBOARD_VERSION}
 
-RUN rm -rf /root/.m2/repository/*
-RUN rm -rf /usr/share/maven
-RUN yum remove wget unzip openssl -y
+RUN rm -rf /root/.m2/repository/* ;\
+    rm -rf /usr/share/maven; \
+    apt-get remove wget unzip curl; \
+    chown -R ${uid}:${gid} ${ROCKETMQ_DASHBOARD_HOME}
 
-RUN chown -R ${uid}:${gid} ${ROCKETMQ_DASHBOARD_HOME}
 EXPOSE ${dashboard_port}
 # 可以通过docker run 命令提供额外参数
 ENTRYPOINT ["java", "-jar", "bin/rocketmq-dashboard.jar"]

@@ -11,12 +11,13 @@ type JwtOptions struct {
 	Realm      string        `json:"realm"       mapstructure:"realm"`
 	Key        string        `json:"key"         mapstructure:"key"`
 	Timeout    time.Duration `json:"timeout"     mapstructure:"timeout"`
-	MaxRefresh time.Duration `json:"max-refresh" mapstructure:"max-refresh"`
+	MaxRefresh time.Duration `json:"max_refresh" mapstructure:"max_refresh"`
 }
 
 func NewJwtOptions() *JwtOptions {
 	return &JwtOptions{
 		Realm:      "sophie jwt",
+		Key:        "sophie",
 		Timeout:    1 * time.Hour,
 		MaxRefresh: 1 * time.Hour,
 	}
@@ -37,6 +38,6 @@ func (o *JwtOptions) AddFlags(fs *flag.FlagSet) {
 	fs.StringVar(&o.Key, "jwt.key", o.Key, "Private key used to sign jwt token.")
 	fs.DurationVar(&o.Timeout, "jwt.timeout", o.Timeout, "JWT token timeout.")
 
-	fs.DurationVar(&o.MaxRefresh, "jwt.max-refresh", o.MaxRefresh, ""+
+	fs.DurationVar(&o.MaxRefresh, "jwt.max_refresh", o.MaxRefresh, ""+
 		"This field allows clients to refresh their token until MaxRefresh has passed.")
 }

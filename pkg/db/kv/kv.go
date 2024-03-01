@@ -42,14 +42,17 @@ type KeyValueStore interface {
 // redis 一般要结合keyprefix 和 hash一起使用
 type RedisStore interface {
 	KeyValueStore
+	SetRandomExp(bool)
 	SetKeyPrefix(string)
 	SetHashKey(bool)
-	GetKeyPrefix() string
+	GetAndDelete(context.Context, string) (string, error)
 	GetKeyTTL(context.Context, string) (int64, error)
 	GetRawKey(context.Context, string) (string, error)
 	SetRawKey(context.Context, string, string, int64) error
 	DeleteRawKey(context.Context, string) bool
 	AppendToSetPipelined(context.Context, string, []string)
+	Publish(context.Context, string, string) error
+	StartPubSubHandler(context.Context, string, func(any)) error
 }
 
 func NewKVStore(name string) KeyValueStore {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/user823/Sophie/pkg/ds"
 	"github.com/user823/Sophie/pkg/utils"
 	"io"
 	"log"
@@ -77,7 +78,7 @@ func WithDefaultArgsValidation() Option {
 	return func(app *App) {
 		app.args = func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
-				if len(arg) > 1 {
+				if len(arg) > 0 {
 					return fmt.Errorf("%q does not take any arguments, got %q", cmd.CommandPath(), args)
 				}
 			}
@@ -132,7 +133,7 @@ func (a *App) buildCommand() {
 	cmd.SetOut(a.output)
 	cmd.SetErr(a.output)
 	fs := cmd.Flags()
-	InitFlags(fs)
+	ds.InitFlags(fs)
 
 	// 添加子命令
 	if len(a.commands) > 0 {
@@ -146,12 +147,12 @@ func (a *App) buildCommand() {
 		cmd.RunE = a.runCommand()
 	}
 
-	flagGroup := NewFlagGroup()
+	flagGroup := ds.NewFlagGroup()
 	if a.options != nil {
 		fg := a.options.Flags()
 		flagGroup.Merge(fg)
 		// 将options 中的flagset都添加进来
-		for _, f := range fg {
+		for _, f := range fg.FlagSets() {
 			fs.AddFlagSet(f)
 		}
 	}
@@ -172,17 +173,22 @@ func (a *App) buildCommand() {
 func (a *App) runCommand() func(*cobra.Command, []string) error {
 	return func(*cobra.Command, []string) error {
 		printWorkingDir()
-		printFlags(a.cmd.Flags())
+		// 打印flag信息
+		if a.verbose {
+			ds.PrintFlags(a.cmd.Flags())
+		}
 
 		if a.configurable {
 			// 通过命令行更新viper中的配置
 			if err := viper.BindPFlags(a.cmd.Flags()); err != nil {
+				log.Printf("Viper flag bind error: %s", err.Error())
 				return err
 			}
 
 			// 将viper的配置导出到options中
 			// options 通过mapstructure 来设置键值, 注意options中的未导出字段会被decoder忽略掉
 			if err := viper.Unmarshal(a.options); err != nil {
+				log.Printf("Viper option unmarshal error: %s", err.Error())
 				return err
 			}
 		}
@@ -241,7 +247,7 @@ func printWorkingDir() {
 }
 
 // 为cobra 命令添加模版化信息
-func addCmdTemplate(cmd *cobra.Command, fg FlagGroup) {
+func addCmdTemplate(cmd *cobra.Command, fg *ds.FlagGroup) {
 	usageFmt := "Usage:\n  %s\n"
 	cols, _, _ := utils.GetTermInfo(cmd.OutOrStdout())
 	cmd.SetUsageFunc(func(cmd *cobra.Command) error {
@@ -270,7 +276,7 @@ func subCmdText(cmd *cobra.Command, maxWidth int) string {
 	tw := tabwriter.NewWriter(&buf, 0, 0, 2, ' ', 0)
 	tw.Write([]byte("\n\nCommands:\n\n"))
 	for _, command := range cmd.Commands() {
-		fmt.Fprintf(tw, "\t%s\t%s\n", command.Name(), limitWidth(command.Short, maxWidth-2-len(command.Name())))
+		fmt.Fprintf(tw, "\t%s\t%s\n", command.Name(), ds.LimitWidth(command.Short, maxWidth-2-len(command.Name())))
 		//buf.WriteString(command.Name() + " " + command.Short + "\n")
 	}
 	tw.Flush()

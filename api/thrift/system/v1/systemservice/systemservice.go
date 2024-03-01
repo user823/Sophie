@@ -19,102 +19,101 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "SystemService"
 	handlerType := (*v1.SystemService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"ListConfigs":              kitex.NewMethodInfo(listConfigsHandler, newSystemServiceListConfigsArgs, newSystemServiceListConfigsResult, false),
-		"ExportConfig":             kitex.NewMethodInfo(exportConfigHandler, newSystemServiceExportConfigArgs, newSystemServiceExportConfigResult, false),
-		"GetConfigById":            kitex.NewMethodInfo(getConfigByIdHandler, newSystemServiceGetConfigByIdArgs, newSystemServiceGetConfigByIdResult, false),
-		"GetConfigByKey":           kitex.NewMethodInfo(getConfigByKeyHandler, newSystemServiceGetConfigByKeyArgs, newSystemServiceGetConfigByKeyResult, false),
-		"CreateConfig":             kitex.NewMethodInfo(createConfigHandler, newSystemServiceCreateConfigArgs, newSystemServiceCreateConfigResult, false),
-		"UpdateConfig":             kitex.NewMethodInfo(updateConfigHandler, newSystemServiceUpdateConfigArgs, newSystemServiceUpdateConfigResult, false),
-		"DeleteConfig":             kitex.NewMethodInfo(deleteConfigHandler, newSystemServiceDeleteConfigArgs, newSystemServiceDeleteConfigResult, false),
-		"RefreshConfig":            kitex.NewMethodInfo(refreshConfigHandler, newSystemServiceRefreshConfigArgs, newSystemServiceRefreshConfigResult, false),
-		"ListDepts":                kitex.NewMethodInfo(listDeptsHandler, newSystemServiceListDeptsArgs, newSystemServiceListDeptsResult, false),
-		"ListDeptsExcludeChild":    kitex.NewMethodInfo(listDeptsExcludeChildHandler, newSystemServiceListDeptsExcludeChildArgs, newSystemServiceListDeptsExcludeChildResult, false),
-		"GetDeptById":              kitex.NewMethodInfo(getDeptByIdHandler, newSystemServiceGetDeptByIdArgs, newSystemServiceGetDeptByIdResult, false),
-		"CreateDept":               kitex.NewMethodInfo(createDeptHandler, newSystemServiceCreateDeptArgs, newSystemServiceCreateDeptResult, false),
-		"UpdateDept":               kitex.NewMethodInfo(updateDeptHandler, newSystemServiceUpdateDeptArgs, newSystemServiceUpdateDeptResult, false),
-		"DeleteDept":               kitex.NewMethodInfo(deleteDeptHandler, newSystemServiceDeleteDeptArgs, newSystemServiceDeleteDeptResult, false),
-		"ListDictDatas":            kitex.NewMethodInfo(listDictDatasHandler, newSystemServiceListDictDatasArgs, newSystemServiceListDictDatasResult, false),
-		"ExportDictData":           kitex.NewMethodInfo(exportDictDataHandler, newSystemServiceExportDictDataArgs, newSystemServiceExportDictDataResult, false),
-		"GetDictDataByCode":        kitex.NewMethodInfo(getDictDataByCodeHandler, newSystemServiceGetDictDataByCodeArgs, newSystemServiceGetDictDataByCodeResult, false),
-		"ListDictDataByType":       kitex.NewMethodInfo(listDictDataByTypeHandler, newSystemServiceListDictDataByTypeArgs, newSystemServiceListDictDataByTypeResult, false),
-		"CreateDictData":           kitex.NewMethodInfo(createDictDataHandler, newSystemServiceCreateDictDataArgs, newSystemServiceCreateDictDataResult, false),
-		"UpdateDictData":           kitex.NewMethodInfo(updateDictDataHandler, newSystemServiceUpdateDictDataArgs, newSystemServiceUpdateDictDataResult, false),
-		"DeleteDictData":           kitex.NewMethodInfo(deleteDictDataHandler, newSystemServiceDeleteDictDataArgs, newSystemServiceDeleteDictDataResult, false),
-		"ListDictTypes":            kitex.NewMethodInfo(listDictTypesHandler, newSystemServiceListDictTypesArgs, newSystemServiceListDictTypesResult, false),
-		"ExportDictType":           kitex.NewMethodInfo(exportDictTypeHandler, newSystemServiceExportDictTypeArgs, newSystemServiceExportDictTypeResult, false),
-		"GetDictTypeById":          kitex.NewMethodInfo(getDictTypeByIdHandler, newSystemServiceGetDictTypeByIdArgs, newSystemServiceGetDictTypeByIdResult, false),
-		"CreateDictType":           kitex.NewMethodInfo(createDictTypeHandler, newSystemServiceCreateDictTypeArgs, newSystemServiceCreateDictTypeResult, false),
-		"UpdateDictType":           kitex.NewMethodInfo(updateDictTypeHandler, newSystemServiceUpdateDictTypeArgs, newSystemServiceUpdateDictTypeResult, false),
-		"DeleteDictType":           kitex.NewMethodInfo(deleteDictTypeHandler, newSystemServiceDeleteDictTypeArgs, newSystemServiceDeleteDictTypeResult, false),
-		"RefreshDictType":          kitex.NewMethodInfo(refreshDictTypeHandler, newSystemServiceRefreshDictTypeArgs, newSystemServiceRefreshDictTypeResult, false),
-		"DictTypeOptionSelect":     kitex.NewMethodInfo(dictTypeOptionSelectHandler, newSystemServiceDictTypeOptionSelectArgs, newSystemServiceDictTypeOptionSelectResult, false),
-		"ListSysLogininfos":        kitex.NewMethodInfo(listSysLogininfosHandler, newSystemServiceListSysLogininfosArgs, newSystemServiceListSysLogininfosResult, false),
-		"ExportLogininfo":          kitex.NewMethodInfo(exportLogininfoHandler, newSystemServiceExportLogininfoArgs, newSystemServiceExportLogininfoResult, false),
-		"RemoveSysLogininfosById":  kitex.NewMethodInfo(removeSysLogininfosByIdHandler, newSystemServiceRemoveSysLogininfosByIdArgs, newSystemServiceRemoveSysLogininfosByIdResult, false),
-		"LogininfoClean":           kitex.NewMethodInfo(logininfoCleanHandler, newSystemServiceLogininfoCleanArgs, newSystemServiceLogininfoCleanResult, false),
-		"UnlockByUserName":         kitex.NewMethodInfo(unlockByUserNameHandler, newSystemServiceUnlockByUserNameArgs, newSystemServiceUnlockByUserNameResult, false),
-		"CreateSysLogininfo":       kitex.NewMethodInfo(createSysLogininfoHandler, newSystemServiceCreateSysLogininfoArgs, newSystemServiceCreateSysLogininfoResult, false),
-		"ListSysMenus":             kitex.NewMethodInfo(listSysMenusHandler, newSystemServiceListSysMenusArgs, newSystemServiceListSysMenusResult, false),
-		"GetSysMenuById":           kitex.NewMethodInfo(getSysMenuByIdHandler, newSystemServiceGetSysMenuByIdArgs, newSystemServiceGetSysMenuByIdResult, false),
-		"ListTreeMenu":             kitex.NewMethodInfo(listTreeMenuHandler, newSystemServiceListTreeMenuArgs, newSystemServiceListTreeMenuResult, false),
-		"ListTreeMenuByRoleid":     kitex.NewMethodInfo(listTreeMenuByRoleidHandler, newSystemServiceListTreeMenuByRoleidArgs, newSystemServiceListTreeMenuByRoleidResult, false),
-		"CreateMenu":               kitex.NewMethodInfo(createMenuHandler, newSystemServiceCreateMenuArgs, newSystemServiceCreateMenuResult, false),
-		"UpdateMenu":               kitex.NewMethodInfo(updateMenuHandler, newSystemServiceUpdateMenuArgs, newSystemServiceUpdateMenuResult, false),
-		"DeleteMenu":               kitex.NewMethodInfo(deleteMenuHandler, newSystemServiceDeleteMenuArgs, newSystemServiceDeleteMenuResult, false),
-		"GetRouters":               kitex.NewMethodInfo(getRoutersHandler, newSystemServiceGetRoutersArgs, newSystemServiceGetRoutersResult, false),
-		"GetSysMenuPermsByRoleIds": kitex.NewMethodInfo(getSysMenuPermsByRoleIdsHandler, newSystemServiceGetSysMenuPermsByRoleIdsArgs, newSystemServiceGetSysMenuPermsByRoleIdsResult, false),
-		"ListSysNotices":           kitex.NewMethodInfo(listSysNoticesHandler, newSystemServiceListSysNoticesArgs, newSystemServiceListSysNoticesResult, false),
-		"GetSysNoticeById":         kitex.NewMethodInfo(getSysNoticeByIdHandler, newSystemServiceGetSysNoticeByIdArgs, newSystemServiceGetSysNoticeByIdResult, false),
-		"CreateSysNotice":          kitex.NewMethodInfo(createSysNoticeHandler, newSystemServiceCreateSysNoticeArgs, newSystemServiceCreateSysNoticeResult, false),
-		"DeleteSysNotice":          kitex.NewMethodInfo(deleteSysNoticeHandler, newSystemServiceDeleteSysNoticeArgs, newSystemServiceDeleteSysNoticeResult, false),
-		"UpdateSysNotice":          kitex.NewMethodInfo(updateSysNoticeHandler, newSystemServiceUpdateSysNoticeArgs, newSystemServiceUpdateSysNoticeResult, false),
-		"ListSysOperLogs":          kitex.NewMethodInfo(listSysOperLogsHandler, newSystemServiceListSysOperLogsArgs, newSystemServiceListSysOperLogsResult, false),
-		"ExportSysOperLog":         kitex.NewMethodInfo(exportSysOperLogHandler, newSystemServiceExportSysOperLogArgs, newSystemServiceExportSysOperLogResult, false),
-		"DeleteSysOperLog":         kitex.NewMethodInfo(deleteSysOperLogHandler, newSystemServiceDeleteSysOperLogArgs, newSystemServiceDeleteSysOperLogResult, false),
-		"OperLogClean":             kitex.NewMethodInfo(operLogCleanHandler, newSystemServiceOperLogCleanArgs, newSystemServiceOperLogCleanResult, false),
-		"CreateSysOperLog":         kitex.NewMethodInfo(createSysOperLogHandler, newSystemServiceCreateSysOperLogArgs, newSystemServiceCreateSysOperLogResult, false),
-		"ListSysPosts":             kitex.NewMethodInfo(listSysPostsHandler, newSystemServiceListSysPostsArgs, newSystemServiceListSysPostsResult, false),
-		"ExportSysPost":            kitex.NewMethodInfo(exportSysPostHandler, newSystemServiceExportSysPostArgs, newSystemServiceExportSysPostResult, false),
-		"GetSysPostById":           kitex.NewMethodInfo(getSysPostByIdHandler, newSystemServiceGetSysPostByIdArgs, newSystemServiceGetSysPostByIdResult, false),
-		"CreateSysPost":            kitex.NewMethodInfo(createSysPostHandler, newSystemServiceCreateSysPostArgs, newSystemServiceCreateSysPostResult, false),
-		"UpdateSysPost":            kitex.NewMethodInfo(updateSysPostHandler, newSystemServiceUpdateSysPostArgs, newSystemServiceUpdateSysPostResult, false),
-		"DeleteSysPost":            kitex.NewMethodInfo(deleteSysPostHandler, newSystemServiceDeleteSysPostArgs, newSystemServiceDeleteSysPostResult, false),
-		"PostOptionSelect":         kitex.NewMethodInfo(postOptionSelectHandler, newSystemServicePostOptionSelectArgs, newSystemServicePostOptionSelectResult, false),
-		"Profile":                  kitex.NewMethodInfo(profileHandler, newSystemServiceProfileArgs, newSystemServiceProfileResult, false),
-		"UpdateProfile":            kitex.NewMethodInfo(updateProfileHandler, newSystemServiceUpdateProfileArgs, newSystemServiceUpdateProfileResult, false),
-		"UpdatePassword":           kitex.NewMethodInfo(updatePasswordHandler, newSystemServiceUpdatePasswordArgs, newSystemServiceUpdatePasswordResult, false),
-		"ListSysRole":              kitex.NewMethodInfo(listSysRoleHandler, newSystemServiceListSysRoleArgs, newSystemServiceListSysRoleResult, false),
-		"ExportSysRole":            kitex.NewMethodInfo(exportSysRoleHandler, newSystemServiceExportSysRoleArgs, newSystemServiceExportSysRoleResult, false),
-		"GetSysRoleByid":           kitex.NewMethodInfo(getSysRoleByidHandler, newSystemServiceGetSysRoleByidArgs, newSystemServiceGetSysRoleByidResult, false),
-		"CreateSysRole":            kitex.NewMethodInfo(createSysRoleHandler, newSystemServiceCreateSysRoleArgs, newSystemServiceCreateSysRoleResult, false),
-		"UpdateSysRole":            kitex.NewMethodInfo(updateSysRoleHandler, newSystemServiceUpdateSysRoleArgs, newSystemServiceUpdateSysRoleResult, false),
-		"DataScope":                kitex.NewMethodInfo(dataScopeHandler, newSystemServiceDataScopeArgs, newSystemServiceDataScopeResult, false),
-		"ChangeSysRoleStatus":      kitex.NewMethodInfo(changeSysRoleStatusHandler, newSystemServiceChangeSysRoleStatusArgs, newSystemServiceChangeSysRoleStatusResult, false),
-		"DeleteSysRole":            kitex.NewMethodInfo(deleteSysRoleHandler, newSystemServiceDeleteSysRoleArgs, newSystemServiceDeleteSysRoleResult, false),
-		"ListRoleOption":           kitex.NewMethodInfo(listRoleOptionHandler, newSystemServiceListRoleOptionArgs, newSystemServiceListRoleOptionResult, false),
-		"AllocatedList":            kitex.NewMethodInfo(allocatedListHandler, newSystemServiceAllocatedListArgs, newSystemServiceAllocatedListResult, false),
-		"UnallocatedList":          kitex.NewMethodInfo(unallocatedListHandler, newSystemServiceUnallocatedListArgs, newSystemServiceUnallocatedListResult, false),
-		"CancelAuthUser":           kitex.NewMethodInfo(cancelAuthUserHandler, newSystemServiceCancelAuthUserArgs, newSystemServiceCancelAuthUserResult, false),
-		"CancelAuthUserAll":        kitex.NewMethodInfo(cancelAuthUserAllHandler, newSystemServiceCancelAuthUserAllArgs, newSystemServiceCancelAuthUserAllResult, false),
-		"SelectAuthUserAll":        kitex.NewMethodInfo(selectAuthUserAllHandler, newSystemServiceSelectAuthUserAllArgs, newSystemServiceSelectAuthUserAllResult, false),
-		"DeptTreeByRoleId":         kitex.NewMethodInfo(deptTreeByRoleIdHandler, newSystemServiceDeptTreeByRoleIdArgs, newSystemServiceDeptTreeByRoleIdResult, false),
-		"GetSysRoleByUser":         kitex.NewMethodInfo(getSysRoleByUserHandler, newSystemServiceGetSysRoleByUserArgs, newSystemServiceGetSysRoleByUserResult, false),
-		"ListSysUsers":             kitex.NewMethodInfo(listSysUsersHandler, newSystemServiceListSysUsersArgs, newSystemServiceListSysUsersResult, false),
-		"ExportSysUser":            kitex.NewMethodInfo(exportSysUserHandler, newSystemServiceExportSysUserArgs, newSystemServiceExportSysUserResult, false),
-		"ImportUserData":           kitex.NewMethodInfo(importUserDataHandler, newSystemServiceImportUserDataArgs, newSystemServiceImportUserDataResult, false),
-		"GetUserInfoByName":        kitex.NewMethodInfo(getUserInfoByNameHandler, newSystemServiceGetUserInfoByNameArgs, newSystemServiceGetUserInfoByNameResult, false),
-		"RegisterSysUser":          kitex.NewMethodInfo(registerSysUserHandler, newSystemServiceRegisterSysUserArgs, newSystemServiceRegisterSysUserResult, false),
-		"GetUserInfoById":          kitex.NewMethodInfo(getUserInfoByIdHandler, newSystemServiceGetUserInfoByIdArgs, newSystemServiceGetUserInfoByIdResult, false),
-		"CreateSysUser":            kitex.NewMethodInfo(createSysUserHandler, newSystemServiceCreateSysUserArgs, newSystemServiceCreateSysUserResult, false),
-		"UpdateSysUser":            kitex.NewMethodInfo(updateSysUserHandler, newSystemServiceUpdateSysUserArgs, newSystemServiceUpdateSysUserResult, false),
-		"DeleteSysUser":            kitex.NewMethodInfo(deleteSysUserHandler, newSystemServiceDeleteSysUserArgs, newSystemServiceDeleteSysUserResult, false),
-		"ResetPassword":            kitex.NewMethodInfo(resetPasswordHandler, newSystemServiceResetPasswordArgs, newSystemServiceResetPasswordResult, false),
-		"ChangeSysUserStatus":      kitex.NewMethodInfo(changeSysUserStatusHandler, newSystemServiceChangeSysUserStatusArgs, newSystemServiceChangeSysUserStatusResult, false),
-		"GetAuthRoleById":          kitex.NewMethodInfo(getAuthRoleByIdHandler, newSystemServiceGetAuthRoleByIdArgs, newSystemServiceGetAuthRoleByIdResult, false),
-		"AuthRole":                 kitex.NewMethodInfo(authRoleHandler, newSystemServiceAuthRoleArgs, newSystemServiceAuthRoleResult, false),
-		"ListDeptsTree":            kitex.NewMethodInfo(listDeptsTreeHandler, newSystemServiceListDeptsTreeArgs, newSystemServiceListDeptsTreeResult, false),
-		"ListSysUserOnlines":       kitex.NewMethodInfo(listSysUserOnlinesHandler, newSystemServiceListSysUserOnlinesArgs, newSystemServiceListSysUserOnlinesResult, false),
-		"ForceLogout":              kitex.NewMethodInfo(forceLogoutHandler, newSystemServiceForceLogoutArgs, newSystemServiceForceLogoutResult, false),
+		"ListConfigs":             kitex.NewMethodInfo(listConfigsHandler, newSystemServiceListConfigsArgs, newSystemServiceListConfigsResult, false),
+		"ExportConfig":            kitex.NewMethodInfo(exportConfigHandler, newSystemServiceExportConfigArgs, newSystemServiceExportConfigResult, false),
+		"GetConfigById":           kitex.NewMethodInfo(getConfigByIdHandler, newSystemServiceGetConfigByIdArgs, newSystemServiceGetConfigByIdResult, false),
+		"GetConfigByKey":          kitex.NewMethodInfo(getConfigByKeyHandler, newSystemServiceGetConfigByKeyArgs, newSystemServiceGetConfigByKeyResult, false),
+		"CreateConfig":            kitex.NewMethodInfo(createConfigHandler, newSystemServiceCreateConfigArgs, newSystemServiceCreateConfigResult, false),
+		"UpdateConfig":            kitex.NewMethodInfo(updateConfigHandler, newSystemServiceUpdateConfigArgs, newSystemServiceUpdateConfigResult, false),
+		"DeleteConfig":            kitex.NewMethodInfo(deleteConfigHandler, newSystemServiceDeleteConfigArgs, newSystemServiceDeleteConfigResult, false),
+		"RefreshConfig":           kitex.NewMethodInfo(refreshConfigHandler, newSystemServiceRefreshConfigArgs, newSystemServiceRefreshConfigResult, false),
+		"ListDepts":               kitex.NewMethodInfo(listDeptsHandler, newSystemServiceListDeptsArgs, newSystemServiceListDeptsResult, false),
+		"ListDeptsExcludeChild":   kitex.NewMethodInfo(listDeptsExcludeChildHandler, newSystemServiceListDeptsExcludeChildArgs, newSystemServiceListDeptsExcludeChildResult, false),
+		"GetDeptById":             kitex.NewMethodInfo(getDeptByIdHandler, newSystemServiceGetDeptByIdArgs, newSystemServiceGetDeptByIdResult, false),
+		"CreateDept":              kitex.NewMethodInfo(createDeptHandler, newSystemServiceCreateDeptArgs, newSystemServiceCreateDeptResult, false),
+		"UpdateDept":              kitex.NewMethodInfo(updateDeptHandler, newSystemServiceUpdateDeptArgs, newSystemServiceUpdateDeptResult, false),
+		"DeleteDept":              kitex.NewMethodInfo(deleteDeptHandler, newSystemServiceDeleteDeptArgs, newSystemServiceDeleteDeptResult, false),
+		"ListDictDatas":           kitex.NewMethodInfo(listDictDatasHandler, newSystemServiceListDictDatasArgs, newSystemServiceListDictDatasResult, false),
+		"ExportDictData":          kitex.NewMethodInfo(exportDictDataHandler, newSystemServiceExportDictDataArgs, newSystemServiceExportDictDataResult, false),
+		"GetDictDataByCode":       kitex.NewMethodInfo(getDictDataByCodeHandler, newSystemServiceGetDictDataByCodeArgs, newSystemServiceGetDictDataByCodeResult, false),
+		"ListDictDataByType":      kitex.NewMethodInfo(listDictDataByTypeHandler, newSystemServiceListDictDataByTypeArgs, newSystemServiceListDictDataByTypeResult, false),
+		"CreateDictData":          kitex.NewMethodInfo(createDictDataHandler, newSystemServiceCreateDictDataArgs, newSystemServiceCreateDictDataResult, false),
+		"UpdateDictData":          kitex.NewMethodInfo(updateDictDataHandler, newSystemServiceUpdateDictDataArgs, newSystemServiceUpdateDictDataResult, false),
+		"DeleteDictData":          kitex.NewMethodInfo(deleteDictDataHandler, newSystemServiceDeleteDictDataArgs, newSystemServiceDeleteDictDataResult, false),
+		"ListDictTypes":           kitex.NewMethodInfo(listDictTypesHandler, newSystemServiceListDictTypesArgs, newSystemServiceListDictTypesResult, false),
+		"ExportDictType":          kitex.NewMethodInfo(exportDictTypeHandler, newSystemServiceExportDictTypeArgs, newSystemServiceExportDictTypeResult, false),
+		"GetDictTypeById":         kitex.NewMethodInfo(getDictTypeByIdHandler, newSystemServiceGetDictTypeByIdArgs, newSystemServiceGetDictTypeByIdResult, false),
+		"CreateDictType":          kitex.NewMethodInfo(createDictTypeHandler, newSystemServiceCreateDictTypeArgs, newSystemServiceCreateDictTypeResult, false),
+		"UpdateDictType":          kitex.NewMethodInfo(updateDictTypeHandler, newSystemServiceUpdateDictTypeArgs, newSystemServiceUpdateDictTypeResult, false),
+		"DeleteDictType":          kitex.NewMethodInfo(deleteDictTypeHandler, newSystemServiceDeleteDictTypeArgs, newSystemServiceDeleteDictTypeResult, false),
+		"RefreshDictType":         kitex.NewMethodInfo(refreshDictTypeHandler, newSystemServiceRefreshDictTypeArgs, newSystemServiceRefreshDictTypeResult, false),
+		"DictTypeOptionSelect":    kitex.NewMethodInfo(dictTypeOptionSelectHandler, newSystemServiceDictTypeOptionSelectArgs, newSystemServiceDictTypeOptionSelectResult, false),
+		"ListSysLogininfos":       kitex.NewMethodInfo(listSysLogininfosHandler, newSystemServiceListSysLogininfosArgs, newSystemServiceListSysLogininfosResult, false),
+		"ExportLogininfo":         kitex.NewMethodInfo(exportLogininfoHandler, newSystemServiceExportLogininfoArgs, newSystemServiceExportLogininfoResult, false),
+		"RemoveSysLogininfosById": kitex.NewMethodInfo(removeSysLogininfosByIdHandler, newSystemServiceRemoveSysLogininfosByIdArgs, newSystemServiceRemoveSysLogininfosByIdResult, false),
+		"LogininfoClean":          kitex.NewMethodInfo(logininfoCleanHandler, newSystemServiceLogininfoCleanArgs, newSystemServiceLogininfoCleanResult, false),
+		"UnlockByUserName":        kitex.NewMethodInfo(unlockByUserNameHandler, newSystemServiceUnlockByUserNameArgs, newSystemServiceUnlockByUserNameResult, false),
+		"CreateSysLogininfo":      kitex.NewMethodInfo(createSysLogininfoHandler, newSystemServiceCreateSysLogininfoArgs, newSystemServiceCreateSysLogininfoResult, false),
+		"ListSysMenus":            kitex.NewMethodInfo(listSysMenusHandler, newSystemServiceListSysMenusArgs, newSystemServiceListSysMenusResult, false),
+		"GetSysMenuById":          kitex.NewMethodInfo(getSysMenuByIdHandler, newSystemServiceGetSysMenuByIdArgs, newSystemServiceGetSysMenuByIdResult, false),
+		"ListTreeMenu":            kitex.NewMethodInfo(listTreeMenuHandler, newSystemServiceListTreeMenuArgs, newSystemServiceListTreeMenuResult, false),
+		"ListTreeMenuByRoleid":    kitex.NewMethodInfo(listTreeMenuByRoleidHandler, newSystemServiceListTreeMenuByRoleidArgs, newSystemServiceListTreeMenuByRoleidResult, false),
+		"CreateMenu":              kitex.NewMethodInfo(createMenuHandler, newSystemServiceCreateMenuArgs, newSystemServiceCreateMenuResult, false),
+		"UpdateMenu":              kitex.NewMethodInfo(updateMenuHandler, newSystemServiceUpdateMenuArgs, newSystemServiceUpdateMenuResult, false),
+		"DeleteMenu":              kitex.NewMethodInfo(deleteMenuHandler, newSystemServiceDeleteMenuArgs, newSystemServiceDeleteMenuResult, false),
+		"GetRouters":              kitex.NewMethodInfo(getRoutersHandler, newSystemServiceGetRoutersArgs, newSystemServiceGetRoutersResult, false),
+		"ListSysNotices":          kitex.NewMethodInfo(listSysNoticesHandler, newSystemServiceListSysNoticesArgs, newSystemServiceListSysNoticesResult, false),
+		"GetSysNoticeById":        kitex.NewMethodInfo(getSysNoticeByIdHandler, newSystemServiceGetSysNoticeByIdArgs, newSystemServiceGetSysNoticeByIdResult, false),
+		"CreateSysNotice":         kitex.NewMethodInfo(createSysNoticeHandler, newSystemServiceCreateSysNoticeArgs, newSystemServiceCreateSysNoticeResult, false),
+		"DeleteSysNotice":         kitex.NewMethodInfo(deleteSysNoticeHandler, newSystemServiceDeleteSysNoticeArgs, newSystemServiceDeleteSysNoticeResult, false),
+		"UpdateSysNotice":         kitex.NewMethodInfo(updateSysNoticeHandler, newSystemServiceUpdateSysNoticeArgs, newSystemServiceUpdateSysNoticeResult, false),
+		"ListSysOperLogs":         kitex.NewMethodInfo(listSysOperLogsHandler, newSystemServiceListSysOperLogsArgs, newSystemServiceListSysOperLogsResult, false),
+		"ExportSysOperLog":        kitex.NewMethodInfo(exportSysOperLogHandler, newSystemServiceExportSysOperLogArgs, newSystemServiceExportSysOperLogResult, false),
+		"DeleteSysOperLog":        kitex.NewMethodInfo(deleteSysOperLogHandler, newSystemServiceDeleteSysOperLogArgs, newSystemServiceDeleteSysOperLogResult, false),
+		"OperLogClean":            kitex.NewMethodInfo(operLogCleanHandler, newSystemServiceOperLogCleanArgs, newSystemServiceOperLogCleanResult, false),
+		"CreateSysOperLog":        kitex.NewMethodInfo(createSysOperLogHandler, newSystemServiceCreateSysOperLogArgs, newSystemServiceCreateSysOperLogResult, false),
+		"ListSysPosts":            kitex.NewMethodInfo(listSysPostsHandler, newSystemServiceListSysPostsArgs, newSystemServiceListSysPostsResult, false),
+		"ExportSysPost":           kitex.NewMethodInfo(exportSysPostHandler, newSystemServiceExportSysPostArgs, newSystemServiceExportSysPostResult, false),
+		"GetSysPostById":          kitex.NewMethodInfo(getSysPostByIdHandler, newSystemServiceGetSysPostByIdArgs, newSystemServiceGetSysPostByIdResult, false),
+		"CreateSysPost":           kitex.NewMethodInfo(createSysPostHandler, newSystemServiceCreateSysPostArgs, newSystemServiceCreateSysPostResult, false),
+		"UpdateSysPost":           kitex.NewMethodInfo(updateSysPostHandler, newSystemServiceUpdateSysPostArgs, newSystemServiceUpdateSysPostResult, false),
+		"DeleteSysPost":           kitex.NewMethodInfo(deleteSysPostHandler, newSystemServiceDeleteSysPostArgs, newSystemServiceDeleteSysPostResult, false),
+		"PostOptionSelect":        kitex.NewMethodInfo(postOptionSelectHandler, newSystemServicePostOptionSelectArgs, newSystemServicePostOptionSelectResult, false),
+		"Profile":                 kitex.NewMethodInfo(profileHandler, newSystemServiceProfileArgs, newSystemServiceProfileResult, false),
+		"UpdateProfile":           kitex.NewMethodInfo(updateProfileHandler, newSystemServiceUpdateProfileArgs, newSystemServiceUpdateProfileResult, false),
+		"UpdatePassword":          kitex.NewMethodInfo(updatePasswordHandler, newSystemServiceUpdatePasswordArgs, newSystemServiceUpdatePasswordResult, false),
+		"ListSysRole":             kitex.NewMethodInfo(listSysRoleHandler, newSystemServiceListSysRoleArgs, newSystemServiceListSysRoleResult, false),
+		"ExportSysRole":           kitex.NewMethodInfo(exportSysRoleHandler, newSystemServiceExportSysRoleArgs, newSystemServiceExportSysRoleResult, false),
+		"GetSysRoleByid":          kitex.NewMethodInfo(getSysRoleByidHandler, newSystemServiceGetSysRoleByidArgs, newSystemServiceGetSysRoleByidResult, false),
+		"CreateSysRole":           kitex.NewMethodInfo(createSysRoleHandler, newSystemServiceCreateSysRoleArgs, newSystemServiceCreateSysRoleResult, false),
+		"UpdateSysRole":           kitex.NewMethodInfo(updateSysRoleHandler, newSystemServiceUpdateSysRoleArgs, newSystemServiceUpdateSysRoleResult, false),
+		"DataScope":               kitex.NewMethodInfo(dataScopeHandler, newSystemServiceDataScopeArgs, newSystemServiceDataScopeResult, false),
+		"ChangeSysRoleStatus":     kitex.NewMethodInfo(changeSysRoleStatusHandler, newSystemServiceChangeSysRoleStatusArgs, newSystemServiceChangeSysRoleStatusResult, false),
+		"DeleteSysRole":           kitex.NewMethodInfo(deleteSysRoleHandler, newSystemServiceDeleteSysRoleArgs, newSystemServiceDeleteSysRoleResult, false),
+		"ListRoleOption":          kitex.NewMethodInfo(listRoleOptionHandler, newSystemServiceListRoleOptionArgs, newSystemServiceListRoleOptionResult, false),
+		"AllocatedList":           kitex.NewMethodInfo(allocatedListHandler, newSystemServiceAllocatedListArgs, newSystemServiceAllocatedListResult, false),
+		"UnallocatedList":         kitex.NewMethodInfo(unallocatedListHandler, newSystemServiceUnallocatedListArgs, newSystemServiceUnallocatedListResult, false),
+		"CancelAuthUser":          kitex.NewMethodInfo(cancelAuthUserHandler, newSystemServiceCancelAuthUserArgs, newSystemServiceCancelAuthUserResult, false),
+		"CancelAuthUserAll":       kitex.NewMethodInfo(cancelAuthUserAllHandler, newSystemServiceCancelAuthUserAllArgs, newSystemServiceCancelAuthUserAllResult, false),
+		"SelectAuthUserAll":       kitex.NewMethodInfo(selectAuthUserAllHandler, newSystemServiceSelectAuthUserAllArgs, newSystemServiceSelectAuthUserAllResult, false),
+		"DeptTreeByRoleId":        kitex.NewMethodInfo(deptTreeByRoleIdHandler, newSystemServiceDeptTreeByRoleIdArgs, newSystemServiceDeptTreeByRoleIdResult, false),
+		"GetSysRoleByUser":        kitex.NewMethodInfo(getSysRoleByUserHandler, newSystemServiceGetSysRoleByUserArgs, newSystemServiceGetSysRoleByUserResult, false),
+		"ListSysUsers":            kitex.NewMethodInfo(listSysUsersHandler, newSystemServiceListSysUsersArgs, newSystemServiceListSysUsersResult, false),
+		"ExportSysUser":           kitex.NewMethodInfo(exportSysUserHandler, newSystemServiceExportSysUserArgs, newSystemServiceExportSysUserResult, false),
+		"ImportUserData":          kitex.NewMethodInfo(importUserDataHandler, newSystemServiceImportUserDataArgs, newSystemServiceImportUserDataResult, false),
+		"GetUserInfoByName":       kitex.NewMethodInfo(getUserInfoByNameHandler, newSystemServiceGetUserInfoByNameArgs, newSystemServiceGetUserInfoByNameResult, false),
+		"RegisterSysUser":         kitex.NewMethodInfo(registerSysUserHandler, newSystemServiceRegisterSysUserArgs, newSystemServiceRegisterSysUserResult, false),
+		"GetUserInfoById":         kitex.NewMethodInfo(getUserInfoByIdHandler, newSystemServiceGetUserInfoByIdArgs, newSystemServiceGetUserInfoByIdResult, false),
+		"CreateSysUser":           kitex.NewMethodInfo(createSysUserHandler, newSystemServiceCreateSysUserArgs, newSystemServiceCreateSysUserResult, false),
+		"UpdateSysUser":           kitex.NewMethodInfo(updateSysUserHandler, newSystemServiceUpdateSysUserArgs, newSystemServiceUpdateSysUserResult, false),
+		"DeleteSysUser":           kitex.NewMethodInfo(deleteSysUserHandler, newSystemServiceDeleteSysUserArgs, newSystemServiceDeleteSysUserResult, false),
+		"ResetPassword":           kitex.NewMethodInfo(resetPasswordHandler, newSystemServiceResetPasswordArgs, newSystemServiceResetPasswordResult, false),
+		"ChangeSysUserStatus":     kitex.NewMethodInfo(changeSysUserStatusHandler, newSystemServiceChangeSysUserStatusArgs, newSystemServiceChangeSysUserStatusResult, false),
+		"GetAuthRoleById":         kitex.NewMethodInfo(getAuthRoleByIdHandler, newSystemServiceGetAuthRoleByIdArgs, newSystemServiceGetAuthRoleByIdResult, false),
+		"AuthRole":                kitex.NewMethodInfo(authRoleHandler, newSystemServiceAuthRoleArgs, newSystemServiceAuthRoleResult, false),
+		"ListDeptsTree":           kitex.NewMethodInfo(listDeptsTreeHandler, newSystemServiceListDeptsTreeArgs, newSystemServiceListDeptsTreeResult, false),
+		"ListSysUserOnlines":      kitex.NewMethodInfo(listSysUserOnlinesHandler, newSystemServiceListSysUserOnlinesArgs, newSystemServiceListSysUserOnlinesResult, false),
+		"ForceLogout":             kitex.NewMethodInfo(forceLogoutHandler, newSystemServiceForceLogoutArgs, newSystemServiceForceLogoutResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName":     "v1",
@@ -903,24 +902,6 @@ func newSystemServiceGetRoutersArgs() interface{} {
 
 func newSystemServiceGetRoutersResult() interface{} {
 	return v1.NewSystemServiceGetRoutersResult()
-}
-
-func getSysMenuPermsByRoleIdsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.SystemServiceGetSysMenuPermsByRoleIdsArgs)
-	realResult := result.(*v1.SystemServiceGetSysMenuPermsByRoleIdsResult)
-	success, err := handler.(v1.SystemService).GetSysMenuPermsByRoleIds(ctx, realArg.Req)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newSystemServiceGetSysMenuPermsByRoleIdsArgs() interface{} {
-	return v1.NewSystemServiceGetSysMenuPermsByRoleIdsArgs()
-}
-
-func newSystemServiceGetSysMenuPermsByRoleIdsResult() interface{} {
-	return v1.NewSystemServiceGetSysMenuPermsByRoleIdsResult()
 }
 
 func listSysNoticesHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -1899,7 +1880,7 @@ func (p *kClient) GetConfigById(ctx context.Context, id int64) (r *v1.ConfigResp
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetConfigByKey(ctx context.Context, key string) (r *v1.ConfigResponse, err error) {
+func (p *kClient) GetConfigByKey(ctx context.Context, key string) (r *v1.BaseResp, err error) {
 	var _args v1.SystemServiceGetConfigByKeyArgs
 	_args.Key = key
 	var _result v1.SystemServiceGetConfigByKeyResult
@@ -2294,16 +2275,6 @@ func (p *kClient) GetRouters(ctx context.Context) (r *v1.RoutersResonse, err err
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetSysMenuPermsByRoleIds(ctx context.Context, req *v1.GetSysMenuPermsByRoleIdsRequest) (r *v1.SysMenuPermsResponse, err error) {
-	var _args v1.SystemServiceGetSysMenuPermsByRoleIdsArgs
-	_args.Req = req
-	var _result v1.SystemServiceGetSysMenuPermsByRoleIdsResult
-	if err = p.c.Call(ctx, "GetSysMenuPermsByRoleIds", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
 func (p *kClient) ListSysNotices(ctx context.Context, req *v1.ListSysNoticesRequest) (r *v1.ListSysNoticesResponse, err error) {
 	var _args v1.SystemServiceListSysNoticesArgs
 	_args.Req = req
@@ -2590,7 +2561,7 @@ func (p *kClient) ListRoleOption(ctx context.Context) (r *v1.ListSysRolesRespons
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) AllocatedList(ctx context.Context, req *v1.AllocatedListRequest) (r *v1.ListSysRolesResponse, err error) {
+func (p *kClient) AllocatedList(ctx context.Context, req *v1.AllocatedListRequest) (r *v1.ListSysUsersResponse, err error) {
 	var _args v1.SystemServiceAllocatedListArgs
 	_args.Req = req
 	var _result v1.SystemServiceAllocatedListResult
@@ -2600,7 +2571,7 @@ func (p *kClient) AllocatedList(ctx context.Context, req *v1.AllocatedListReques
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest) (r *v1.ListSysRolesResponse, err error) {
+func (p *kClient) UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest) (r *v1.ListSysUsersResponse, err error) {
 	var _args v1.SystemServiceUnallocatedListArgs
 	_args.Req = req
 	var _result v1.SystemServiceUnallocatedListResult
@@ -2710,7 +2681,7 @@ func (p *kClient) RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRe
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetUserInfoById(ctx context.Context, id int64) (r *v1.UserInfoResponse, err error) {
+func (p *kClient) GetUserInfoById(ctx context.Context, id int64) (r *v1.UserInfoByIdResponse, err error) {
 	var _args v1.SystemServiceGetUserInfoByIdArgs
 	_args.Id = id
 	var _result v1.SystemServiceGetUserInfoByIdResult

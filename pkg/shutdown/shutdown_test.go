@@ -1,20 +1,22 @@
-package shutdownmanagers
+package shutdown
 
 import (
 	"fmt"
-	"github.com/user823/Sophie/pkg/shutdown"
 	"testing"
 )
 
 func TestShutdown(t *testing.T) {
-	mg := NewDefaultShutdownManager()
-	gs := shutdown.NewGracefulShutdownInstance("test")
+	c := make(chan struct{})
+	mg := DefaultShutdownManager()
+	gs := NewGracefulShutdownInstance("test")
 	fn := func(msg string) error {
 		fmt.Println(msg)
+		c <- struct{}{}
 		return nil
 	}
-	gs.AddShutdownCallbacks(shutdown.ShutdownHelper(fn))
+	gs.AddShutdownCallbacks(fn)
 	gs.AddShutdownManagers(mg)
-	gs.SetErrHandler(shutdown.DefaultErrHandler{})
+	gs.SetErrHandler(&EmptyErrHandler{})
 	gs.Start()
+	<-c
 }

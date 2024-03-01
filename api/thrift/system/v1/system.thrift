@@ -8,7 +8,7 @@ service SystemService {
     ListConfigsResponse ListConfigs(1:ListConfigsRequest req)
     ExportConfigResponse ExportConfig(1:ExportConfigRequest req)
     ConfigResponse GetConfigById(1:i64 id)
-    ConfigResponse GetConfigByKey(1:string key)
+    BaseResp GetConfigByKey(1:string key)
     BaseResp CreateConfig(1:CreateConfigRequest req)
     BaseResp UpdateConfig(1:UpdateConfigReqeust req)
     BaseResp DeleteConfig(1:DeleteConfigReqeust req)
@@ -59,8 +59,6 @@ service SystemService {
     BaseResp DeleteMenu(1:DeleteMenuRequest req)
     RoutersResonse GetRouters()
 
-    SysMenuPermsResponse GetSysMenuPermsByRoleIds(1:GetSysMenuPermsByRoleIdsRequest req)
-
     // notice service 
     ListSysNoticesResponse ListSysNotices(1:ListSysNoticesRequest req)
     SysNoticeResponse GetSysNoticeById(1:i64 id)
@@ -99,8 +97,8 @@ service SystemService {
     BaseResp ChangeSysRoleStatus(1:ChangeSysRoleStatusRequest req)
     BaseResp DeleteSysRole(1:DeleteSysRoleRequest req)
     ListSysRolesResponse ListRoleOption()
-    ListSysRolesResponse AllocatedList(1:AllocatedListRequest req)
-    ListSysRolesResponse UnallocatedList(1:UnallocatedListRequest req)
+    ListSysUsersResponse AllocatedList(1:AllocatedListRequest req)
+    ListSysUsersResponse UnallocatedList(1:UnallocatedListRequest req)
     BaseResp CancelAuthUser(1:CancelAuthUserRequest req)
     BaseResp CancelAuthUserAll(1:CancelAuthUserAllRequest req)
     BaseResp SelectAuthUserAll(1:SelectAuthUserAllRequest req)
@@ -115,7 +113,7 @@ service SystemService {
     BaseResp ImportUserData(1:ImportUserDataRequest req)
     UserInfoResponse GetUserInfoByName(1:string name)
     RegisterSysUserResponse RegisterSysUser(1:RegisterSysUserRequest req)
-    UserInfoResponse GetUserInfoById(1:i64 id)
+    UserInfoByIdResponse GetUserInfoById(1:i64 id)
     BaseResp CreateSysUser(1:CreateSysUserRequest req)
     BaseResp UpdateSysUser(1:UpdateSysUserRequest req)
     BaseResp DeleteSysUser(1:DeleteSysUserRequest req)
@@ -138,6 +136,8 @@ struct BaseResp {
 struct PageInfo {
     1:i64 pageNum
     2:i64 pageSize
+    3:string orderByColumn
+    4:string isAsc
 }
 
 struct DateRange {
@@ -145,22 +145,18 @@ struct DateRange {
     2:i64 endTime
 }
 
-struct BaseInfo {
+struct ConfigInfo {
     1:string createBy
     2:i64 createTime
     3:string updateBy
     4:i64 updateTime
     5:string remark
     6:map<string,string> params
-}
-
-struct ConfigInfo {
-    1:BaseInfo baseInfo
-    2:i64 configId
-    3:optional string configName
-    4:optional string configKey
-    5:optional string configValue
-    6:optional string configType
+    7:i64 configId
+    8:string configName
+    9:string configKey
+    10:string configValue
+    11:string configType
 }
 
 struct ListConfigsRequest {
@@ -205,24 +201,28 @@ struct DeleteConfigReqeust {
 }
 
 struct DeptInfo {
-    1:BaseInfo baseInfo
-    2:i64 deptId
-    3:optional i64 parentId
-    4:optional string ancestors
-    5:optional string deptName
-    6:optional i64 orderNum
-    7:optional string leader
-    8:optional string phone
-    9:optional string email
-    10:optional string status
-    11:optional string delFlag
-    12:optional string parentName
-    13:optional list<DeptInfo> children
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 deptId
+    8:i64 parentId
+    9:string ancestors
+    10:string deptName
+    11:i64 orderNum
+    12:string leader
+    13:string phone
+    14:string email
+    15:string status
+    16:string delFlag
+    17:string parentName
+    18:list<DeptInfo> children
 }
 
 struct ListDeptsRequest {
-    1:string deptName
-    2:string status
+    1: DeptInfo deptInfo
 }
 
 struct ListDeptsResponse {
@@ -248,16 +248,21 @@ struct DeleteDeptRequest {
 }
 
 struct DictData {
-    1:BaseInfo baseInfo
-    2:i64 dictCode
-    3:optional i64 dictSort
-    4:optional string dictLabel
-    5:optional string dictValue
-    6:optional string dictType
-    7:optional string cssClass
-    8:optional string listClass
-    9:optional string isDefault
-    10:optional string status
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 dictCode
+    8:i64 dictSort
+    9:string dictLabel
+    10:string dictValue
+    11:string dictType
+    12:string cssClass
+    13:string listClass
+    14:string isDefault
+    15:string status
 }
 
 struct ListDictDatasRequest {
@@ -297,15 +302,20 @@ struct UpdateDictDataRequest {
 }
 
 struct DeleteDictDataRequest {
-    1:DictData dictData
+    1:list<i64> dictCodes
 }
 
 struct DictType {
-    1:BaseInfo baseInfo
-    2:i64 dictId
-    3:optional string dictName
-    4:optional string dictType
-    5:optional string status
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 dictId
+    8:string dictName
+    9:string dictType
+    10:string status
 }
 
 struct ListDictTypesRequest {
@@ -355,13 +365,18 @@ struct DictTypeOptionSelectResponse {
 }
 
 struct Logininfo {
-    1:BaseInfo baseInfo
-    2:i64 infoId
-    3:optional string userName
-    4:optional string status
-    5:optional string ipaddr
-    6:optional string msg
-    7:optional i64 accessTime
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 infoId
+    8:string userName
+    9:string status
+    10:string ipaddr
+    11:string msg
+    12:i64 accessTime
 }
 
 struct ListSysLogininfosRequest {
@@ -397,23 +412,28 @@ struct CreateSysLogininfoRequest {
 }
 
 struct MenuInfo {
-    1:BaseInfo baseInfo
-    2:i64 menuId
-    3:optional string menuName
-    4:optional string parentName
-    5:optional i64 parentId
-    6:optional i64 orderNum
-    7:optional string path
-    8:optional string component
-    9:optional string query
-    10:optional string isFrame
-    11:optional string isCache
-    12:optional string menuType
-    13:optional string visible
-    14:optional string status
-    15:optional string perms
-    16:optional string icon
-    17:optional list<MenuInfo> children
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 menuId
+    8:string menuName
+    9:string parentName
+    10:i64 parentId
+    11:i64 orderNum
+    12:string path
+    13:string component
+    14:string query
+    15:string isFrame
+    16:string isCache
+    17:string menuType
+    18:string visible
+    19:string status
+    20:string perms
+    21:string icon
+    22:list<MenuInfo> children
 }
 
 struct ListSysMenusRequest {
@@ -488,12 +508,17 @@ struct RoutersResonse {
 }
 
 struct NoticeInfo {
-    1:BaseInfo baseInfo
-    2:i64 noticeId
-    3:optional string noticeTitle
-    4:optional string noticeType
-    5:optional string noticeContent
-    6:optional string status
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 noticeId
+    8:string noticeTitle
+    9:string noticeType
+    10:string noticeContent
+    11:string status
 }
 
 struct ListSysNoticesRequest {
@@ -525,24 +550,29 @@ struct UpdateSysNoticeRequest {
 }
 
 struct OperLog {
-    1:BaseInfo baseInfo
-    2:i64 operId
-    3:optional string title
-    4:optional i64 businessType
-    5:optional list<i64> businessTypes
-    6:optional string method
-    7:optional string requestMethod
-    8:optional i64 operatorType
-    9:optional string operName
-    10:optional string deptName
-    11:optional string operUrl
-    12:optional string operIp
-    13:optional string operParam
-    14:optional string jsonResult
-    15:optional i64 status
-    16:optional string errorMsg
-    17:optional i64 operTime
-    18:optional i64 costTime
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 operId
+    8:string title
+    9:i64 businessType
+    10:list<i64> businessTypes
+    11:string method
+    12:string requestMethod
+    13:i64 operatorType
+    14:string operName
+    15:string deptName
+    16:string operUrl
+    17:string operIp
+    18:string operParam
+    19:string jsonResult
+    20:string status
+    21:string errorMsg
+    22:i64 operTime
+    23:i64 costTime
 }
 
 struct ListSysOperLogsRequest {
@@ -577,13 +607,18 @@ struct CreateSysOperLogRequest {
 }
 
 struct PostInfo {
-    1:BaseInfo baseInfo
-    2:i64 poseId
-    3:optional string poseCode
-    4:optional string poseName
-    5:optional i64 postSort
-    6:optional string status
-    7:optional bool flag
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 postId
+    8:string postCode
+    9:string postName
+    10:i64 postSort
+    11:string status
+    12:bool flag
 }
 
 struct ListSysPostsRequest {
@@ -632,42 +667,52 @@ struct PostOptionSelectResponse {
 }
 
 struct RoleInfo {
-    1:BaseInfo baseInfo
-    2:i64 roleId
-    3:optional string roleName
-    4:optional string roleKey
-    5:optional i64 roleSort
-    6:optional string dataScope
-    7:optional bool menuCheckStrictly
-    8:optional bool deptCheckStrictly
-    9:optional string status
-    10:optional string delFlag
-    11:optional bool flag
-    12:optional list<i64> menuIds
-    13:optional list<i64> deptIds
-    14:optional list<string> permissions
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 roleId
+    8:string roleName
+    9:string roleKey
+    10:i64 roleSort
+    11:string dataScope
+    12:bool menuCheckStrictly
+    13:bool deptCheckStrictly
+    14:string status
+    15:string delFlag
+    16:bool flag
+    17:list<i64> menuIds
+    18:list<i64> deptIds
+    19:list<string> permissions
 }
 
 struct UserInfo {
-    1:BaseInfo baseInfo
-    2:i64 userId
-    3:optional i64 deptId
-    4:optional string userName
-    5:optional string nickName
-    6:optional string email
-    7:optional string phonenumber
-    8:optional string sex
-    9:optional string avatar
-    10:optional string password
-    11:optional string status
-    12:optional string delFlag
-    13:optional string loginIp
-    14:optional i64 loginDate
-    15:optional DeptInfo dept
-    16:optional list<RoleInfo> roles
-    17:optional list<i64> roleIds
-    18:optional list<i64> postIds
-    19:optional i64 roleId
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 userId
+    8:i64 deptId
+    9:string userName
+    10:string nickName
+    11:string email
+    12:string phonenumber
+    13:string sex
+    14:string avatar
+    15:string password
+    16:string status
+    17:string delFlag
+    18:string loginIp
+    19:i64 loginDate
+    20:DeptInfo dept
+    21:list<RoleInfo> roles
+    22:list<i64> roleIds
+    23:list<i64> postIds
+    24:i64 roleId
 }
 
 struct ProfileResponse {
@@ -684,7 +729,6 @@ struct UpdateProfileRequest {
 struct UpdatePasswordRequest {
     1:string oldPassword
     2:string newPassword
-    3:string confirmPassword
 }
 
 struct ListSysRolesRequest {
@@ -742,15 +786,18 @@ struct RoleOptionSelectResponse {
 }
 
 struct AllocatedListRequest {
-    1:UserInfo userInfo
+    1:PageInfo pageInfo
+    2:UserInfo userInfo
 }
 
 struct UnallocatedListRequest {
-    1:UserInfo userInfo
+    1:PageInfo pageInfo
+    2:UserInfo userInfo
 }
 
 struct CancelAuthUserRequest {
-    1:UserInfo userInfo
+    1:i64 userId
+    2:i64 roleId
 }
 
 struct CancelAuthUserAllRequest {
@@ -801,6 +848,17 @@ struct ImportUserDataRequest {
 struct UserInfoResponse {
     1:BaseResp baseResp
     2:UserInfo data
+    3:list<string> roles
+    4:list<string> permissions
+}
+
+struct UserInfoByIdResponse {
+    1:BaseResp baseResp
+    2:list<RoleInfo> roles
+    3:list<PostInfo> posts
+    4:UserInfo data
+    5:list<i64> postIds
+    6:list<i64> roleIds
 }
 
 struct RegisterSysUserRequest {
@@ -866,14 +924,19 @@ struct ListSysUserOnlinesRequest {
 }
 
 struct UserOnlineInfo {
-    1:BaseInfo baseInfo
-    2:string tokenId
-    3:optional string userName
-    4:optional string ipaddr
-    5:optional string loginLocation
-    6:optional string browser
-    7:optional string os
-    8:optional i64 loginTime
+    1:string createBy
+    2:i64 createTime
+    3:string updateBy
+    4:i64 updateTime
+    5:string remark
+    6:map<string,string> params
+    7:string tokenId
+    8:string userName
+    9:string ipaddr
+    10:string loginLocation
+    11:string browser
+    12:string os
+    13:i64 loginTime
 }
 
 struct ListSysUserOnline {

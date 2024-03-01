@@ -14,7 +14,7 @@ type Client interface {
 	ListConfigs(ctx context.Context, req *v1.ListConfigsRequest, callOptions ...callopt.Option) (r *v1.ListConfigsResponse, err error)
 	ExportConfig(ctx context.Context, req *v1.ExportConfigRequest, callOptions ...callopt.Option) (r *v1.ExportConfigResponse, err error)
 	GetConfigById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.ConfigResponse, err error)
-	GetConfigByKey(ctx context.Context, key string, callOptions ...callopt.Option) (r *v1.ConfigResponse, err error)
+	GetConfigByKey(ctx context.Context, key string, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	CreateConfig(ctx context.Context, req *v1.CreateConfigRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateConfig(ctx context.Context, req *v1.UpdateConfigReqeust, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteConfig(ctx context.Context, req *v1.DeleteConfigReqeust, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -28,7 +28,7 @@ type Client interface {
 	ListDictDatas(ctx context.Context, req *v1.ListDictDatasRequest, callOptions ...callopt.Option) (r *v1.ListDictDatasResponse, err error)
 	ExportDictData(ctx context.Context, req *v1.ExportDictDataRequest, callOptions ...callopt.Option) (r *v1.ExportDictDataResponse, err error)
 	GetDictDataByCode(ctx context.Context, code int64, callOptions ...callopt.Option) (r *v1.DictDataResponse, err error)
-	ListDictDataByType(ctx context.Context, _type string, callOptions ...callopt.Option) (r *v1.ListDictDatasResponse, err error)
+	ListDictDataByType(ctx context.Context, dictType string, callOptions ...callopt.Option) (r *v1.ListDictDatasResponse, err error)
 	CreateDictData(ctx context.Context, req *v1.CreateDictDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateDictData(ctx context.Context, req *v1.UpdateDictDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteDictData(ctx context.Context, req *v1.DeleteDictDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -54,7 +54,6 @@ type Client interface {
 	UpdateMenu(ctx context.Context, req *v1.UpdateMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteMenu(ctx context.Context, req *v1.DeleteMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	GetRouters(ctx context.Context, callOptions ...callopt.Option) (r *v1.RoutersResonse, err error)
-	GetSysMenuPermsByRoleIds(ctx context.Context, req *v1.GetSysMenuPermsByRoleIdsRequest, callOptions ...callopt.Option) (r *v1.SysMenuPermsResponse, err error)
 	ListSysNotices(ctx context.Context, req *v1.ListSysNoticesRequest, callOptions ...callopt.Option) (r *v1.ListSysNoticesResponse, err error)
 	GetSysNoticeById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.SysNoticeResponse, err error)
 	CreateSysNotice(ctx context.Context, req *v1.CreateSysNoticeRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -84,8 +83,8 @@ type Client interface {
 	ChangeSysRoleStatus(ctx context.Context, req *v1.ChangeSysRoleStatusRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteSysRole(ctx context.Context, req *v1.DeleteSysRoleRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ListRoleOption(ctx context.Context, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error)
-	AllocatedList(ctx context.Context, req *v1.AllocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error)
-	UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error)
+	AllocatedList(ctx context.Context, req *v1.AllocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error)
+	UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error)
 	CancelAuthUser(ctx context.Context, req *v1.CancelAuthUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	CancelAuthUserAll(ctx context.Context, req *v1.CancelAuthUserAllRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	SelectAuthUserAll(ctx context.Context, req *v1.SelectAuthUserAllRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -96,7 +95,7 @@ type Client interface {
 	ImportUserData(ctx context.Context, req *v1.ImportUserDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	GetUserInfoByName(ctx context.Context, name string, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error)
 	RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRequest, callOptions ...callopt.Option) (r *v1.RegisterSysUserResponse, err error)
-	GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error)
+	GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error)
 	CreateSysUser(ctx context.Context, req *v1.CreateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateSysUser(ctx context.Context, req *v1.UpdateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteSysUser(ctx context.Context, req *v1.DeleteSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -153,7 +152,7 @@ func (p *kSystemServiceClient) GetConfigById(ctx context.Context, id int64, call
 	return p.kClient.GetConfigById(ctx, id)
 }
 
-func (p *kSystemServiceClient) GetConfigByKey(ctx context.Context, key string, callOptions ...callopt.Option) (r *v1.ConfigResponse, err error) {
+func (p *kSystemServiceClient) GetConfigByKey(ctx context.Context, key string, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetConfigByKey(ctx, key)
 }
@@ -223,9 +222,9 @@ func (p *kSystemServiceClient) GetDictDataByCode(ctx context.Context, code int64
 	return p.kClient.GetDictDataByCode(ctx, code)
 }
 
-func (p *kSystemServiceClient) ListDictDataByType(ctx context.Context, _type string, callOptions ...callopt.Option) (r *v1.ListDictDatasResponse, err error) {
+func (p *kSystemServiceClient) ListDictDataByType(ctx context.Context, dictType string, callOptions ...callopt.Option) (r *v1.ListDictDatasResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListDictDataByType(ctx, _type)
+	return p.kClient.ListDictDataByType(ctx, dictType)
 }
 
 func (p *kSystemServiceClient) CreateDictData(ctx context.Context, req *v1.CreateDictDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
@@ -351,11 +350,6 @@ func (p *kSystemServiceClient) DeleteMenu(ctx context.Context, req *v1.DeleteMen
 func (p *kSystemServiceClient) GetRouters(ctx context.Context, callOptions ...callopt.Option) (r *v1.RoutersResonse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetRouters(ctx)
-}
-
-func (p *kSystemServiceClient) GetSysMenuPermsByRoleIds(ctx context.Context, req *v1.GetSysMenuPermsByRoleIdsRequest, callOptions ...callopt.Option) (r *v1.SysMenuPermsResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetSysMenuPermsByRoleIds(ctx, req)
 }
 
 func (p *kSystemServiceClient) ListSysNotices(ctx context.Context, req *v1.ListSysNoticesRequest, callOptions ...callopt.Option) (r *v1.ListSysNoticesResponse, err error) {
@@ -503,12 +497,12 @@ func (p *kSystemServiceClient) ListRoleOption(ctx context.Context, callOptions .
 	return p.kClient.ListRoleOption(ctx)
 }
 
-func (p *kSystemServiceClient) AllocatedList(ctx context.Context, req *v1.AllocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error) {
+func (p *kSystemServiceClient) AllocatedList(ctx context.Context, req *v1.AllocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.AllocatedList(ctx, req)
 }
 
-func (p *kSystemServiceClient) UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error) {
+func (p *kSystemServiceClient) UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.UnallocatedList(ctx, req)
 }
@@ -563,7 +557,7 @@ func (p *kSystemServiceClient) RegisterSysUser(ctx context.Context, req *v1.Regi
 	return p.kClient.RegisterSysUser(ctx, req)
 }
 
-func (p *kSystemServiceClient) GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error) {
+func (p *kSystemServiceClient) GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetUserInfoById(ctx, id)
 }

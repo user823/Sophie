@@ -71,7 +71,7 @@ func (c *Command) CobraCommand() *cobra.Command {
 	}
 
 	if c.options != nil {
-		for _, fs := range c.options.Flags() {
+		for _, fs := range c.options.Flags().FlagSets() {
 			cmd.Flags().AddFlagSet(fs)
 		}
 	}

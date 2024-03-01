@@ -1,0 +1,10 @@
+dataSourceKey: defaultDS
+destination: example
+outerAdapterKey: es
+groupId: g1
+esMapping:
+  _index: sys_logininfor
+  _id: _id
+  sql: "select l.info_id as _id, l.info_id as infoId, l.user_name as userName, l.status as status, l.ipaddr as ipaddr, l.msg as msg, l.access_time as accessTime
+        from sys_logininfor l"
+  commitBatch: 3000

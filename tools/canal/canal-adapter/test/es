@@ -1,0 +1,53 @@
+put t_user
+{
+  "mappings": {
+    "properties": {
+      "u_id": {"type": "long"},
+      "username": {"type": "keyword"},
+      "d_id": {"type": "keyword"},
+      "d_name": {"type": "keyword"}
+    }
+  }
+}
+
+delete t_user
+
+put t_role
+{
+  "mappings": {
+    "properties": {
+      "r_id": {"type": "long"},
+      "rolename": {"type": "keyword"}
+    }
+  }
+}
+
+delete t_role
+
+put t_ur
+{
+  "mappings": {
+    "properties": {
+      "u_id": {"type": "long"},
+      "r_id": {"type": "long"}
+    }
+  }
+}
+
+delete t_ur
+
+put t_dept
+{
+  "mappings": {
+    "properties": {
+      "d_id": {"type": "long"},
+      "deptname": {"type": "keyword"}
+    }
+  }
+}
+
+delete t_dept
+
+get t_dept/_search
+
+get t_user/_search

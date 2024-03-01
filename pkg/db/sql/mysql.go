@@ -35,7 +35,8 @@ func NewMysqlDB(config any) (*gorm.DB, error) {
 		"Local",
 	)
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		Logger: cfg.Logger,
+		Logger:                 cfg.Logger,
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		return nil, err
@@ -51,3 +52,22 @@ func NewMysqlDB(config any) (*gorm.DB, error) {
 	sqlDB.SetMaxOpenConns(cfg.MaxOpenConnections)
 	return db, nil
 }
+
+//mysqlLoggerConfig := logger.Config{
+//SlowThreshold:             1 * time.Second,
+//Colorful:                  false,
+//IgnoreRecordNotFoundError: true,
+//ParameterizedQueries:      true,
+//LogLevel:                  (logger.LogLevel)(opts.MySQLOptions.LogLevel),
+//}
+//mysql := &sql.MysqlConfig{
+//Host:                  opts.MySQLOptions.Host,
+//Username:              opts.MySQLOptions.Username,
+//Password:              opts.MySQLOptions.Password,
+//Database:              opts.MySQLOptions.Database,
+//MaxConnectionLifeTime: opts.MySQLOptions.MaxConnectionLifeTime,
+//MaxOpenConnections:    opts.MySQLOptions.MaxOpenConnections,
+//MaxIdleConnections:    opts.MySQLOptions.MaxIdleConnections,
+//LogLevel:              opts.MySQLOptions.LogLevel,
+//Logger:                logger.New(log.Default(), mysqlLoggerConfig),
+//}

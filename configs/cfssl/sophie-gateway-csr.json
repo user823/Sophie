@@ -1,0 +1,21 @@
+{
+  "CN": "sophie-gateway",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "ST": "BeiJing",
+      "L": "BeiJing",
+      "O": "user823",
+      "OU": "sophie-gateway"
+    }
+  ],
+  "hosts": [
+    "127.0.0.1",
+    "localhost",
+    "sophie.gateway.com"
+  ]
+}

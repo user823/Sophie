@@ -1,7 +1,6 @@
-package shutdownmanagers
+package shutdown
 
 import (
-	"github.com/user823/Sophie/pkg/shutdown"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,17 +10,17 @@ import (
 // 监听
 const name = "DefaultShutdownManager"
 
-type DefaultShutdownManager struct {
+type PosixSignalShutdownManager struct {
 	signals []os.Signal
 }
 
-func NewDefaultShutdownManager() *DefaultShutdownManager {
-	return &DefaultShutdownManager{
+func DefaultShutdownManager() *PosixSignalShutdownManager {
+	return &PosixSignalShutdownManager{
 		signals: []os.Signal{syscall.SIGINT, syscall.SIGTERM},
 	}
 }
 
-func (d *DefaultShutdownManager) Start(gs shutdown.GSInstance) error {
+func (d *PosixSignalShutdownManager) Start(gs GSInstance) error {
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, d.signals...)
@@ -31,12 +30,12 @@ func (d *DefaultShutdownManager) Start(gs shutdown.GSInstance) error {
 	return nil
 }
 
-func (d *DefaultShutdownManager) GetName() string { return name }
+func (d *PosixSignalShutdownManager) GetName() string { return name }
 
-func (d *DefaultShutdownManager) BeforeShutdown() error {
+func (d *PosixSignalShutdownManager) BeforeShutdown() error {
 	return nil
 }
 
-func (d *DefaultShutdownManager) AfterShutdown() error {
+func (d *PosixSignalShutdownManager) AfterShutdown() error {
 	return nil
 }

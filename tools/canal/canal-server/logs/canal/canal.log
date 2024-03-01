@@ -1,0 +1,76 @@
+2024-02-24 21:44:41.022 [canal-server-scan-0] ERROR com.alibaba.otter.canal.deployer.CanalLauncher - scan failed
+com.alibaba.otter.canal.common.CanalException: load manager config failed.
+Caused by: java.lang.RuntimeException: requestGet remote error, request : http://127.0.0.1:8089/api/v1/config/server_polling?ip=172.18.0.1&port=11110&md5=8ffbb0ba8e510662e14ad9bcd095e2b2&register=1&cluster=&name=myhostname
+	at com.alibaba.otter.canal.instance.manager.plain.HttpHelper.get(HttpHelper.java:100)
+	at com.alibaba.otter.canal.instance.manager.plain.PlainCanalConfigClient.doQuery(PlainCanalConfigClient.java:122)
+	at com.alibaba.otter.canal.instance.manager.plain.PlainCanalConfigClient.queryConfig(PlainCanalConfigClient.java:111)
+	at com.alibaba.otter.canal.instance.manager.plain.PlainCanalConfigClient.findServer(PlainCanalConfigClient.java:78)
+	at com.alibaba.otter.canal.deployer.CanalLauncher$1.run(CanalLauncher.java:99)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: org.apache.http.conn.HttpHostConnectException: Connect to 127.0.0.1:8089 [/127.0.0.1] failed: Connection refused (Connection refused)
+	at org.apache.http.impl.conn.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:156)
+	at org.apache.http.impl.conn.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:376)
+	at org.apache.http.impl.execchain.MainClientExec.establishRoute(MainClientExec.java:393)
+	at org.apache.http.impl.execchain.MainClientExec.execute(MainClientExec.java:236)
+	at org.apache.http.impl.execchain.ProtocolExec.execute(ProtocolExec.java:186)
+	at org.apache.http.impl.execchain.RetryExec.execute(RetryExec.java:89)
+	at org.apache.http.impl.execchain.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.http.impl.client.InternalHttpClient.doExecute(InternalHttpClient.java:185)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
+	at com.alibaba.otter.canal.instance.manager.plain.HttpHelper.get(HttpHelper.java:90)
+	... 10 common frames omitted
+Caused by: java.net.ConnectException: Connection refused (Connection refused)
+	at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:412)
+	at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:255)
+	at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:237)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.base/java.net.Socket.connect(Socket.java:608)
+	at org.apache.http.conn.socket.PlainConnectionSocketFactory.connectSocket(PlainConnectionSocketFactory.java:75)
+	at org.apache.http.impl.conn.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:142)
+	... 19 common frames omitted
+2024-02-24 21:44:41.022 [canal-instance-scan-0] ERROR c.a.o.c.deployer.monitor.ManagerInstanceConfigMonitor - scan failed
+java.lang.RuntimeException: requestGet remote error, request : http://127.0.0.1:8089/api/v1/config/instances_polling?md5=&ip=172.18.0.1&port=11110
+	at com.alibaba.otter.canal.instance.manager.plain.HttpHelper.get(HttpHelper.java:100)
+	at com.alibaba.otter.canal.instance.manager.plain.PlainCanalConfigClient.doQuery(PlainCanalConfigClient.java:122)
+	at com.alibaba.otter.canal.instance.manager.plain.PlainCanalConfigClient.findInstances(PlainCanalConfigClient.java:101)
+	at com.alibaba.otter.canal.deployer.monitor.ManagerInstanceConfigMonitor.scan(ManagerInstanceConfigMonitor.java:75)
+	at com.alibaba.otter.canal.deployer.monitor.ManagerInstanceConfigMonitor.lambda$start$1(ManagerInstanceConfigMonitor.java:46)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+	at java.base/java.util.concurrent.FutureTask.runAndReset(FutureTask.java:305)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:305)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: org.apache.http.conn.HttpHostConnectException: Connect to 127.0.0.1:8089 [/127.0.0.1] failed: Connection refused (Connection refused)
+	at org.apache.http.impl.conn.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:156)
+	at org.apache.http.impl.conn.PoolingHttpClientConnectionManager.connect(PoolingHttpClientConnectionManager.java:376)
+	at org.apache.http.impl.execchain.MainClientExec.establishRoute(MainClientExec.java:393)
+	at org.apache.http.impl.execchain.MainClientExec.execute(MainClientExec.java:236)
+	at org.apache.http.impl.execchain.ProtocolExec.execute(ProtocolExec.java:186)
+	at org.apache.http.impl.execchain.RetryExec.execute(RetryExec.java:89)
+	at org.apache.http.impl.execchain.RedirectExec.execute(RedirectExec.java:110)
+	at org.apache.http.impl.client.InternalHttpClient.doExecute(InternalHttpClient.java:185)
+	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
+	at com.alibaba.otter.canal.instance.manager.plain.HttpHelper.get(HttpHelper.java:90)
+	... 10 common frames omitted
+Caused by: java.net.ConnectException: Connection refused (Connection refused)
+	at java.base/java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.base/java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:412)
+	at java.base/java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:255)
+	at java.base/java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:237)
+	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.base/java.net.Socket.connect(Socket.java:608)
+	at org.apache.http.conn.socket.PlainConnectionSocketFactory.connectSocket(PlainConnectionSocketFactory.java:75)
+	at org.apache.http.impl.conn.DefaultHttpClientConnectionOperator.connect(DefaultHttpClientConnectionOperator.java:142)
+	... 19 common frames omitted
+2024-02-24 21:44:41.644 [Thread-4] INFO  com.alibaba.otter.canal.deployer.CanalStarter - ## stop the canal server
+2024-02-24 21:44:42.542 [Thread-4] INFO  com.alibaba.otter.canal.deployer.CanalController - ## stop the canal server[172.18.0.1(172.18.0.1):11111]
+2024-02-24 21:44:42.579 [Thread-4] WARN  com.alibaba.otter.canal.deployer.CanalStarter - ##something goes wrong when stopping canal Server:
+com.alibaba.otter.canal.common.CanalException: com.alibaba.otter.canal.server.embedded.CanalServerWithEmbedded isn't start , please check
+2024-02-24 21:44:42.579 [Thread-4] INFO  com.alibaba.otter.canal.deployer.CanalStarter - ## canal server is down.

@@ -21,7 +21,7 @@ type Config struct {
 	Name string
 }
 
-func createConfigFromOptions(opts *Option) (*Config, error) {
+func CreateConfigFromOptions(opts *Options) (*Config, error) {
 	var zapLevel zapcore.Level
 	if err := zapLevel.UnmarshalText([]byte(opts.Level)); err != nil {
 		return nil, err
@@ -83,11 +83,12 @@ func createConfigFromOptions(opts *Option) (*Config, error) {
 		disableCaller:     opts.DisableCaller,
 		disableStacktrace: opts.DisableStacktrace,
 		skipCaller:        opts.SkipCaller,
+		aggregation:       opts.Aggregation,
 	}, nil
 }
 
-func (c *Config) build() *zapLogger {
-	L := &zapLogger{env: newEnvironment(), level: c.level}
+func (c *Config) Build() *zapLogger {
+	L := &zapLogger{level: c.level}
 
 	// 添加buf通道
 	c.AddOutput(zapcore.AddSync(&logbuf))

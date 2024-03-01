@@ -1,0 +1,9 @@
+dataSourceKey: defaultDS
+destination: example
+outerAdapterKey: es
+groupId: g1
+esMapping:
+  _index: t_dept
+  _id: _id
+  sql: "select d.d_id as _id, d.d_id as d_id, d.deptname as deptname from t_dept d"
+  commitBatch: 3000

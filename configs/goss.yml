@@ -1,0 +1,8 @@
+driver: minio
+
+minio:
+  endpoint: 10.211.55.3:9000
+  bucket: sophie
+  access_key: sophie
+  secret_key: 12345678
+  use_ssl: false

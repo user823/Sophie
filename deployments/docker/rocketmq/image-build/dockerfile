@@ -1,0 +1,68 @@
+# build stage 1
+FROM eclipse-temurin:11 AS builder
+
+ARG version
+
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y curl unzip gnupg; \
+    rm -rf /var/lib/apt/lists/*;
+
+RUN curl -L http://archive.apache.org/dist/rocketmq/${version}/rocketmq-all-${version}-bin-release.zip -o rocketmq.zip; \
+    curl -L http://archive.apache.org/dist/rocketmq/${version}/rocketmq-all-${version}-bin-release.zip.asc -o rocketmq.zip.asc; \
+	curl -L http://www.apache.org/dist/rocketmq/KEYS -o KEYS; \
+	gpg --import KEYS; \
+    gpg --batch --verify rocketmq.zip.asc rocketmq.zip;
+
+
+RUN unzip rocketmq.zip; \
+    mkdir -p /tmp/rocketmq-${version}; \
+	mv rocketmq*/* /tmp/rocketmq-${version}
+
+# build stage 2
+FROM eclipse-temurin:11
+
+ARG user=rocketmq
+ARG group=rocketmq
+ARG uid=3000
+ARG gid=3000
+
+ARG version
+
+ENV ROCKETMQ_VERSION ${version}
+ENV ROCKETMQ_HOME  /home/rocketmq/rocketmq-${ROCKETMQ_VERSION}
+
+# expose namesrv port
+EXPOSE 9876
+# expose broker ports
+EXPOSE 10909 10911 10912 11011
+# expose grpc port
+EXPOSE 8081
+
+RUN addgroup --gid ${gid} ${group} \
+    && adduser --uid ${uid} --gid ${gid} ${user} --shell /bin/bash --disabled-password
+
+# Copy customized scripts
+COPY scripts/ ${ROCKETMQ_HOME}/bin/
+
+# Copy RocketMQ artifact from builder
+COPY --from=builder --chown=${uid}:${gid} /tmp/rocketmq-${version}/ ${ROCKETMQ_HOME}
+
+
+# Override customized scripts for namesrv
+# Override customized scripts for broker
+# Export Java options
+# Add ${JAVA_HOME}/lib/ext as java.ext.dirs
+RUN mv ${ROCKETMQ_HOME}/bin/runserver-customize.sh ${ROCKETMQ_HOME}/bin/runserver.sh \
+ && mv ${ROCKETMQ_HOME}/bin/runbroker-customize.sh ${ROCKETMQ_HOME}/bin/runbroker.sh \
+ && chmod -R a+wx ${ROCKETMQ_HOME}/bin/ \
+ && export JAVA_OPT=" -Duser.home=/opt" \
+ && sed -i 's/${JAVA_HOME}\/jre\/lib\/ext/${JAVA_HOME}\/jre\/lib\/ext:${JAVA_HOME}\/lib\/ext/' ${ROCKETMQ_HOME}/bin/tools.sh \
+ && chown -R ${uid}:${gid} ${ROCKETMQ_HOME}
+
+USER ${user}
+WORKDIR ${ROCKETMQ_HOME}/bin
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+# Dummy overridable parameter parsed by entrypoint
+CMD ["dummy"]

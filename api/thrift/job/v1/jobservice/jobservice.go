@@ -19,19 +19,19 @@ func NewServiceInfo() *kitex.ServiceInfo {
 	serviceName := "JobService"
 	handlerType := (*v1.JobService)(nil)
 	methods := map[string]kitex.MethodInfo{
-		"ListJobs":          kitex.NewMethodInfo(listJobsHandler, newJobServiceListJobsArgs, newJobServiceListJobsResult, false),
-		"Export":            kitex.NewMethodInfo(exportHandler, newJobServiceExportArgs, newJobServiceExportResult, false),
-		"GetJobInfoById":    kitex.NewMethodInfo(getJobInfoByIdHandler, newJobServiceGetJobInfoByIdArgs, newJobServiceGetJobInfoByIdResult, false),
-		"CreateJob":         kitex.NewMethodInfo(createJobHandler, newJobServiceCreateJobArgs, newJobServiceCreateJobResult, false),
-		"UpdateJob":         kitex.NewMethodInfo(updateJobHandler, newJobServiceUpdateJobArgs, newJobServiceUpdateJobResult, false),
-		"ChangeJobStatus":   kitex.NewMethodInfo(changeJobStatusHandler, newJobServiceChangeJobStatusArgs, newJobServiceChangeJobStatusResult, false),
-		"Run":               kitex.NewMethodInfo(runHandler, newJobServiceRunArgs, newJobServiceRunResult, false),
-		"DeleteJob":         kitex.NewMethodInfo(deleteJobHandler, newJobServiceDeleteJobArgs, newJobServiceDeleteJobResult, false),
-		"ListJobLogs":       kitex.NewMethodInfo(listJobLogsHandler, newJobServiceListJobLogsArgs, newJobServiceListJobLogsResult, false),
-		"ExportJobLog":      kitex.NewMethodInfo(exportJobLogHandler, newJobServiceExportJobLogArgs, newJobServiceExportJobLogResult, false),
-		"GetJobLogInfoById": kitex.NewMethodInfo(getJobLogInfoByIdHandler, newJobServiceGetJobLogInfoByIdArgs, newJobServiceGetJobLogInfoByIdResult, false),
-		"DeleteJobLog":      kitex.NewMethodInfo(deleteJobLogHandler, newJobServiceDeleteJobLogArgs, newJobServiceDeleteJobLogResult, false),
-		"Clean":             kitex.NewMethodInfo(cleanHandler, newJobServiceCleanArgs, newJobServiceCleanResult, false),
+		"ListJobs":      kitex.NewMethodInfo(listJobsHandler, newJobServiceListJobsArgs, newJobServiceListJobsResult, false),
+		"ExportJobs":    kitex.NewMethodInfo(exportJobsHandler, newJobServiceExportJobsArgs, newJobServiceExportJobsResult, false),
+		"GetJobInfo":    kitex.NewMethodInfo(getJobInfoHandler, newJobServiceGetJobInfoArgs, newJobServiceGetJobInfoResult, false),
+		"CreateJob":     kitex.NewMethodInfo(createJobHandler, newJobServiceCreateJobArgs, newJobServiceCreateJobResult, false),
+		"UpdateJob":     kitex.NewMethodInfo(updateJobHandler, newJobServiceUpdateJobArgs, newJobServiceUpdateJobResult, false),
+		"ChangeStatus":  kitex.NewMethodInfo(changeStatusHandler, newJobServiceChangeStatusArgs, newJobServiceChangeStatusResult, false),
+		"Run":           kitex.NewMethodInfo(runHandler, newJobServiceRunArgs, newJobServiceRunResult, false),
+		"RemoveJobs":    kitex.NewMethodInfo(removeJobsHandler, newJobServiceRemoveJobsArgs, newJobServiceRemoveJobsResult, false),
+		"ListJobLogs":   kitex.NewMethodInfo(listJobLogsHandler, newJobServiceListJobLogsArgs, newJobServiceListJobLogsResult, false),
+		"ExportJobLogs": kitex.NewMethodInfo(exportJobLogsHandler, newJobServiceExportJobLogsArgs, newJobServiceExportJobLogsResult, false),
+		"GetJobLogInfo": kitex.NewMethodInfo(getJobLogInfoHandler, newJobServiceGetJobLogInfoArgs, newJobServiceGetJobLogInfoResult, false),
+		"RemoveJobLogs": kitex.NewMethodInfo(removeJobLogsHandler, newJobServiceRemoveJobLogsArgs, newJobServiceRemoveJobLogsResult, false),
+		"Clean":         kitex.NewMethodInfo(cleanHandler, newJobServiceCleanArgs, newJobServiceCleanResult, false),
 	}
 	extra := map[string]interface{}{
 		"PackageName":     "v1",
@@ -66,40 +66,40 @@ func newJobServiceListJobsResult() interface{} {
 	return v1.NewJobServiceListJobsResult()
 }
 
-func exportHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceExportArgs)
-	realResult := result.(*v1.JobServiceExportResult)
-	success, err := handler.(v1.JobService).Export(ctx, realArg.Req)
+func exportJobsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceExportJobsArgs)
+	realResult := result.(*v1.JobServiceExportJobsResult)
+	success, err := handler.(v1.JobService).ExportJobs(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceExportArgs() interface{} {
-	return v1.NewJobServiceExportArgs()
+func newJobServiceExportJobsArgs() interface{} {
+	return v1.NewJobServiceExportJobsArgs()
 }
 
-func newJobServiceExportResult() interface{} {
-	return v1.NewJobServiceExportResult()
+func newJobServiceExportJobsResult() interface{} {
+	return v1.NewJobServiceExportJobsResult()
 }
 
-func getJobInfoByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceGetJobInfoByIdArgs)
-	realResult := result.(*v1.JobServiceGetJobInfoByIdResult)
-	success, err := handler.(v1.JobService).GetJobInfoById(ctx, realArg.Id)
+func getJobInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceGetJobInfoArgs)
+	realResult := result.(*v1.JobServiceGetJobInfoResult)
+	success, err := handler.(v1.JobService).GetJobInfo(ctx, realArg.JobId)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceGetJobInfoByIdArgs() interface{} {
-	return v1.NewJobServiceGetJobInfoByIdArgs()
+func newJobServiceGetJobInfoArgs() interface{} {
+	return v1.NewJobServiceGetJobInfoArgs()
 }
 
-func newJobServiceGetJobInfoByIdResult() interface{} {
-	return v1.NewJobServiceGetJobInfoByIdResult()
+func newJobServiceGetJobInfoResult() interface{} {
+	return v1.NewJobServiceGetJobInfoResult()
 }
 
 func createJobHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -138,22 +138,22 @@ func newJobServiceUpdateJobResult() interface{} {
 	return v1.NewJobServiceUpdateJobResult()
 }
 
-func changeJobStatusHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceChangeJobStatusArgs)
-	realResult := result.(*v1.JobServiceChangeJobStatusResult)
-	success, err := handler.(v1.JobService).ChangeJobStatus(ctx, realArg.Req)
+func changeStatusHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceChangeStatusArgs)
+	realResult := result.(*v1.JobServiceChangeStatusResult)
+	success, err := handler.(v1.JobService).ChangeStatus(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceChangeJobStatusArgs() interface{} {
-	return v1.NewJobServiceChangeJobStatusArgs()
+func newJobServiceChangeStatusArgs() interface{} {
+	return v1.NewJobServiceChangeStatusArgs()
 }
 
-func newJobServiceChangeJobStatusResult() interface{} {
-	return v1.NewJobServiceChangeJobStatusResult()
+func newJobServiceChangeStatusResult() interface{} {
+	return v1.NewJobServiceChangeStatusResult()
 }
 
 func runHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -174,22 +174,22 @@ func newJobServiceRunResult() interface{} {
 	return v1.NewJobServiceRunResult()
 }
 
-func deleteJobHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceDeleteJobArgs)
-	realResult := result.(*v1.JobServiceDeleteJobResult)
-	success, err := handler.(v1.JobService).DeleteJob(ctx, realArg.Req)
+func removeJobsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceRemoveJobsArgs)
+	realResult := result.(*v1.JobServiceRemoveJobsResult)
+	success, err := handler.(v1.JobService).RemoveJobs(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceDeleteJobArgs() interface{} {
-	return v1.NewJobServiceDeleteJobArgs()
+func newJobServiceRemoveJobsArgs() interface{} {
+	return v1.NewJobServiceRemoveJobsArgs()
 }
 
-func newJobServiceDeleteJobResult() interface{} {
-	return v1.NewJobServiceDeleteJobResult()
+func newJobServiceRemoveJobsResult() interface{} {
+	return v1.NewJobServiceRemoveJobsResult()
 }
 
 func listJobLogsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -210,58 +210,58 @@ func newJobServiceListJobLogsResult() interface{} {
 	return v1.NewJobServiceListJobLogsResult()
 }
 
-func exportJobLogHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceExportJobLogArgs)
-	realResult := result.(*v1.JobServiceExportJobLogResult)
-	success, err := handler.(v1.JobService).ExportJobLog(ctx, realArg.Req)
+func exportJobLogsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceExportJobLogsArgs)
+	realResult := result.(*v1.JobServiceExportJobLogsResult)
+	success, err := handler.(v1.JobService).ExportJobLogs(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceExportJobLogArgs() interface{} {
-	return v1.NewJobServiceExportJobLogArgs()
+func newJobServiceExportJobLogsArgs() interface{} {
+	return v1.NewJobServiceExportJobLogsArgs()
 }
 
-func newJobServiceExportJobLogResult() interface{} {
-	return v1.NewJobServiceExportJobLogResult()
+func newJobServiceExportJobLogsResult() interface{} {
+	return v1.NewJobServiceExportJobLogsResult()
 }
 
-func getJobLogInfoByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceGetJobLogInfoByIdArgs)
-	realResult := result.(*v1.JobServiceGetJobLogInfoByIdResult)
-	success, err := handler.(v1.JobService).GetJobLogInfoById(ctx, realArg.Id)
+func getJobLogInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceGetJobLogInfoArgs)
+	realResult := result.(*v1.JobServiceGetJobLogInfoResult)
+	success, err := handler.(v1.JobService).GetJobLogInfo(ctx, realArg.JobLogId)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceGetJobLogInfoByIdArgs() interface{} {
-	return v1.NewJobServiceGetJobLogInfoByIdArgs()
+func newJobServiceGetJobLogInfoArgs() interface{} {
+	return v1.NewJobServiceGetJobLogInfoArgs()
 }
 
-func newJobServiceGetJobLogInfoByIdResult() interface{} {
-	return v1.NewJobServiceGetJobLogInfoByIdResult()
+func newJobServiceGetJobLogInfoResult() interface{} {
+	return v1.NewJobServiceGetJobLogInfoResult()
 }
 
-func deleteJobLogHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.JobServiceDeleteJobLogArgs)
-	realResult := result.(*v1.JobServiceDeleteJobLogResult)
-	success, err := handler.(v1.JobService).DeleteJobLog(ctx, realArg.Req)
+func removeJobLogsHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.JobServiceRemoveJobLogsArgs)
+	realResult := result.(*v1.JobServiceRemoveJobLogsResult)
+	success, err := handler.(v1.JobService).RemoveJobLogs(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
 	realResult.Success = success
 	return nil
 }
-func newJobServiceDeleteJobLogArgs() interface{} {
-	return v1.NewJobServiceDeleteJobLogArgs()
+func newJobServiceRemoveJobLogsArgs() interface{} {
+	return v1.NewJobServiceRemoveJobLogsArgs()
 }
 
-func newJobServiceDeleteJobLogResult() interface{} {
-	return v1.NewJobServiceDeleteJobLogResult()
+func newJobServiceRemoveJobLogsResult() interface{} {
+	return v1.NewJobServiceRemoveJobLogsResult()
 }
 
 func cleanHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -302,21 +302,21 @@ func (p *kClient) ListJobs(ctx context.Context, req *v1.ListJobsRequest) (r *v1.
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) Export(ctx context.Context, req *v1.ExportJobRequest) (r *v1.ExportJobResponse, err error) {
-	var _args v1.JobServiceExportArgs
+func (p *kClient) ExportJobs(ctx context.Context, req *v1.ExportJobsRequest) (r *v1.ExportJobsResponse, err error) {
+	var _args v1.JobServiceExportJobsArgs
 	_args.Req = req
-	var _result v1.JobServiceExportResult
-	if err = p.c.Call(ctx, "Export", &_args, &_result); err != nil {
+	var _result v1.JobServiceExportJobsResult
+	if err = p.c.Call(ctx, "ExportJobs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetJobInfoById(ctx context.Context, id int64) (r *v1.JobInfoResponse, err error) {
-	var _args v1.JobServiceGetJobInfoByIdArgs
-	_args.Id = id
-	var _result v1.JobServiceGetJobInfoByIdResult
-	if err = p.c.Call(ctx, "GetJobInfoById", &_args, &_result); err != nil {
+func (p *kClient) GetJobInfo(ctx context.Context, jobId int64) (r *v1.GetJobInfoResponse, err error) {
+	var _args v1.JobServiceGetJobInfoArgs
+	_args.JobId = jobId
+	var _result v1.JobServiceGetJobInfoResult
+	if err = p.c.Call(ctx, "GetJobInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -342,17 +342,17 @@ func (p *kClient) UpdateJob(ctx context.Context, req *v1.UpdateJobRequest) (r *v
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ChangeJobStatus(ctx context.Context, req *v1.ChangeJobStatusRequest) (r *v1.BaseResp, err error) {
-	var _args v1.JobServiceChangeJobStatusArgs
+func (p *kClient) ChangeStatus(ctx context.Context, req *v1.ChangeStatusRequest) (r *v1.BaseResp, err error) {
+	var _args v1.JobServiceChangeStatusArgs
 	_args.Req = req
-	var _result v1.JobServiceChangeJobStatusResult
-	if err = p.c.Call(ctx, "ChangeJobStatus", &_args, &_result); err != nil {
+	var _result v1.JobServiceChangeStatusResult
+	if err = p.c.Call(ctx, "ChangeStatus", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) Run(ctx context.Context, req *v1.RunJobRequest) (r *v1.BaseResp, err error) {
+func (p *kClient) Run(ctx context.Context, req *v1.RunRequest) (r *v1.BaseResp, err error) {
 	var _args v1.JobServiceRunArgs
 	_args.Req = req
 	var _result v1.JobServiceRunResult
@@ -362,11 +362,11 @@ func (p *kClient) Run(ctx context.Context, req *v1.RunJobRequest) (r *v1.BaseRes
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) DeleteJob(ctx context.Context, req *v1.DeleteJobRequest) (r *v1.BaseResp, err error) {
-	var _args v1.JobServiceDeleteJobArgs
+func (p *kClient) RemoveJobs(ctx context.Context, req *v1.RemoveJobsRequest) (r *v1.BaseResp, err error) {
+	var _args v1.JobServiceRemoveJobsArgs
 	_args.Req = req
-	var _result v1.JobServiceDeleteJobResult
-	if err = p.c.Call(ctx, "DeleteJob", &_args, &_result); err != nil {
+	var _result v1.JobServiceRemoveJobsResult
+	if err = p.c.Call(ctx, "RemoveJobs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -382,31 +382,31 @@ func (p *kClient) ListJobLogs(ctx context.Context, req *v1.ListJobLogsRequest) (
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ExportJobLog(ctx context.Context, req *v1.ExportJobLogRequest) (r *v1.ExportJobLogResponse, err error) {
-	var _args v1.JobServiceExportJobLogArgs
+func (p *kClient) ExportJobLogs(ctx context.Context, req *v1.ExportJobLogsRequest) (r *v1.ExportJobLogsResponse, err error) {
+	var _args v1.JobServiceExportJobLogsArgs
 	_args.Req = req
-	var _result v1.JobServiceExportJobLogResult
-	if err = p.c.Call(ctx, "ExportJobLog", &_args, &_result); err != nil {
+	var _result v1.JobServiceExportJobLogsResult
+	if err = p.c.Call(ctx, "ExportJobLogs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetJobLogInfoById(ctx context.Context, id int64) (r *v1.JobLogInfoResponse, err error) {
-	var _args v1.JobServiceGetJobLogInfoByIdArgs
-	_args.Id = id
-	var _result v1.JobServiceGetJobLogInfoByIdResult
-	if err = p.c.Call(ctx, "GetJobLogInfoById", &_args, &_result); err != nil {
+func (p *kClient) GetJobLogInfo(ctx context.Context, jobLogId int64) (r *v1.GetJobLogInfoResponse, err error) {
+	var _args v1.JobServiceGetJobLogInfoArgs
+	_args.JobLogId = jobLogId
+	var _result v1.JobServiceGetJobLogInfoResult
+	if err = p.c.Call(ctx, "GetJobLogInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) DeleteJobLog(ctx context.Context, req *v1.DeleteJobLogRequest) (r *v1.BaseResp, err error) {
-	var _args v1.JobServiceDeleteJobLogArgs
+func (p *kClient) RemoveJobLogs(ctx context.Context, req *v1.RemoveJobLogsRequest) (r *v1.BaseResp, err error) {
+	var _args v1.JobServiceRemoveJobLogsArgs
 	_args.Req = req
-	var _result v1.JobServiceDeleteJobLogResult
-	if err = p.c.Call(ctx, "DeleteJobLog", &_args, &_result); err != nil {
+	var _result v1.JobServiceRemoveJobLogsResult
+	if err = p.c.Call(ctx, "RemoveJobLogs", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

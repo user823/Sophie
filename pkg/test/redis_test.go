@@ -23,7 +23,8 @@ var (
 
 const (
 	testKeyPrefix string = "testing-"
-	hashKey       bool   = true
+	hashKey       bool   = false
+	randomExp     bool   = true
 )
 
 func init() {
@@ -31,6 +32,7 @@ func init() {
 	client = kv.NewKVStore("redis").(kv.RedisStore)
 	client.SetKeyPrefix(testKeyPrefix)
 	client.SetHashKey(hashKey)
+	client.SetRandomExp(randomExp)
 	time.Sleep(2 * time.Second)
 }
 
@@ -1052,4 +1054,15 @@ func TestRedisAppendSetPipelined(t *testing.T) {
 	client.AppendToSetPipelined(ctx, "test", []string{"123", "456"})
 	result := client.GetAndDeleteSet(ctx, "test")
 	fmt.Println(result)
+}
+
+func TestGetAndDelete(t *testing.T) {
+	if err := client.SetKey(ctx, "tbb", "b", utils.SecondToNano(600)); err != nil {
+		t.Errorf(err.Error())
+	}
+	res, err := client.GetAndDelete(ctx, "tbb")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	t.Logf("result is %s", res)
 }

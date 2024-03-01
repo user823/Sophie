@@ -1,12 +1,11 @@
 package app
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"os"
-	"path/filepath"
+	_ "github.com/spf13/viper/remote"
+	"github.com/user823/Sophie/pkg/log"
 	"strings"
 )
 
@@ -24,38 +23,34 @@ func init() {
 }
 
 func addConfigFlag(name string) *flag.Flag {
-
 	// 读取环境变量
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix(strings.Replace(strings.ToUpper(name), "-", "_", -1))
 	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_", ".", "_"))
 
 	cobra.OnInitialize(func() {
+		log.Debug("正在读取配置文件...")
 		// 从配置文件中加载
 		if cfgFile != "" {
 			viper.SetConfigFile(cfgFile)
 		} else {
-			viper.AddConfigPath(".")
+			viper.AddConfigPath("./configs")
 			viper.AddConfigPath("../configs")
-
-			if names := strings.Split(name, "-"); len(names) > 1 {
-				viper.AddConfigPath(filepath.Join("/etc", names[0]))
-				if homeDir := os.Getenv("HOME"); homeDir != "" {
-					viper.AddConfigPath(filepath.Join(homeDir, names[0]))
-				}
-			}
+			viper.AddConfigPath("../../configs")
 			viper.SetConfigName(name)
 		}
-
-		// 从配置中心中加载
-		viper.AddRemoteProvider("etcd3", viper.GetString("etcd3"), "/config")
-		viper.AddRemoteProvider("etcd", viper.GetString("etcd"), "/config")
-		viper.SetConfigName(name)
-		viper.SetConfigType("json") // because there is no file extension in a stream of bytes, supported extensions are "json", "toml", "yaml", "yml", "properties", "props", "prop", "env", "dotenv"
-
+		viper.SetConfigType("yml")
 		if err := viper.ReadInConfig(); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: failed to read configuration with configuration file or configuration center (%s): %v\n", cfgFile, err.Error())
-			//os.Exit(1)
+			log.Warnf("failed to read configuration with configuration file (%s): %s", cfgFile, err.Error())
+		}
+
+		// 从配置中心中加载 (仅支持json）
+		if err := viper.AddRemoteProvider("etcd3", viper.GetString("etcd3"), "config/"+name+".json"); err != nil {
+			log.Warnf("failed to add viper remoting config: %s", err.Error())
+		}
+		viper.SetConfigType("json")
+		if err := viper.ReadRemoteConfig(); err != nil {
+			log.Warnf("failed to read configuration from remoting: %s", err.Error())
 		}
 	})
 	return flag.Lookup(configName)
@@ -64,6 +59,5 @@ func addConfigFlag(name string) *flag.Flag {
 // 运行App基本默认配置
 func SetDefaultConfig() {
 	// 配置中心
-	viper.SetDefault("etcd", "http://127.0.0.1:4001")
-	viper.SetDefault("etcd3", "http://127.0.0.1:4001")
+	viper.SetDefault("etcd3", "http://127.0.0.1:2379")
 }

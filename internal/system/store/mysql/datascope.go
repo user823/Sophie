@@ -22,10 +22,7 @@ const (
 // 限制联表查询时的数据范围
 func dateScopeFromCtx(ctx context.Context, db *gorm.DB, userAlias string, deptAlias string) (*gorm.DB, error) {
 	// 获取登录信息
-	logininfo, err := utils.GetLogininfoFromCtx(ctx)
-	if err != nil {
-		return db, err
-	}
+	logininfo := utils.GetLogininfoFromCtx(ctx)
 	// 获取要求的权限数据
 	var perm_data string
 	data := ctx.Value(secure.REQUIRE_PERMISSION)

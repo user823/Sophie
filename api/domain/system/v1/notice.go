@@ -8,11 +8,11 @@ import (
 
 type SysNotice struct {
 	api.ObjectMeta `json:",inline,omitempty"`
-	NoticeId       int64  `json:"noticeId,omitempty" gorm:"column:notice_id"`
-	NoticeTitle    string `json:"noticeTitle,omitempty" gorm:"column:notice_title"`
-	NoticeType     string `json:"noticeType,omitempty" gorm:"column:notice_type"`
-	NoticeContent  string `json:"noticeContent,omitempty" gorm:"column:notice_content"`
-	Status         string `json:"status,omitempty" gorm:"column:status"`
+	NoticeId       int64  `json:"noticeId,omitempty" gorm:"column:notice_id" query:"noticeId"`
+	NoticeTitle    string `json:"noticeTitle,omitempty" gorm:"column:notice_title" query:"noticeTitle"`
+	NoticeType     string `json:"noticeType,omitempty" gorm:"column:notice_type" query:"noticeType"`
+	NoticeContent  string `json:"noticeContent,omitempty" gorm:"column:notice_content" query:"noticeContent"`
+	Status         string `json:"status,omitempty" gorm:"column:status" query:"status"`
 }
 
 func (s *SysNotice) TableName() string {

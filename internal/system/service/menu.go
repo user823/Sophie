@@ -119,18 +119,24 @@ func (s *menuService) SelectMenuPermsByRoleId(ctx context.Context, roleId int64,
 }
 
 func (s *menuService) SelectMenuTreeByUserId(ctx context.Context, userId int64, opts *api.GetOptions) *v1.MenuList {
+	var result []*v1.SysMenu
+	var err error
+
+	// 如果是超级用户则获部门信息
 	if v1.IsUserAdmin(userId) {
-		result, err := s.store.Menus().SelectMenuTreeAll(ctx, opts)
+		result, err = s.store.Menus().SelectMenuTreeAll(ctx, opts)
 		if err != nil {
 			return &v1.MenuList{ListMeta: api.ListMeta{0}}
 		}
-		return &v1.MenuList{ListMeta: api.ListMeta{int64(len(result))}, Items: result}
 	}
-	result, err := s.store.Menus().SelectMenuTreeByUserId(ctx, userId, opts)
+	result, err = s.store.Menus().SelectMenuTreeByUserId(ctx, userId, opts)
 	if err != nil {
 		return &v1.MenuList{ListMeta: api.ListMeta{0}}
 	}
-	return &v1.MenuList{ListMeta: api.ListMeta{int64(len(result))}, Items: result}
+
+	root := &v1.SysMenu{MenuId: 0}
+	menuRecursionFn(result, root)
+	return &v1.MenuList{ListMeta: api.ListMeta{int64(len(root.Children))}, Items: root.Children}
 }
 
 func (s *menuService) SelectMenuListByRoleId(ctx context.Context, roleId int64, opts *api.GetOptions) []int64 {
@@ -167,6 +173,7 @@ func (s *menuService) BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo.
 			router.Redirect = "noRedirect"
 			router.Children = s.BuildMenus(ctx, cMenus)
 		} else if isMenuFrame(menus[i]) {
+			router.Meta = vo.MetaVo{}
 			children := vo.RouterVo{}
 			children.Path = menus[i].Path
 			children.Component = menus[i].Component
@@ -295,10 +302,7 @@ func isInnerLink(menu *v1.SysMenu) bool {
 func innerLinkReplaceEach(path string) string {
 	oldStr := []string{api.HTTP, api.HTTPS, api.WWW, ".", ":"}
 	newStr := []string{"", "", "", "/", "/"}
-	for i := range oldStr {
-		path = strings.Replace(path, oldStr[i], newStr[i], 1)
-	}
-	return path
+	return strutil.ReplaceEach(path, oldStr, newStr)
 }
 
 // 获取组件信息

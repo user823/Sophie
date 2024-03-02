@@ -26,7 +26,7 @@ func RequirePermissions(permissions string, opts ...Option) app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		// 不需要验证权限
 		if permissions == "" {
-			next(ctx, c)
+			c.Next(ctx)
 			return
 		}
 		requirePermissions := strings.Split(permissions, options.Separator)
@@ -47,12 +47,12 @@ func RequirePermissions(permissions string, opts ...Option) app.HandlerFunc {
 					return
 				}
 			}
-			next(ctx, c)
+			c.Next(ctx)
 			return
 		} else if options.Logic == OR {
 			for _, permission := range requirePermissions {
 				if hasPerm(permission, perms) {
-					next(ctx, c)
+					c.Next(ctx)
 					return
 				}
 			}
@@ -74,11 +74,4 @@ func hasPerm(requirePerm string, perms []string) bool {
 		return strutil.SimpleMatch(str, target)
 	}
 	return strutil.CompareAny(compare, requirePerm, perms...)
-}
-
-func next(ctx context.Context, c *app.RequestContext) {
-	// 权限校验通过则设置登录信息到ctx 中，便于后续调用
-	data, _ := c.Get(api.LOGIN_INFO_KEY)
-	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, data)
-	c.Next(ctx)
 }

@@ -19,15 +19,15 @@ func RPCInit() {
 	rpc.Init(rpcGeneralOpts)
 }
 
-func TestRPCLogininfor(t *testing.T) {
-
-	resp, err := rpc.Remoting.CreateSysLogininfo(ctx, &v12.CreateSysLogininfoRequest{
-		LoginInfo: &v12.Logininfo{UserName: "test"},
-	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+func TestRPCGetLogininfo(t *testing.T) {
+	resp, err := rpc.Remoting.GetUserInfoByName(ctx, "sophie")
+	if err != nil {
 		t.Error(err)
 	}
-	t.Logf("%s", resp.Msg)
+	user := v12.UserInfo2SysUser(resp.Data)
+	t.Logf("%v", user)
+	t.Logf("%v", resp.Roles)
+	t.Logf("%v", resp.Permissions)
 }
 
 func TesetRPCRole(t *testing.T) {
@@ -42,6 +42,6 @@ func TesetRPCRole(t *testing.T) {
 func TestSub(t *testing.T) {
 	RPCInit()
 
-	t.Run("test-RPCLogininfor", TestRPCLogininfor)
+	t.Run("test-RPCLogininfor", TestRPCGetLogininfo)
 	t.Run("test-RPCRole", TesetRPCRole)
 }

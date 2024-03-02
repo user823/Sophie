@@ -112,8 +112,7 @@ func (s *mysqlMenuStore) SelectMenuTreeByUserId(ctx context.Context, userid int6
 	query := s.db.Table("sys_menu m").Joins(""+
 		"left join sys_role_menu rm on m.menu_id = rm.menu_id").Joins(""+
 		"left join sys_user_role ur on rm.role_id = ur.role_id").Joins(""+
-		"left join sys_role ro on ro.role_id = ur.role_id").Joins(""+
-		"left join sys_user u on ur.user_id = u.user_id").Where("u.user_id = ? and m.menu_type in ('M', 'C') and m.status = 0 and ro.status = 0", userid).Select("" +
+		"left join sys_role ro on ro.role_id = ur.role_id").Where("ur.user_id = ? and m.menu_type in ('M', 'C') and m.status = 0 and ro.status = 0", userid).Select("" +
 		"DISTINCT m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.query, m.visible, m.status, m.perms, m.is_frame, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time")
 	query = opts.SQLCondition(query, "")
 	query = query.Order("m.parent_id, m.order_num")

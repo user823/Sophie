@@ -3,16 +3,16 @@ package test
 import (
 	"context"
 	"fmt"
-	"github.com/user823/Sophie/internal/pkg/options"
 	"github.com/user823/Sophie/internal/system/store/mysql"
 	"github.com/user823/Sophie/internal/system/utils/cacheutils"
 	"github.com/user823/Sophie/pkg/db/kv/redis"
+	"github.com/user823/Sophie/pkg/db/sql"
 	"testing"
 	"time"
 )
 
 func Init() {
-	mysqlOptions := &options.MySQLOptions{
+	mysqlOptions := &sql.MysqlConfig{
 		Host:                  "127.0.0.1:3306",
 		Username:              "sophie",
 		Password:              "123456",

@@ -12,7 +12,8 @@ func UserInfo2SysUser(userinfo *UserInfo) *v1.SysUser {
 	if userinfo == nil {
 		return nil
 	}
-	roles := make([]v1.SysRole, len(userinfo.Roles))
+
+	var roles []v1.SysRole
 	for _, r := range userinfo.Roles {
 		if r != nil {
 			roles = append(roles, *RoleInfo2SysRole(r))
@@ -428,10 +429,12 @@ func RouterVoTrans(r vo.RouterVo) *RouterInfo {
 		Component:  r.Component,
 		Query:      r.Query,
 		AlwaysShow: r.AlwaysShow,
-		Title:      r.Meta.Title,
-		Icon:       r.Meta.Icon,
-		NoCache:    r.Meta.NoCache,
-		Link:       r.Meta.Link,
-		Children:   MRouterVoTrans(r.Children),
+		Meta: &Meta{
+			Title:   r.Meta.Title,
+			Icon:    r.Meta.Icon,
+			NoCache: r.Meta.NoCache,
+			Link:    r.Meta.Link,
+		},
+		Children: MRouterVoTrans(r.Children),
 	}
 }

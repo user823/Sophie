@@ -8,13 +8,13 @@ import (
 
 type SysPost struct {
 	api.ObjectMeta `json:",inline,omitempty"`
-	PostId         int64  `json:"postId,omitempty" gorm:"column:post_id"`
-	PostCode       string `json:"postCode,omitempty" gorm:"column:post_code"`
-	PostName       string `json:"postName,omitempty" gorm:"column:post_name"`
-	PostSort       int64  `json:"postSort,omitempty" gorm:"column:post_sort"`
-	Status         string `json:"status,omitempty" gorm:"column:status"`
+	PostId         int64  `json:"postId,omitempty" gorm:"column:post_id" query:"postId"`
+	PostCode       string `json:"postCode,omitempty" gorm:"column:post_code" query:"postCode"`
+	PostName       string `json:"postName,omitempty" gorm:"column:post_name" query:"postName"`
+	PostSort       int64  `json:"postSort,omitempty" gorm:"column:post_sort" query:"postSort"`
+	Status         string `json:"status,omitempty" gorm:"column:status" query:"status"`
 	// 用户是否存在此岗位标识（默认不存在）
-	Flag bool `json:"-" gorm:"-"`
+	Flag bool `json:"flag" gorm:"-" query:"flag"`
 }
 
 func (s *SysPost) TableName() string {

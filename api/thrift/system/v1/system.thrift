@@ -17,7 +17,7 @@ service SystemService {
     // dept service
     ListDeptsResponse ListDepts(1:ListDeptsRequest req)
     ListDeptsResponse ListDeptsExcludeChild(1:i64 id)
-    DeptResponse GetDeptById(1:i64 id)
+    DeptResponse GetDeptById(1:GetDeptByIdReq req)
     BaseResp CreateDept(1:CreateDeptRequest req)
     BaseResp UpdateDept(1:UpdateDeptRequest req)
     BaseResp DeleteDept(1:DeleteDeptRequest req)
@@ -53,11 +53,11 @@ service SystemService {
     ListSysMenusResponse ListSysMenus(1:ListSysMenusRequest req)
     SysMenuResponse GetSysMenuById(1:i64 id)
     ListSysMenusResponse ListTreeMenu(1:ListTreeMenuRequest req)
-    RoleMenuResponse ListTreeMenuByRoleid(1:i64 id)
+    RoleMenuResponse ListTreeMenuByRoleid(1:ListTreeMenuByRoleidRequest req)
     BaseResp CreateMenu(1:CreateMenuRequest req)
     BaseResp UpdateMenu(1:UpdateMenuRequest req)
     BaseResp DeleteMenu(1:DeleteMenuRequest req)
-    RoutersResonse GetRouters()
+    RoutersResonse GetRouters(1:GetRoutersRequest req)
 
     // notice service 
     ListSysNoticesResponse ListSysNotices(1:ListSysNoticesRequest req)
@@ -83,7 +83,7 @@ service SystemService {
     PostOptionSelectResponse PostOptionSelect()
 
     // profile service
-    ProfileResponse Profile()
+    ProfileResponse Profile(1:ProfileRequest req)
     BaseResp UpdateProfile(1:UpdateProfileRequest req)
     BaseResp UpdatePassword(1:UpdatePasswordRequest req)
 
@@ -104,15 +104,16 @@ service SystemService {
     BaseResp SelectAuthUserAll(1:SelectAuthUserAllRequest req)
     DeptTreeByRoleIdResponse DeptTreeByRoleId(1:i64 id)
 
-    ListSysRolesResponse GetSysRoleByUser(1:i64 id)
-
-
     // user service
     ListSysUsersResponse ListSysUsers(1:ListSysUsersRequest req)
     ExportSysUserResponse ExportSysUser(1:ExportSysUserRequest req)
     BaseResp ImportUserData(1:ImportUserDataRequest req)
+    // 使用用户名获取当前登录用户权限信息
     UserInfoResponse GetUserInfoByName(1:string name)
+    // 使用id获取当前登录用户权限信息
+    UserInfoResponse GetUserInfo(1:i64 id)
     RegisterSysUserResponse RegisterSysUser(1:RegisterSysUserRequest req)
+    // 设置id = -1 表示不需要额外信息
     UserInfoByIdResponse GetUserInfoById(1:i64 id)
     BaseResp CreateSysUser(1:CreateSysUserRequest req)
     BaseResp UpdateSysUser(1:UpdateSysUserRequest req)
@@ -163,6 +164,7 @@ struct ListConfigsRequest {
     1:PageInfo pageInfo
     2:DateRange dateRange
     3:ConfigInfo configInfo
+    4:LoginUser loginUser
 }
 
 struct ListConfigsResponse {
@@ -174,6 +176,7 @@ struct ListConfigsResponse {
 struct ExportConfigRequest {
     1:PageInfo pageInfo
     2:ConfigInfo configInfo
+    3:LoginUser loginUser
 }
 
 struct ExportConfigResponse {
@@ -190,14 +193,17 @@ struct ConfigResponse {
 
 struct CreateConfigRequest {
     1:ConfigInfo configInfo
+    2:LoginUser user
 }
 
 struct UpdateConfigReqeust {
     1:ConfigInfo configInfo
+    2:LoginUser user
 }
 
 struct DeleteConfigReqeust {
     1:list<i64> configIds
+    2:LoginUser user
 }
 
 struct DeptInfo {
@@ -222,7 +228,8 @@ struct DeptInfo {
 }
 
 struct ListDeptsRequest {
-    1: DeptInfo deptInfo
+    1:DeptInfo deptInfo
+    2:LoginUser loginUser
 }
 
 struct ListDeptsResponse {
@@ -235,16 +242,24 @@ struct DeptResponse {
     2:DeptInfo data
 }
 
+struct GetDeptByIdReq {
+    1:i64 id
+    2:LoginUser user
+}
+
 struct CreateDeptRequest {
     1:DeptInfo dept
+    2:LoginUser user
 }
 
 struct UpdateDeptRequest {
     1:DeptInfo dept
+    2:LoginUser user
 }
 
 struct DeleteDeptRequest {
     1:i64 deptId
+    2:LoginUser user
 }
 
 struct DictData {
@@ -268,6 +283,7 @@ struct DictData {
 struct ListDictDatasRequest {
     1:PageInfo pageInfo
     2:DictData dictData
+    3:LoginUser user
 }
 
 struct ListDictDatasResponse {
@@ -279,6 +295,7 @@ struct ListDictDatasResponse {
 struct ExportDictDataRequest {
     1:PageInfo pageInfo
     2:DictData dictData
+    3:LoginUser user
 }
 
 struct ExportDictDataResponse {
@@ -295,14 +312,17 @@ struct DictDataResponse {
 
 struct CreateDictDataRequest {
     1:DictData dictData
+    2:LoginUser user
 }
 
 struct UpdateDictDataRequest {
     1:DictData dictData
+    2:LoginUser user
 }
 
 struct DeleteDictDataRequest {
     1:list<i64> dictCodes
+    2:LoginUser user
 }
 
 struct DictType {
@@ -322,6 +342,7 @@ struct ListDictTypesRequest {
     1:PageInfo pageInfo
     2:DateRange dateRange
     3:DictType dictType
+    4:LoginUser user
 }
 
 struct ListDictTypesResponse {
@@ -333,6 +354,7 @@ struct ListDictTypesResponse {
 struct ExportDictTypeRequest {
     1:PageInfo pageInfo
     2:DictType dictType
+    3:LoginUser user
 }
 
 struct ExportDictTypeResponse {
@@ -349,14 +371,17 @@ struct DictTypeResponse {
 
 struct CreateDictTypeRequest {
     1:DictType dictType
+    2:LoginUser user
 }
 
 struct UpdateDictTypeRequest {
     1:DictType dictType
+    2:LoginUser user
 }
 
 struct DeleteDictTypeRequest {
     1:list<i64> dictIds
+    2:LoginUser user
 }
 
 struct DictTypeOptionSelectResponse {
@@ -383,6 +408,7 @@ struct ListSysLogininfosRequest {
     1:PageInfo pageInfo
     2:DateRange dateRange
     3:Logininfo loginInfo
+    4:LoginUser user
 }
 
 struct ListSysLogininfosResponse {
@@ -394,6 +420,7 @@ struct ListSysLogininfosResponse {
 struct ExportLogininfoRequest {
     1:PageInfo pageInfo
     2:Logininfo loginInfo
+    3:LoginUser user
 }
 
 struct ExportLogininfoResponse {
@@ -405,10 +432,12 @@ struct ExportLogininfoResponse {
 
 struct RemoveSysLogininfosByIdRequest {
     1:list<i64> infoIds
+    2:LoginUser user
 }
 
 struct CreateSysLogininfoRequest {
     1:Logininfo loginInfo
+    2:LoginUser user
 }
 
 struct MenuInfo {
@@ -438,6 +467,7 @@ struct MenuInfo {
 
 struct ListSysMenusRequest {
     1:MenuInfo menuInfo
+    2:LoginUser user
 }
 
 struct ListSysMenusResponse {
@@ -452,6 +482,7 @@ struct SysMenuResponse {
 
 struct ListTreeMenuRequest {
     1:MenuInfo menuInfo
+    2:LoginUser user
 }
 
 struct TreeSelect {
@@ -466,16 +497,28 @@ struct RoleMenuResponse {
     3:list<TreeSelect> menus
 }
 
+struct ListTreeMenuByRoleidRequest {
+    1:i64 id
+    2:LoginUser user
+}
+
 struct CreateMenuRequest {
     1:MenuInfo menuInfo
+    2:LoginUser user
 }
 
 struct UpdateMenuRequest {
     1:MenuInfo menuInfo
+    2:LoginUser user
 }
 
 struct DeleteMenuRequest {
     1:i64 menuId
+    2:LoginUser user
+}
+
+struct GetRoutersRequest {
+    1:LoginUser user
 }
 
 struct GetSysMenuPermsByRoleIdsRequest {
@@ -487,6 +530,13 @@ struct SysMenuPermsResponse {
     2:list<string> Perms
 }
 
+struct Meta {
+    1:string title
+    2:string icon
+    3:bool noCache
+    4:string link
+}
+
 struct RouterInfo {
     1:string name
     2:string path
@@ -495,10 +545,7 @@ struct RouterInfo {
     5:string component
     6:string query
     7:bool alwaysShow
-    8:string title
-    9:string icon
-    10:bool noCache
-    11:string link
+    8:Meta meta
     12:list<RouterInfo> children
 }
 
@@ -524,6 +571,7 @@ struct NoticeInfo {
 struct ListSysNoticesRequest {
     1:PageInfo pageInfo
     2:NoticeInfo noticeInfo
+    3:LoginUser user
 }
 
 struct ListSysNoticesResponse {
@@ -539,14 +587,17 @@ struct SysNoticeResponse {
 
 struct CreateSysNoticeRequest {
     1:NoticeInfo noticeInfo
+    2:LoginUser user
 }
 
 struct DeleteSysNoticeRequest {
     1:list<i64> noticeIds
+    2:LoginUser user
 }
 
 struct UpdateSysNoticeRequest {
     1:NoticeInfo noticeInfo
+    2:LoginUser user
 }
 
 struct OperLog {
@@ -578,6 +629,7 @@ struct OperLog {
 struct ListSysOperLogsRequest {
     1:PageInfo pageInfo
     2:OperLog operLog
+    3:LoginUser user
 }
 
 struct ListSysOperLogsResponse {
@@ -589,6 +641,7 @@ struct ListSysOperLogsResponse {
 struct ExportSysOperLogRequest {
     1:PageInfo pageInfo
     2:OperLog operLog
+    3:LoginUser user
 }
 
 struct ExportSysOperLogResponse {
@@ -600,10 +653,12 @@ struct ExportSysOperLogResponse {
 
 struct DeleteSysOperLogRequest {
     1:list<i64> operIds
+    2:LoginUser user
 }
 
 struct CreateSysOperLogRequest {
     1:OperLog operLog
+    2:LoginUser user
 }
 
 struct PostInfo {
@@ -624,6 +679,7 @@ struct PostInfo {
 struct ListSysPostsRequest {
     1:PageInfo pageInfo
     2:PostInfo postInfo
+    3:LoginUser user
 }
 
 struct ListSysPostsResponse {
@@ -635,6 +691,7 @@ struct ListSysPostsResponse {
 struct ExportSysPostRequest {
     1:PageInfo pageInfo
     2:PostInfo postInfo
+    3:LoginUser user
 }
 
 struct ExportSysPostResponse {
@@ -651,14 +708,17 @@ struct SysPostResponse {
 
 struct CreateSysPostRequest {
     1:PostInfo postInfo
+    2:LoginUser user
 }
 
 struct UpdateSysPostRequest {
     1:PostInfo postInfo
+    2:LoginUser user
 }
 
 struct DeleteSysPostRequest {
     1:list<i64> postIds
+    2:LoginUser user
 }
 
 struct PostOptionSelectResponse {
@@ -715,6 +775,12 @@ struct UserInfo {
     24:i64 roleId
 }
 
+struct LoginUser {
+    1:UserInfo user
+    2:list<string> permissions
+    3:list<string> roles
+}
+
 struct ProfileResponse {
     1:BaseResp baseResp
     2:UserInfo userInfo
@@ -722,19 +788,26 @@ struct ProfileResponse {
     4:string postGroup
 }
 
+struct ProfileRequest {
+    1:LoginUser user
+}
+
 struct UpdateProfileRequest {
     1:UserInfo userInfo
+    2:LoginUser user
 }
 
 struct UpdatePasswordRequest {
     1:string oldPassword
     2:string newPassword
+    3:LoginUser user
 }
 
 struct ListSysRolesRequest {
     1:PageInfo pageInfo
     2:DateRange dateRange
     3:RoleInfo roleInfo
+    4:LoginUser user
 }
 
 struct ListSysRolesResponse {
@@ -746,6 +819,7 @@ struct ListSysRolesResponse {
 struct ExportSysRoleRequest {
     1:PageInfo pageInfo
     2:RoleInfo roleInfo
+    3:LoginUser user
 }
 
 struct ExportSysRoleResponse {
@@ -762,22 +836,27 @@ struct SysRoleResponse {
 
 struct CreateSysRoleRequest {
     1:RoleInfo roleInfo
+    2:LoginUser user
 }
 
 struct UpdateSysRoleRequest {
     1:RoleInfo roleInfo
+    2:LoginUser user
 }
 
 struct DataScopeRequest {
     1:RoleInfo roleInfo
+    2:LoginUser user
 }
 
 struct ChangeSysRoleStatusRequest {
     1:RoleInfo roleInfo
+    2:LoginUser user
 }
 
 struct DeleteSysRoleRequest {
     1:list<i64> roleIds
+    2:LoginUser user
 }
 
 struct RoleOptionSelectResponse {
@@ -788,26 +867,31 @@ struct RoleOptionSelectResponse {
 struct AllocatedListRequest {
     1:PageInfo pageInfo
     2:UserInfo userInfo
+    3:LoginUser user
 }
 
 struct UnallocatedListRequest {
     1:PageInfo pageInfo
     2:UserInfo userInfo
+    3:LoginUser user
 }
 
 struct CancelAuthUserRequest {
     1:i64 userId
     2:i64 roleId
+    3:LoginUser user
 }
 
 struct CancelAuthUserAllRequest {
     1:i64 roleId
     2:list<i64> userIds
+    3:LoginUser user
 }
 
 struct SelectAuthUserAllRequest {
     1:i64 roleId
     2:list<i64> userIds
+    3:LoginUser user
 }
 
 struct DeptTreeByRoleIdResponse {
@@ -819,6 +903,7 @@ struct DeptTreeByRoleIdResponse {
 struct ListSysUsersRequest {
     1:PageInfo pageInfo
     2:UserInfo userInfo
+    3:LoginUser user
 }
 
 struct ListSysUsersResponse {
@@ -830,6 +915,7 @@ struct ListSysUsersResponse {
 struct ExportSysUserRequest {
     1:PageInfo pageInfo
     2:UserInfo userInfo
+    3:LoginUser user
 }
 
 struct ExportSysUserResponse {
@@ -843,6 +929,7 @@ struct ImportUserDataRequest {
     1:list<UserInfo> users
     2:bool isUpdateSupport
     3:string operName
+    4:LoginUser user
 }
 
 struct UserInfoResponse {
@@ -863,6 +950,7 @@ struct UserInfoByIdResponse {
 
 struct RegisterSysUserRequest {
     1:UserInfo userInfo
+    2:LoginUser user
 }
 
 struct RegisterSysUserResponse {
@@ -879,22 +967,27 @@ struct CurrentUserInfoResponse {
 
 struct CreateSysUserRequest {
     1:UserInfo userInfo
+    2:LoginUser user
 }
 
 struct UpdateSysUserRequest {
     1:UserInfo userInfo
+    2:LoginUser user
 }
 
 struct DeleteSysUserRequest {
     1:list<i64> userIds
+    2:LoginUser user
 }
 
 struct ResetPasswordRequest {
     1:UserInfo userInfo
+    2:LoginUser user
 }
 
 struct ChangeSysUserStatus {
     1:UserInfo userInfo
+    2:LoginUser user
 }
 
 struct AuthRoleInfoResponse {
@@ -906,10 +999,12 @@ struct AuthRoleInfoResponse {
 struct AuthRoleRequest {
     1:i64 userId
     2:list<i64> roleIds
+    3:LoginUser user
 }
 
 struct ListDeptsTreeRequest {
     1:DeptInfo deptInfo
+    2:LoginUser user
 }
 
 struct ListDeptsTreeResponse {
@@ -921,6 +1016,7 @@ struct ListSysUserOnlinesRequest {
     1:PageInfo pageInfo
     2:string ipaddr
     3:string userName
+    4:LoginUser user
 }
 
 struct UserOnlineInfo {
@@ -947,5 +1043,6 @@ struct ListSysUserOnline {
 
 struct ForceLogoutRequest {
     1:string tokenId
+    2:LoginUser user
 }
 

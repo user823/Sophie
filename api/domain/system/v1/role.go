@@ -8,22 +8,22 @@ import (
 
 type SysRole struct {
 	api.ObjectMeta `json:",inline,omitempty"`
-	RoleId         int64  `json:"roleId,omitempty" gorm:"column:role_id"`
-	RoleName       string `json:"roleName,omitempty" gorm:"column:role_name"`
-	RoleKey        string `json:"roleKey,omitempty" gorm:"column:role_key"`
+	RoleId         int64  `json:"roleId,omitempty" gorm:"column:role_id" query:"roleId"`
+	RoleName       string `json:"roleName,omitempty" gorm:"column:role_name" query:"roleName"`
+	RoleKey        string `json:"roleKey,omitempty" gorm:"column:role_key" query:"roleKey"`
 	// 角色排序
-	RoleSort          int64  `json:"roleSort,omitempty" gorm:"column:role_sort"`
-	DataScope         string `json:"dataScope,omitempty" gorm:"column:data_scope"`
-	MenuCheckStrictly bool   `json:"menuCheckStrictly,omitempty" gorm:"column:menu_check_strictly"`
-	DeptCheckStrictly bool   `json:"deptCheckStrictly,omitempty" gorm:"column:dept_check_strictly"`
-	Status            string `json:"status,omitempty" gorm:"column:status"`
-	DelFlag           string `json:"delFlag,omitempty" gorm:"column:del_flag"`
+	RoleSort          int64  `json:"roleSort,omitempty" gorm:"column:role_sort" query:"roleSort"`
+	DataScope         string `json:"dataScope,omitempty" gorm:"column:data_scope" query:"dataScope"`
+	MenuCheckStrictly bool   `json:"menuCheckStrictly,omitempty" gorm:"column:menu_check_strictly" query:"menuCheckStrictly"`
+	DeptCheckStrictly bool   `json:"deptCheckStrictly,omitempty" gorm:"column:dept_check_strictly" query:"deptCheckStrictly"`
+	Status            string `json:"status,omitempty" gorm:"column:status" query:"status"`
+	DelFlag           string `json:"delFlag,omitempty" gorm:"column:del_flag" query:"delFlag"`
 	// 用户是否存在此角色的标识（默认不存在）, 用于鉴权
-	Flag    bool    `json:"flag,omitempty" gorm:"-"`
-	MenuIds []int64 `json:"-" gorm:"-"`
-	DeptIds []int64 `json:"-" gorm:"-"`
+	Flag    bool    `json:"flag,omitempty" gorm:"-" query:"flag"`
+	MenuIds []int64 `json:"menuIds,omitempty" gorm:"-" query:"menuIds"`
+	DeptIds []int64 `json:"deptIds,omitempty" gorm:"-" query:"deptIds"`
 	// 角色菜单权限
-	Permissions []string `json:"-" gorm:"-"`
+	Permissions []string `json:"permissions,omitempty" gorm:"-" query:"permissions"`
 }
 
 func (s *SysRole) TableName() string {

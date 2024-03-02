@@ -163,11 +163,8 @@ func (s *roleService) CheckRoleAllowed(ctx context.Context, role *v1.SysRole, op
 }
 
 func (s *roleService) CheckRoleDataScope(ctx context.Context, roleId int64, opts *api.GetOptions) bool {
-	logininfor, err := utils.GetLogininfoFromCtx(ctx)
-	if err != nil {
-		return false
-	}
-	if !logininfor.User.IsAdmin() {
+	logininfor := utils.GetLogininfoFromCtx(ctx)
+	if !v1.IsUserAdmin(logininfor.User.GetUserId()) {
 		roles, err := s.store.Roles().SelectRoleList(ctx, &v1.SysRole{RoleId: roleId}, opts)
 		if err != nil || len(roles) == 0 {
 			return false

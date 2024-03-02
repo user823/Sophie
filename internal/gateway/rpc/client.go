@@ -1,13 +1,9 @@
 package rpc
 
 import (
+	"fmt"
 	"github.com/cloudwego/kitex/client"
-	"github.com/pkg/errors"
-	v1 "github.com/user823/Sophie/api/thrift/system/v1"
-	"github.com/user823/Sophie/internal/pkg/code"
 	"sync"
-
-	"github.com/user823/Sophie/pkg/log"
 )
 
 type RPCClient struct {
@@ -16,6 +12,10 @@ type RPCClient struct {
 	*FileClient
 	*GenClient
 }
+
+var (
+	ErrRPC = fmt.Errorf("系统内部错误，请重试")
+)
 
 var (
 	once     sync.Once
@@ -37,16 +37,4 @@ func Init(generalOpts []client.Option) {
 		Remoting.FileClient.initRPC(generalOpts)
 		Remoting.GenClient.initRPC(generalOpts)
 	})
-}
-
-func ParseRpcErr(b *v1.BaseResp, err error) error {
-	if err != nil {
-		log.Errorf("rpc invoke error: %s", err.Error())
-		return errors.New("系统内部错误，请重试")
-	}
-
-	if b != nil && b.Code == code.ERROR {
-		return errors.WithMessage(err, b.Msg)
-	}
-	return nil
 }

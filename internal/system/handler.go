@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/user823/Sophie/api"
-	v12 "github.com/user823/Sophie/api/domain/gateway/v1"
 	v13 "github.com/user823/Sophie/api/domain/system/v1"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/pkg/middleware/auth"
@@ -26,6 +25,9 @@ func (s *SystemServiceImpl) ListConfigs(ctx context.Context, req *v1.ListConfigs
 	store, _ := es.GetESFactoryOr(nil)
 	sysConfig := v1.ConfigInfo2SysConfig(req.GetConfigInfo())
 
+	loginInfo := req.LoginUser
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	list := service.NewConfigs(store).SelectConfigList(ctx, sysConfig, getOpt)
 	return &v1.ListConfigsResponse{
 		BaseResp: utils.Ok("操作成功"),
@@ -39,6 +41,9 @@ func (s *SystemServiceImpl) ExportConfig(ctx context.Context, req *v1.ExportConf
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	sysConfig := v1.ConfigInfo2SysConfig(req.GetConfigInfo())
 	store, _ := es.GetESFactoryOr(nil)
+
+	loginInfo := req.LoginUser
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	list := service.NewConfigs(store).SelectConfigList(ctx, sysConfig, getOpt)
 	return &v1.ExportConfigResponse{
@@ -72,11 +77,13 @@ func (s *SystemServiceImpl) CreateConfig(ctx context.Context, req *v1.CreateConf
 	configSrv := service.NewConfigs(store)
 	sysConfig := v1.ConfigInfo2SysConfig(req.GetConfigInfo())
 
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	if !configSrv.CheckConfigKeyUnique(ctx, sysConfig, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增参数 %s 失败，参数键名已存在", sysConfig.ConfigName)), nil
 	}
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysConfig.CreateBy = logininfo.User.Username
+	sysConfig.CreateBy = loginInfo.User.UserName
 	if err = configSrv.InsertConfig(ctx, sysConfig, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -89,11 +96,13 @@ func (s *SystemServiceImpl) UpdateConfig(ctx context.Context, req *v1.UpdateConf
 	configSrv := service.NewConfigs(store)
 	sysConfig := v1.ConfigInfo2SysConfig(req.GetConfigInfo())
 
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	if !configSrv.CheckConfigKeyUnique(ctx, sysConfig, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增参数 %s 失败，参数键名已存在", sysConfig.ConfigName)), nil
 	}
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysConfig.UpdateBy = logininfo.User.Username
+	sysConfig.UpdateBy = loginInfo.User.UserName
 	if err = configSrv.UpdateConfig(ctx, sysConfig, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -103,6 +112,9 @@ func (s *SystemServiceImpl) UpdateConfig(ctx context.Context, req *v1.UpdateConf
 // DeleteConfig implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteConfig(ctx context.Context, req *v1.DeleteConfigReqeust) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if err = service.NewConfigs(store).DeleteConfigByIds(ctx, req.GetConfigIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
@@ -122,6 +134,9 @@ func (s *SystemServiceImpl) ListDepts(ctx context.Context, req *v1.ListDeptsRequ
 	store, _ := es.GetESFactoryOr(nil)
 	sysDept := v1.DeptInfo2SysDept(req.GetDeptInfo())
 
+	loginInfo := req.LoginUser
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	list := service.NewDepts(store).SelectDeptList(ctx, sysDept, &api.GetOptions{Cache: true})
 	return &v1.ListDeptsResponse{
 		BaseResp: utils.Ok("操作成功"),
@@ -134,6 +149,7 @@ func (s *SystemServiceImpl) ListDeptsExcludeChild(ctx context.Context, id int64)
 	store, _ := es.GetESFactoryOr(nil)
 	sysDepts := service.NewDepts(store).SelectDeptList(ctx, &v13.SysDept{}, &api.GetOptions{Cache: true})
 	depts := make([]*v1.DeptInfo, 0, sysDepts.TotalCount)
+
 c:
 	for i := range sysDepts.Items {
 		if sysDepts.Items[i].DeptId == id {
@@ -156,18 +172,21 @@ c:
 }
 
 // GetDeptById implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) GetDeptById(ctx context.Context, id int64) (resp *v1.DeptResponse, err error) {
+func (s *SystemServiceImpl) GetDeptById(ctx context.Context, req *v1.GetDeptByIdReq) (resp *v1.DeptResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	deptSrv := service.NewDepts(store)
 
-	if !deptSrv.CheckDeptDataScope(ctx, id, &api.GetOptions{Cache: true}) {
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
+	if !deptSrv.CheckDeptDataScope(ctx, req.Id, &api.GetOptions{Cache: true}) {
 		return &v1.DeptResponse{
 			BaseResp: utils.Fail("没有权限访问部门数据！"),
 		}, nil
 	}
 	return &v1.DeptResponse{
 		BaseResp: utils.Ok("操作成功"),
-		Data:     v1.SysDept2DeptInfo(deptSrv.SelectDeptById(ctx, id, &api.GetOptions{Cache: true})),
+		Data:     v1.SysDept2DeptInfo(deptSrv.SelectDeptById(ctx, req.Id, &api.GetOptions{Cache: true})),
 	}, nil
 }
 
@@ -177,11 +196,13 @@ func (s *SystemServiceImpl) CreateDept(ctx context.Context, req *v1.CreateDeptRe
 	deptSrv := service.NewDepts(store)
 	sysDept := v1.DeptInfo2SysDept(req.GetDept())
 
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增部门 %s 失败，部门名称已存在", sysDept.DeptName)), nil
 	}
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysDept.CreateBy = logininfo.User.Username
+	sysDept.CreateBy = loginInfo.User.UserName
 	if err = deptSrv.InsertDept(ctx, sysDept, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -194,6 +215,9 @@ func (s *SystemServiceImpl) UpdateDept(ctx context.Context, req *v1.UpdateDeptRe
 	deptSrv := service.NewDepts(store)
 	sysDept := v1.DeptInfo2SysDept(req.GetDept())
 
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("修改部门 %s 失败，部门名称已存在", sysDept.DeptName)), nil
 	}
@@ -204,8 +228,7 @@ func (s *SystemServiceImpl) UpdateDept(ctx context.Context, req *v1.UpdateDeptRe
 		return utils.Fail("该部门包含未停用的子部门"), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysDept.UpdateBy = logininfo.User.Username
+	sysDept.UpdateBy = loginInfo.User.UserName
 	if err = deptSrv.UpdateDept(ctx, sysDept, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -216,6 +239,9 @@ func (s *SystemServiceImpl) UpdateDept(ctx context.Context, req *v1.UpdateDeptRe
 func (s *SystemServiceImpl) DeleteDept(ctx context.Context, req *v1.DeleteDeptRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	deptSrv := service.NewDepts(store)
+
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if deptSrv.HasChildByDeptId(ctx, req.GetDeptId(), &api.GetOptions{Cache: true}) {
 		return utils.Warn("存在下级部门，无法删除"), nil
@@ -239,6 +265,9 @@ func (s *SystemServiceImpl) ListDictDatas(ctx context.Context, req *v1.ListDictD
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	sysDictData := v1.DictData2SysDictData(req.GetDictData())
 
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
 	list := service.NewDictDatas(store).SelectDictDataList(ctx, sysDictData, getOpt)
 	return &v1.ListDictDatasResponse{
 		BaseResp: utils.Ok("操作成功"),
@@ -251,6 +280,9 @@ func (s *SystemServiceImpl) ListDictDatas(ctx context.Context, req *v1.ListDictD
 func (s *SystemServiceImpl) ExportDictData(ctx context.Context, req *v1.ExportDictDataRequest) (resp *v1.ExportDictDataResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	sysDictData := v1.DictData2SysDictData(req.GetDictData())
+
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	list := service.NewDictDatas(store).SelectDictDataList(ctx, sysDictData, &api.GetOptions{Cache: true})
 	return &v1.ExportDictDataResponse{
 		BaseResp:  utils.Ok("操作成功"),
@@ -284,9 +316,10 @@ func (s *SystemServiceImpl) ListDictDataByType(ctx context.Context, dictType str
 // CreateDictData implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateDictData(ctx context.Context, req *v1.CreateDictDataRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictData := v1.DictData2SysDictData(req.GetDictData())
-	sysDictData.CreateBy = logininfo.User.Username
+	sysDictData.CreateBy = loginInfo.User.UserName
 	if err = service.NewDictDatas(store).InsertDictData(ctx, sysDictData, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -296,9 +329,10 @@ func (s *SystemServiceImpl) CreateDictData(ctx context.Context, req *v1.CreateDi
 // UpdateDictData implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UpdateDictData(ctx context.Context, req *v1.UpdateDictDataRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictData := v1.DictData2SysDictData(req.GetDictData())
-	sysDictData.UpdateBy = logininfo.User.Username
+	sysDictData.UpdateBy = loginInfo.User.UserName
 	if err = service.NewDictDatas(store).UpdateDictData(ctx, sysDictData, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -308,6 +342,8 @@ func (s *SystemServiceImpl) UpdateDictData(ctx context.Context, req *v1.UpdateDi
 // DeleteDictData implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteDictData(ctx context.Context, req *v1.DeleteDictDataRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewDictDatas(store).DeleteDictDataByIds(ctx, req.GetDictCodes(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -317,6 +353,8 @@ func (s *SystemServiceImpl) DeleteDictData(ctx context.Context, req *v1.DeleteDi
 // ListDictTypes implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ListDictTypes(ctx context.Context, req *v1.ListDictTypesRequest) (resp *v1.ListDictTypesResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), req.GetDateRange(), true)
 	sysDictType := v1.DictType2SysDictType(req.GetDictType())
 	list := service.NewDictTypes(store).SelectDictTypeList(ctx, sysDictType, getOpt)
@@ -330,6 +368,8 @@ func (s *SystemServiceImpl) ListDictTypes(ctx context.Context, req *v1.ListDictT
 // ExportDictType implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ExportDictType(ctx context.Context, req *v1.ExportDictTypeRequest) (resp *v1.ExportDictTypeResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictType := v1.DictType2SysDictType(req.GetDictType())
 	list := service.NewDictTypes(store).SelectDictTypeList(ctx, sysDictType, &api.GetOptions{Cache: true})
 	return &v1.ExportDictTypeResponse{
@@ -353,14 +393,15 @@ func (s *SystemServiceImpl) GetDictTypeById(ctx context.Context, id int64) (resp
 // CreateDictType implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateDictType(ctx context.Context, req *v1.CreateDictTypeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictType := v1.DictType2SysDictType(req.GetDictType())
 	dictTypeSrv := service.NewDictTypes(store)
 	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增字典 %s 失败，字典类型已存在", sysDictType.DictName)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysDictType.CreateBy = logininfo.User.Username
+	sysDictType.CreateBy = loginInfo.User.UserName
 	if err = dictTypeSrv.InsertDictType(ctx, sysDictType, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -370,14 +411,15 @@ func (s *SystemServiceImpl) CreateDictType(ctx context.Context, req *v1.CreateDi
 // UpdateDictType implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UpdateDictType(ctx context.Context, req *v1.UpdateDictTypeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	dictTypeSrv := service.NewDictTypes(store)
 	sysDictType := v1.DictType2SysDictType(req.GetDictType())
 	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("修改字典 %s 失败，字典类型已存在", sysDictType.DictName)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysDictType.UpdateBy = logininfo.User.Username
+	sysDictType.UpdateBy = loginInfo.User.UserName
 	if err = dictTypeSrv.UpdateDictType(ctx, sysDictType, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -387,6 +429,8 @@ func (s *SystemServiceImpl) UpdateDictType(ctx context.Context, req *v1.UpdateDi
 // DeleteDictType implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteDictType(ctx context.Context, req *v1.DeleteDictTypeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewDictTypes(store).DeleteDictTypeByIds(ctx, req.GetDictIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -413,6 +457,8 @@ func (s *SystemServiceImpl) DictTypeOptionSelect(ctx context.Context) (resp *v1.
 // ListSysLogininfos implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ListSysLogininfos(ctx context.Context, req *v1.ListSysLogininfosRequest) (resp *v1.ListSysLogininfosResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), req.GetDateRange(), true)
 	sysLogininfor := v1.LoginInfo2SysLogininfo(req.GetLoginInfo())
 
@@ -427,6 +473,8 @@ func (s *SystemServiceImpl) ListSysLogininfos(ctx context.Context, req *v1.ListS
 // ExportLogininfo implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ExportLogininfo(ctx context.Context, req *v1.ExportLogininfoRequest) (resp *v1.ExportLogininfoResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysLogininfor := v1.LoginInfo2SysLogininfo(req.GetLoginInfo())
 
 	list := service.NewLogininfors(store).SelectLogininforList(ctx, sysLogininfor, &api.GetOptions{Cache: true})
@@ -441,6 +489,8 @@ func (s *SystemServiceImpl) ExportLogininfo(ctx context.Context, req *v1.ExportL
 // RemoveSysLogininfosById implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) RemoveSysLogininfosById(ctx context.Context, req *v1.RemoveSysLogininfosByIdRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewLogininfors(store).DeleteLogininforByIds(ctx, req.GetInfoIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -467,6 +517,8 @@ func (s *SystemServiceImpl) UnlockByUserName(ctx context.Context, username strin
 // CreateSysLogininfo implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateSysLogininfo(ctx context.Context, req *v1.CreateSysLogininfoRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysLogininfor := v1.LoginInfo2SysLogininfo(req.GetLoginInfo())
 	if err = service.NewLogininfors(store).InsertLogininfor(ctx, sysLogininfor, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
@@ -477,10 +529,11 @@ func (s *SystemServiceImpl) CreateSysLogininfo(ctx context.Context, req *v1.Crea
 // ListSysMenus implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ListSysMenus(ctx context.Context, req *v1.ListSysMenusRequest) (resp *v1.ListSysMenusResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	menus := service.NewMenus(store).SelectMenuListWithMenu(ctx, sysMenu, logininfo.User.UserId, &api.GetOptions{Cache: true})
+	menus := service.NewMenus(store).SelectMenuListWithMenu(ctx, sysMenu, loginInfo.User.UserId, &api.GetOptions{Cache: true})
 	return &v1.ListSysMenusResponse{
 		BaseResp: utils.Ok("操作成功"),
 		Data:     v1.MSysMenu2MenuInfo(menus.Items),
@@ -500,10 +553,11 @@ func (s *SystemServiceImpl) GetSysMenuById(ctx context.Context, id int64) (resp 
 // ListTreeMenu implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest) (resp *v1.ListSysMenusResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	menus := service.NewMenus(store).SelectMenuListWithMenu(ctx, sysMenu, logininfo.User.UserId, &api.GetOptions{Cache: true})
+	menus := service.NewMenus(store).SelectMenuListWithMenu(ctx, sysMenu, loginInfo.User.UserId, &api.GetOptions{Cache: true})
 	return &v1.ListSysMenusResponse{
 		BaseResp: utils.Ok("操作成功"),
 		Data:     v1.MSysMenu2MenuInfo(menus.Items),
@@ -511,13 +565,14 @@ func (s *SystemServiceImpl) ListTreeMenu(ctx context.Context, req *v1.ListTreeMe
 }
 
 // ListTreeMenuByRoleid implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) ListTreeMenuByRoleid(ctx context.Context, id int64) (resp *v1.RoleMenuResponse, err error) {
+func (s *SystemServiceImpl) ListTreeMenuByRoleid(ctx context.Context, req *v1.ListTreeMenuByRoleidRequest) (resp *v1.RoleMenuResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
 	menuSrv := service.NewMenus(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	list := menuSrv.SelectMenuList(ctx, logininfo.User.UserId, &api.GetOptions{Cache: true})
-	keys := menuSrv.SelectMenuListByRoleId(ctx, id, &api.GetOptions{Cache: true})
+	list := menuSrv.SelectMenuList(ctx, loginInfo.User.UserId, &api.GetOptions{Cache: true})
+	keys := menuSrv.SelectMenuListByRoleId(ctx, req.Id, &api.GetOptions{Cache: true})
 	menus := menuSrv.BuildMenuTreeSelect(ctx, list.Items)
 	return &v1.RoleMenuResponse{
 		BaseResp:    utils.Ok("操作成功"),
@@ -529,6 +584,8 @@ func (s *SystemServiceImpl) ListTreeMenuByRoleid(ctx context.Context, id int64) 
 // CreateMenu implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateMenu(ctx context.Context, req *v1.CreateMenuRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	menuSrv := service.NewMenus(store)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
 	if !menuSrv.CheckMenuNameUnique(ctx, sysMenu, &api.GetOptions{Cache: true}) {
@@ -538,8 +595,7 @@ func (s *SystemServiceImpl) CreateMenu(ctx context.Context, req *v1.CreateMenuRe
 		return utils.Fail(fmt.Sprintf("新增菜单 %s 失败，地址必须以http(s)://开头", sysMenu.MenuName)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysMenu.CreateBy = logininfo.User.Username
+	sysMenu.CreateBy = loginInfo.User.UserName
 	if err = menuSrv.InsertMenu(ctx, sysMenu, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -549,6 +605,8 @@ func (s *SystemServiceImpl) CreateMenu(ctx context.Context, req *v1.CreateMenuRe
 // UpdateMenu implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UpdateMenu(ctx context.Context, req *v1.UpdateMenuRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	menuSrv := service.NewMenus(store)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
 	if !menuSrv.CheckMenuNameUnique(ctx, sysMenu, &api.GetOptions{Cache: true}) {
@@ -561,8 +619,7 @@ func (s *SystemServiceImpl) UpdateMenu(ctx context.Context, req *v1.UpdateMenuRe
 		return utils.Fail(fmt.Sprintf("修改菜单 %s 失败，上级菜单不能选择自己", sysMenu.MenuName)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysMenu.UpdateBy = logininfo.User.Username
+	sysMenu.UpdateBy = loginInfo.User.UserName
 	if err = menuSrv.UpdateMenu(ctx, sysMenu, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -572,6 +629,8 @@ func (s *SystemServiceImpl) UpdateMenu(ctx context.Context, req *v1.UpdateMenuRe
 // DeleteMenu implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteMenu(ctx context.Context, req *v1.DeleteMenuRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	menuSrv := service.NewMenus(store)
 	if menuSrv.HasChildByMenuId(ctx, req.GetMenuId(), &api.GetOptions{Cache: true}) {
 		return utils.Fail("存在子菜单，不允许删除"), nil
@@ -586,11 +645,13 @@ func (s *SystemServiceImpl) DeleteMenu(ctx context.Context, req *v1.DeleteMenuRe
 }
 
 // GetRouters implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) GetRouters(ctx context.Context) (resp *v1.RoutersResonse, err error) {
+func (s *SystemServiceImpl) GetRouters(ctx context.Context, req *v1.GetRoutersRequest) (resp *v1.RoutersResonse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
 	menuSrv := service.NewMenus(store)
-	menus := menuSrv.SelectMenuTreeByUserId(ctx, logininfo.User.UserId, &api.GetOptions{Cache: true})
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
+	menus := menuSrv.SelectMenuTreeByUserId(ctx, loginInfo.User.UserId, &api.GetOptions{Cache: true})
 	routers := menuSrv.BuildMenus(ctx, menus.Items)
 	return &v1.RoutersResonse{
 		BaseResp: utils.Ok("操作成功"),
@@ -598,15 +659,11 @@ func (s *SystemServiceImpl) GetRouters(ctx context.Context) (resp *v1.RoutersRes
 	}, nil
 }
 
-// GetSysMenuPermsByRoleIds implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) GetSysMenuPermsByRoleIds(ctx context.Context, req *v1.GetSysMenuPermsByRoleIdsRequest) (resp *v1.SysMenuPermsResponse, err error) {
-	// TODO: Your code here...
-	return
-}
-
 // ListSysNotices implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ListSysNotices(ctx context.Context, req *v1.ListSysNoticesRequest) (resp *v1.ListSysNoticesResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	sysNotice := v1.NoticeInfo2SysNotice(req.GetNoticeInfo())
 	list := service.NewNotices(store).SelectNoticeList(ctx, sysNotice, getOpt)
@@ -630,9 +687,10 @@ func (s *SystemServiceImpl) GetSysNoticeById(ctx context.Context, id int64) (res
 // CreateSysNotice implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateSysNotice(ctx context.Context, req *v1.CreateSysNoticeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysNotice := v1.NoticeInfo2SysNotice(req.GetNoticeInfo())
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysNotice.CreateBy = logininfo.User.Username
+	sysNotice.CreateBy = loginInfo.User.UserName
 	if err = service.NewNotices(store).InsertNotice(ctx, sysNotice, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -642,6 +700,8 @@ func (s *SystemServiceImpl) CreateSysNotice(ctx context.Context, req *v1.CreateS
 // DeleteSysNotice implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteSysNotice(ctx context.Context, req *v1.DeleteSysNoticeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewNotices(store).DeleteNoticeByIds(ctx, req.GetNoticeIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -651,10 +711,11 @@ func (s *SystemServiceImpl) DeleteSysNotice(ctx context.Context, req *v1.DeleteS
 // UpdateSysNotice implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UpdateSysNotice(ctx context.Context, req *v1.UpdateSysNoticeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysNotice := v1.NoticeInfo2SysNotice(req.GetNoticeInfo())
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysNotice.UpdateBy = logininfo.User.Username
+	sysNotice.UpdateBy = loginInfo.User.UserName
 	if err = service.NewNotices(store).UpdateNotice(ctx, sysNotice, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -665,6 +726,8 @@ func (s *SystemServiceImpl) UpdateSysNotice(ctx context.Context, req *v1.UpdateS
 func (s *SystemServiceImpl) ListSysOperLogs(ctx context.Context, req *v1.ListSysOperLogsRequest) (resp *v1.ListSysOperLogsResponse, err error) {
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysOperLog := v1.OperLog2SysOperLog(req.GetOperLog())
 
 	list := service.NewOperLogs(store).SelectOperLogList(ctx, sysOperLog, getOpt)
@@ -678,6 +741,8 @@ func (s *SystemServiceImpl) ListSysOperLogs(ctx context.Context, req *v1.ListSys
 // ExportSysOperLog implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ExportSysOperLog(ctx context.Context, req *v1.ExportSysOperLogRequest) (resp *v1.ExportSysOperLogResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysOperLog := v1.OperLog2SysOperLog(req.GetOperLog())
 
 	list := service.NewOperLogs(store).SelectOperLogList(ctx, sysOperLog, &api.GetOptions{Cache: true})
@@ -692,6 +757,8 @@ func (s *SystemServiceImpl) ExportSysOperLog(ctx context.Context, req *v1.Export
 // DeleteSysOperLog implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteSysOperLog(ctx context.Context, req *v1.DeleteSysOperLogRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewOperLogs(store).DeleteOperLogByIds(ctx, req.GetOperIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -710,6 +777,8 @@ func (s *SystemServiceImpl) OperLogClean(ctx context.Context) (resp *v1.BaseResp
 // CreateSysOperLog implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateSysOperLog(ctx context.Context, req *v1.CreateSysOperLogRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysOperLog := v1.OperLog2SysOperLog(req.GetOperLog())
 	if err = service.NewOperLogs(store).InsertOperLog(ctx, sysOperLog, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
@@ -721,6 +790,8 @@ func (s *SystemServiceImpl) CreateSysOperLog(ctx context.Context, req *v1.Create
 func (s *SystemServiceImpl) ListSysPosts(ctx context.Context, req *v1.ListSysPostsRequest) (resp *v1.ListSysPostsResponse, err error) {
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysPost := v1.PostInfo2SysPost(req.GetPostInfo())
 
 	list := service.NewPosts(store).SelectPostList(ctx, sysPost, getOpt)
@@ -736,6 +807,8 @@ func (s *SystemServiceImpl) ExportSysPost(ctx context.Context, req *v1.ExportSys
 	getOpts := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	store, _ := es.GetESFactoryOr(nil)
 	sysPost := v1.PostInfo2SysPost(req.PostInfo)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	list := service.NewPosts(store).SelectPostList(ctx, sysPost, getOpts)
 	return &v1.ExportSysPostResponse{
@@ -759,6 +832,8 @@ func (s *SystemServiceImpl) GetSysPostById(ctx context.Context, id int64) (resp 
 // CreateSysPost implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateSysPost(ctx context.Context, req *v1.CreateSysPostRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	postSrv := service.NewPosts(store)
 	sysPost := v1.PostInfo2SysPost(req.GetPostInfo())
 
@@ -768,8 +843,7 @@ func (s *SystemServiceImpl) CreateSysPost(ctx context.Context, req *v1.CreateSys
 	if !postSrv.CheckPostCodeUnique(ctx, sysPost, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增岗位 %s 失败，岗位编码已存在", sysPost.PostCode)), nil
 	}
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysPost.CreateBy = logininfo.User.Username
+	sysPost.CreateBy = loginInfo.User.UserName
 	if err = postSrv.InsertPost(ctx, sysPost, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -779,6 +853,8 @@ func (s *SystemServiceImpl) CreateSysPost(ctx context.Context, req *v1.CreateSys
 // UpdateSysPost implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UpdateSysPost(ctx context.Context, req *v1.UpdateSysPostRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	postSrv := service.NewPosts(store)
 	sysPost := v1.PostInfo2SysPost(req.GetPostInfo())
 
@@ -788,8 +864,7 @@ func (s *SystemServiceImpl) UpdateSysPost(ctx context.Context, req *v1.UpdateSys
 	if !postSrv.CheckPostCodeUnique(ctx, sysPost, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增岗位 %s 失败，岗位编码已存在", sysPost.PostCode)), nil
 	}
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysPost.UpdateBy = logininfo.User.Username
+	sysPost.UpdateBy = loginInfo.User.UserName
 	if err = postSrv.UpdatePost(ctx, sysPost, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -799,6 +874,8 @@ func (s *SystemServiceImpl) UpdateSysPost(ctx context.Context, req *v1.UpdateSys
 // DeleteSysPost implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteSysPost(ctx context.Context, req *v1.DeleteSysPostRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewPosts(store).DeletePostByIds(ctx, req.GetPostIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -816,14 +893,15 @@ func (s *SystemServiceImpl) PostOptionSelect(ctx context.Context) (resp *v1.Post
 }
 
 // Profile implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) Profile(ctx context.Context) (resp *v1.ProfileResponse, err error) {
+func (s *SystemServiceImpl) Profile(ctx context.Context, req *v1.ProfileRequest) (resp *v1.ProfileResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysUser := userSrv.SelectUserByUserName(ctx, &v13.SysUser{Username: logininfo.User.Username}, &api.GetOptions{Cache: true})
-	roleGroup := userSrv.SelectUserRoleGroup(ctx, logininfo.User.Username, &api.GetOptions{Cache: true})
-	postGroup := userSrv.SelectUserPostGroup(ctx, logininfo.User.Username, &api.GetOptions{Cache: true})
+	sysUser := userSrv.SelectUserByUserName(ctx, &v13.SysUser{Username: loginInfo.User.UserName}, &api.GetOptions{Cache: true})
+	roleGroup := userSrv.SelectUserRoleGroup(ctx, loginInfo.User.UserName, &api.GetOptions{Cache: true})
+	postGroup := userSrv.SelectUserPostGroup(ctx, loginInfo.User.UserName, &api.GetOptions{Cache: true})
 	return &v1.ProfileResponse{
 		BaseResp:  utils.Ok("操作成功"),
 		UserInfo:  v1.SysUser2UserInfo(sysUser),
@@ -835,6 +913,8 @@ func (s *SystemServiceImpl) Profile(ctx context.Context) (resp *v1.ProfileRespon
 // UpdateProfile implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UpdateProfile(ctx context.Context, req *v1.UpdateProfileRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	userSrv := service.NewUsers(store)
 
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
@@ -855,9 +935,10 @@ func (s *SystemServiceImpl) UpdateProfile(ctx context.Context, req *v1.UpdatePro
 func (s *SystemServiceImpl) UpdatePassword(ctx context.Context, req *v1.UpdatePasswordRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	sysUser := userSrv.SelectUserByUserName(ctx, &v13.SysUser{Username: logininfo.User.Username}, &api.GetOptions{Cache: true})
+	sysUser := userSrv.SelectUserByUserName(ctx, &v13.SysUser{Username: loginInfo.User.UserName}, &api.GetOptions{Cache: true})
 	if err = auth.Compare(sysUser.Password, req.OldPassword); err != nil {
 		return utils.Fail("修改密码失败，旧密码错误"), nil
 	}
@@ -874,6 +955,8 @@ func (s *SystemServiceImpl) UpdatePassword(ctx context.Context, req *v1.UpdatePa
 func (s *SystemServiceImpl) ListSysRole(ctx context.Context, req *v1.ListSysRolesRequest) (resp *v1.ListSysRolesResponse, err error) {
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), req.DateRange, true)
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
 	list := service.NewRoles(store).SelectRoleList(ctx, sysRole, getOpt)
@@ -887,6 +970,8 @@ func (s *SystemServiceImpl) ListSysRole(ctx context.Context, req *v1.ListSysRole
 // ExportSysRole implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ExportSysRole(ctx context.Context, req *v1.ExportSysRoleRequest) (resp *v1.ExportSysRoleResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
 	list := service.NewRoles(store).SelectRoleList(ctx, sysRole, &api.GetOptions{Cache: true})
@@ -911,6 +996,8 @@ func (s *SystemServiceImpl) GetSysRoleByid(ctx context.Context, id int64) (resp 
 // CreateSysRole implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CreateSysRole(ctx context.Context, req *v1.CreateSysRoleRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	roleSrv := service.NewRoles(store)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 	if !roleSrv.CheckRoleNameUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
@@ -920,8 +1007,7 @@ func (s *SystemServiceImpl) CreateSysRole(ctx context.Context, req *v1.CreateSys
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysRole.CreateBy = logininfo.User.Username
+	sysRole.CreateBy = loginInfo.User.UserName
 	if err = roleSrv.InsertRole(ctx, sysRole, &api.CreateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), err
 	}
@@ -932,6 +1018,8 @@ func (s *SystemServiceImpl) CreateSysRole(ctx context.Context, req *v1.CreateSys
 func (s *SystemServiceImpl) UpdateSysRole(ctx context.Context, req *v1.UpdateSysRoleRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	roleSrv := service.NewRoles(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
 	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: true}) {
@@ -940,8 +1028,7 @@ func (s *SystemServiceImpl) UpdateSysRole(ctx context.Context, req *v1.UpdateSys
 	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysRole.UpdateBy = logininfo.User.Username
+	sysRole.UpdateBy = loginInfo.User.UserName
 	if err = roleSrv.UpdateRole(ctx, sysRole, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -952,6 +1039,8 @@ func (s *SystemServiceImpl) UpdateSysRole(ctx context.Context, req *v1.UpdateSys
 func (s *SystemServiceImpl) DataScope(ctx context.Context, req *v1.DataScopeRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	roleSrv := service.NewRoles(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
 	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: true}) {
@@ -971,6 +1060,8 @@ func (s *SystemServiceImpl) DataScope(ctx context.Context, req *v1.DataScopeRequ
 func (s *SystemServiceImpl) ChangeSysRoleStatus(ctx context.Context, req *v1.ChangeSysRoleStatusRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	roleSrv := service.NewRoles(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
 	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: true}) {
@@ -980,8 +1071,7 @@ func (s *SystemServiceImpl) ChangeSysRoleStatus(ctx context.Context, req *v1.Cha
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysRole.UpdateBy = logininfo.User.Username
+	sysRole.UpdateBy = loginInfo.User.UserName
 	if err = roleSrv.UpdateRoleStatus(ctx, sysRole, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -991,6 +1081,8 @@ func (s *SystemServiceImpl) ChangeSysRoleStatus(ctx context.Context, req *v1.Cha
 // DeleteSysRole implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DeleteSysRole(ctx context.Context, req *v1.DeleteSysRoleRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewRoles(store).DeleteRoleByIds(ctx, req.GetRoleIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -1012,6 +1104,8 @@ func (s *SystemServiceImpl) ListRoleOption(ctx context.Context) (resp *v1.ListSy
 func (s *SystemServiceImpl) AllocatedList(ctx context.Context, req *v1.AllocatedListRequest) (resp *v1.ListSysUsersResponse, err error) {
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
 
 	list := service.NewUsers(store).SelectAllocatedList(ctx, sysUser, getOpt)
@@ -1026,6 +1120,8 @@ func (s *SystemServiceImpl) AllocatedList(ctx context.Context, req *v1.Allocated
 func (s *SystemServiceImpl) UnallocatedList(ctx context.Context, req *v1.UnallocatedListRequest) (resp *v1.ListSysUsersResponse, err error) {
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
 
 	list := service.NewUsers(store).SelectUnallocatedList(ctx, sysUser, getOpt)
@@ -1039,6 +1135,8 @@ func (s *SystemServiceImpl) UnallocatedList(ctx context.Context, req *v1.Unalloc
 // CancelAuthUser implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CancelAuthUser(ctx context.Context, req *v1.CancelAuthUserRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewRoles(store).DeleteAuthUser(ctx, &v13.SysUserRole{UserId: req.GetUserId(), RoleId: req.GetRoleId()}, &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -1048,6 +1146,8 @@ func (s *SystemServiceImpl) CancelAuthUser(ctx context.Context, req *v1.CancelAu
 // CancelAuthUserAll implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) CancelAuthUserAll(ctx context.Context, req *v1.CancelAuthUserAllRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	if err = service.NewRoles(store).DeleteAuthUsers(ctx, req.RoleId, req.UserIds, &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -1057,6 +1157,8 @@ func (s *SystemServiceImpl) CancelAuthUserAll(ctx context.Context, req *v1.Cance
 // SelectAuthUserAll implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) SelectAuthUserAll(ctx context.Context, req *v1.SelectAuthUserAllRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	roleSrv := service.NewRoles(store)
 	if !roleSrv.CheckRoleDataScope(ctx, req.RoleId, &api.GetOptions{Cache: true}) {
 		return utils.Fail("没有权限访问角色数据！"), nil
@@ -1091,6 +1193,8 @@ func (s *SystemServiceImpl) ListSysUsers(ctx context.Context, req *v1.ListSysUse
 	getOpt := utils.BuildGetOption(req.PageInfo, nil, true)
 	store, _ := es.GetESFactoryOr(nil)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	list := service.NewUsers(store).SelectUserList(ctx, sysUser, getOpt)
 
@@ -1106,6 +1210,8 @@ func (s *SystemServiceImpl) ExportSysUser(ctx context.Context, req *v1.ExportSys
 	getOpt := utils.BuildGetOption(req.GetPageInfo(), nil, true)
 	store, _ := es.GetESFactoryOr(nil)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	list := service.NewUsers(store).SelectUserList(ctx, sysUser, getOpt)
 
@@ -1121,12 +1227,30 @@ func (s *SystemServiceImpl) ExportSysUser(ctx context.Context, req *v1.ExportSys
 func (s *SystemServiceImpl) ImportUserData(ctx context.Context, req *v1.ImportUserDataRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	users := v1.MUserInfo2SysUser(req.GetUsers())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	msg, err := service.NewUsers(store).ImportUser(ctx, users, req.IsUpdateSupport, req.OperName, &api.UpdateOptions{})
 	if err != nil {
 		return utils.Fail(err.Error()), nil
 	}
 	return utils.Ok(msg), nil
+}
+
+// GetUserInfo implements the SystemServiceImpl interface.
+func (s *SystemServiceImpl) GetUserInfo(ctx context.Context, id int64) (resp *v1.UserInfoResponse, err error) {
+	store, _ := es.GetESFactoryOr(nil)
+
+	user := service.NewUsers(store).SelectUserById(ctx, id, &api.GetOptions{Cache: true})
+	permissionSrv := service.NewPermissions(store)
+	roles := permissionSrv.GetRolePermission(ctx, user, &api.GetOptions{Cache: true})
+	permissions := permissionSrv.GetMenuPermission(ctx, user, &api.GetOptions{Cache: true})
+	return &v1.UserInfoResponse{
+		BaseResp:    utils.Ok("操作成功"),
+		Roles:       roles,
+		Permissions: permissions,
+		Data:        v1.SysUser2UserInfo(user),
+	}, nil
 }
 
 // GetUserInfoByName implements the SystemServiceImpl interface.
@@ -1155,6 +1279,8 @@ func (s *SystemServiceImpl) GetUserInfoByName(ctx context.Context, name string) 
 // RegisterSysUser implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRequest) (resp *v1.RegisterSysUserResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	// 不走es缓存
 	user := v1.UserInfo2SysUser(req.GetUserInfo())
@@ -1183,40 +1309,50 @@ func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, id int64) (resp
 	postSrv := service.NewPosts(store)
 	roleSrv := service.NewRoles(store)
 
-	if !userSrv.CheckUserDataScope(ctx, id, &api.GetOptions{Cache: true}) {
-		return &v1.UserInfoByIdResponse{
-			BaseResp: utils.Fail("没有权限访问用户数据！"),
-		}, nil
-	}
-
 	roleList := roleSrv.SelectRoleAll(ctx, &api.GetOptions{Cache: true})
 	// 搜索所有角色
 	roles := roleList.Items
-	if !v13.IsUserAdmin(id) {
-		j := 0
-		for i := 0; i < len(roleList.Items); i++ {
-			if !roles[i].IsAdmin() {
-				roles[j] = roles[i]
-				j++
-			}
-		}
-		roles = roles[:j]
-	}
+	// 搜索所有岗位
 	// 搜索所有岗位
 	posts := postSrv.SelectPostAll(ctx, &api.GetOptions{Cache: true})
+	if id != -1 {
+		// 查询用户权限
+		if !userSrv.CheckUserDataScope(ctx, id, &api.GetOptions{Cache: true}) {
+			return &v1.UserInfoByIdResponse{
+				BaseResp: utils.Fail("没有权限访问用户数据！"),
+			}, nil
+		}
 
-	// 该用户对应岗位和角色
-	sysUser := userSrv.SelectUserById(ctx, id, &api.GetOptions{Cache: true})
-	postIds := postSrv.SelectPostListByUserId(ctx, id, &api.GetOptions{Cache: true})
-	roleIds := make([]int64, 0, len(sysUser.Roles))
-	for i := range sysUser.Roles {
-		roleIds = append(roleIds, sysUser.Roles[i].RoleId)
+		// 过滤角色
+		if !v13.IsUserAdmin(id) {
+			j := 0
+			for i := 0; i < len(roleList.Items); i++ {
+				if !roles[i].IsAdmin() {
+					roles[j] = roles[i]
+					j++
+				}
+			}
+			roles = roles[:j]
+		}
+
+		// 该用户对应岗位和角色
+		sysUser := userSrv.SelectUserById(ctx, id, &api.GetOptions{Cache: true})
+		postIds := postSrv.SelectPostListByUserId(ctx, id, &api.GetOptions{Cache: true})
+		roleIds := make([]int64, 0, len(sysUser.Roles))
+		for i := range sysUser.Roles {
+			roleIds = append(roleIds, sysUser.Roles[i].RoleId)
+		}
+		return &v1.UserInfoByIdResponse{
+			BaseResp: utils.Ok("操作成功"),
+			Data:     v1.SysUser2UserInfo(sysUser),
+			PostIds:  postIds,
+			RoleIds:  roleIds,
+			Roles:    v1.MSysRole2RoleInfo(roles),
+			Posts:    v1.MSysPost2PostInfo(posts.Items),
+		}, nil
 	}
 	return &v1.UserInfoByIdResponse{
 		BaseResp: utils.Ok("操作成功"),
-		Data:     v1.SysUser2UserInfo(sysUser),
-		PostIds:  postIds,
-		RoleIds:  roleIds,
 		Roles:    v1.MSysRole2RoleInfo(roles),
 		Posts:    v1.MSysPost2PostInfo(posts.Items),
 	}, nil
@@ -1227,6 +1363,8 @@ func (s *SystemServiceImpl) CreateSysUser(ctx context.Context, req *v1.CreateSys
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if !userSrv.CheckUserNameUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，登录账号已存在", sysUser.Username)), nil
@@ -1238,8 +1376,7 @@ func (s *SystemServiceImpl) CreateSysUser(ctx context.Context, req *v1.CreateSys
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，邮箱账号已存在", sysUser.Username)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysUser.CreateBy = logininfo.User.Username
+	sysUser.CreateBy = loginInfo.User.UserName
 	encryptedPasswd, _ := auth.Encrypt(sysUser.Password)
 	sysUser.Password = encryptedPasswd
 	if err = userSrv.InsertUser(ctx, sysUser, &api.CreateOptions{}); err != nil {
@@ -1253,6 +1390,8 @@ func (s *SystemServiceImpl) UpdateSysUser(ctx context.Context, req *v1.UpdateSys
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: true}) {
 		return utils.Fail("不允许操作超级管理员用户"), nil
@@ -1270,8 +1409,7 @@ func (s *SystemServiceImpl) UpdateSysUser(ctx context.Context, req *v1.UpdateSys
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，邮箱账号已存在", sysUser.Username)), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysUser.UpdateBy = logininfo.User.Username
+	sysUser.UpdateBy = loginInfo.User.UserName
 	if err = userSrv.UpdateUser(ctx, sysUser, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), err
 	}
@@ -1282,11 +1420,12 @@ func (s *SystemServiceImpl) UpdateSysUser(ctx context.Context, req *v1.UpdateSys
 func (s *SystemServiceImpl) DeleteSysUser(ctx context.Context, req *v1.DeleteSysUserRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
 	// 排除掉当前用户
 	for i := 0; i < len(req.UserIds); i++ {
-		if req.UserIds[i] == logininfo.User.UserId {
+		if req.UserIds[i] == loginInfo.User.UserId {
 			req.UserIds = append(req.UserIds[:i], req.UserIds[i+1:]...)
 			break
 		}
@@ -1303,6 +1442,8 @@ func (s *SystemServiceImpl) ResetPassword(ctx context.Context, req *v1.ResetPass
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: true}) {
 		return utils.Fail("不允许操作超级管理员用户"), nil
@@ -1311,8 +1452,7 @@ func (s *SystemServiceImpl) ResetPassword(ctx context.Context, req *v1.ResetPass
 		return utils.Fail("没有权限访问用户数据！"), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysUser.UpdateBy = logininfo.User.Username
+	sysUser.UpdateBy = loginInfo.User.UserName
 	encryptedPasswd, _ := auth.Encrypt(sysUser.Password)
 	sysUser.Password = encryptedPasswd
 	if err = userSrv.ResetPwd(ctx, sysUser, &api.UpdateOptions{}); err != nil {
@@ -1326,6 +1466,8 @@ func (s *SystemServiceImpl) ChangeSysUserStatus(ctx context.Context, req *v1.Cha
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: true}) {
 		return utils.Fail("不允许操作超级管理员用户"), nil
@@ -1334,8 +1476,7 @@ func (s *SystemServiceImpl) ChangeSysUserStatus(ctx context.Context, req *v1.Cha
 		return utils.Fail("没有权限访问用户数据！"), nil
 	}
 
-	logininfo := ctx.Value(api.LOGIN_INFO_KEY).(v12.LoginUser)
-	sysUser.UpdateBy = logininfo.User.Username
+	sysUser.UpdateBy = loginInfo.User.UserName
 	if err = userSrv.UpdateUserStatus(ctx, sysUser, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -1359,6 +1500,8 @@ func (s *SystemServiceImpl) GetAuthRoleById(ctx context.Context, id int64) (resp
 func (s *SystemServiceImpl) AuthRole(ctx context.Context, req *v1.AuthRoleRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 	if !userSrv.CheckUserDataScope(ctx, req.UserId, &api.GetOptions{Cache: true}) {
 		return utils.Fail("没有权限访问用户数据！"), nil
@@ -1374,6 +1517,8 @@ func (s *SystemServiceImpl) AuthRole(ctx context.Context, req *v1.AuthRoleReques
 func (s *SystemServiceImpl) ListDeptsTree(ctx context.Context, req *v1.ListDeptsTreeRequest) (resp *v1.ListDeptsTreeResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	dept := v1.DeptInfo2SysDept(req.GetDeptInfo())
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	list := service.NewDepts(store).SelectDeptTreeList(ctx, dept, &api.GetOptions{Cache: true})
 
 	return &v1.ListDeptsTreeResponse{
@@ -1385,6 +1530,8 @@ func (s *SystemServiceImpl) ListDeptsTree(ctx context.Context, req *v1.ListDepts
 // ListSysUserOnlines implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ListSysUserOnlines(ctx context.Context, req *v1.ListSysUserOnlinesRequest) (resp *v1.ListSysUserOnline, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	list := service.NewUserOnlines(store).SelectUserOnline(ctx, req.Ipaddr, req.UserName, &api.GetOptions{Cache: true})
 	return &v1.ListSysUserOnline{
 		BaseResp: utils.Ok("操作成功"),
@@ -1396,6 +1543,8 @@ func (s *SystemServiceImpl) ListSysUserOnlines(ctx context.Context, req *v1.List
 // ForceLogout implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) ForceLogout(ctx context.Context, req *v1.ForceLogoutRequest) (resp *v1.BaseResp, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	service.NewUserOnlines(store).ForceLogout(ctx, req.TokenId)
 	return utils.Ok("操作成功"), nil
 }

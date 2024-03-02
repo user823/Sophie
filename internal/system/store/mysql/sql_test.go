@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/user823/Sophie/api"
-	"github.com/user823/Sophie/api/domain/gateway/v1"
-	v12 "github.com/user823/Sophie/api/domain/system/v1"
+	v1 "github.com/user823/Sophie/api/domain/system/v1"
+	v12 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/pkg/db/kv/redis"
 	"github.com/user823/Sophie/pkg/db/sql"
 	"testing"
@@ -33,18 +33,18 @@ func testInit() {
 		panic(err)
 	}
 
-	testLogininfo := v1.LoginUser{
-		User: v12.SysUser{
+	testLogininfo := v12.LoginUser{
+		User: &v12.UserInfo{
 			UserId:      2,
 			DeptId:      105,
-			Username:    "sophie",
-			Nickname:    "sophie",
+			UserName:    "sophie",
+			NickName:    "sophie",
 			Email:       "sophie@qq.com",
 			Phonenumber: "15666666666",
 			Sex:         "1",
 			Password:    "$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2",
 			DelFlag:     "0",
-			Roles: []v12.SysRole{
+			Roles: []*v12.RoleInfo{
 				{RoleId: 2, RoleName: "普通角色", RoleKey: "common", RoleSort: 2, DataScope: "2", MenuCheckStrictly: true, DeptCheckStrictly: true},
 			},
 		},
@@ -79,7 +79,7 @@ func TestSelectUserList(t *testing.T) {
 
 		EndTime: time.Now().Unix(),
 	}
-	sysUser := &v12.SysUser{}
+	sysUser := &v1.SysUser{UserId: 0}
 	result, err := sqlCli.Users().SelectUserList(ctx, sysUser, getOpt)
 	if err != nil {
 		t.Error(err)
@@ -97,7 +97,7 @@ func TestSelectUserList(t *testing.T) {
 
 func TestSelectAllocatedList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Users().SelectAllocatedList(ctx, &v12.SysUser{RoleId: 2}, &api.GetOptions{})
+	result, err := sqlCli.Users().SelectAllocatedList(ctx, &v1.SysUser{RoleId: 2}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -108,7 +108,7 @@ func TestSelectAllocatedList(t *testing.T) {
 
 func TestSelectUnallocatedList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Users().SelectUnallocatedList(ctx, &v12.SysUser{RoleId: 2}, &api.GetOptions{})
+	result, err := sqlCli.Users().SelectUnallocatedList(ctx, &v1.SysUser{RoleId: 2}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -143,7 +143,7 @@ func TestCheckUserNameUnique(t *testing.T) {
 
 func TestInsertUser(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	user := &v12.SysUser{
+	user := &v1.SysUser{
 		Username: "test",
 		Nickname: "test",
 	}
@@ -155,7 +155,7 @@ func TestInsertUser(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	err := sqlCli.Users().UpdateUser(ctx, &v12.SysUser{
+	err := sqlCli.Users().UpdateUser(ctx, &v1.SysUser{
 		UserId: 1,
 		Avatar: "123",
 	}, &api.UpdateOptions{})
@@ -193,7 +193,7 @@ Test SysPost
 */
 func TestSelectPostList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Posts().SelectPostList(ctx, &v12.SysPost{}, &api.GetOptions{})
+	result, err := sqlCli.Posts().SelectPostList(ctx, &v1.SysPost{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -235,7 +235,7 @@ func TestSelectPostsByUserName(t *testing.T) {
 
 func TestUpdatePost(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	err := sqlCli.Posts().UpdatePost(ctx, &v12.SysPost{PostId: 1, PostName: "董事长0"}, &api.UpdateOptions{})
+	err := sqlCli.Posts().UpdatePost(ctx, &v1.SysPost{PostId: 1, PostName: "董事长0"}, &api.UpdateOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -246,7 +246,7 @@ Test SysRole
 */
 func TestSelectRoleList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Roles().SelectRoleList(ctx, &v12.SysRole{}, &api.GetOptions{})
+	result, err := sqlCli.Roles().SelectRoleList(ctx, &v1.SysRole{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -296,7 +296,7 @@ func TestCheckRoleNameUnique(t *testing.T) {
 
 func TestInsertRole(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	err := sqlCli.Roles().InsertRole(ctx, &v12.SysRole{RoleName: "test"}, &api.CreateOptions{})
+	err := sqlCli.Roles().InsertRole(ctx, &v1.SysRole{RoleName: "test"}, &api.CreateOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -316,7 +316,7 @@ func TestDeleteRoleById(t *testing.T) {
 
 func TestSelectConfig(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Configs().SelectConfig(ctx, &v12.SysConfig{}, &api.GetOptions{})
+	result, err := sqlCli.Configs().SelectConfig(ctx, &v1.SysConfig{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -334,7 +334,7 @@ func TestSelectConfigById(t *testing.T) {
 
 func TestSelectConfigList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Configs().SelectConfigList(ctx, &v12.SysConfig{}, &api.GetOptions{})
+	result, err := sqlCli.Configs().SelectConfigList(ctx, &v1.SysConfig{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -348,7 +348,7 @@ Test SysDept
 */
 func TestSelectDeptList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Depts().SelectDeptList(ctx, &v12.SysDept{}, &api.GetOptions{})
+	result, err := sqlCli.Depts().SelectDeptList(ctx, &v1.SysDept{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -395,7 +395,7 @@ func TestUpdateDeptStatusNormal(t *testing.T) {
 
 func TestUpdateDeptChildren(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	depts := []*v12.SysDept{
+	depts := []*v1.SysDept{
 		{DeptId: 200, Ancestors: "0"},
 		{DeptId: 201, Ancestors: "1"},
 		{DeptId: 202, Ancestors: "2"},
@@ -412,7 +412,18 @@ func TestUpdateDeptChildren(t *testing.T) {
 
 func TestSelectDictDataList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.DictData().SelectDictDataList(ctx, &v12.SysDictData{}, &api.GetOptions{})
+	result, err := sqlCli.DictData().SelectDictDataList(ctx, &v1.SysDictData{}, &api.GetOptions{})
+	if err != nil {
+		t.Error(err)
+	}
+	for i := range result {
+		t.Logf("%v", result[i])
+	}
+}
+
+func TestSelectDictDataByType(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	result, err := sqlCli.DictData().SelectDictDataByType(ctx, "sys_normal_disable", &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -438,7 +449,7 @@ func TestCountDictDataByType(t *testing.T) {
 
 func TestInsertDictData(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	dictData := &v12.SysDictData{
+	dictData := &v1.SysDictData{
 		DictCode:  40,
 		DictLabel: "test",
 	}
@@ -461,7 +472,7 @@ Test DictType
 */
 func TestSelectDictTypeList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.DictTypes().SelectDictTypeList(ctx, &v12.SysDictType{}, &api.GetOptions{})
+	result, err := sqlCli.DictTypes().SelectDictTypeList(ctx, &v1.SysDictType{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -493,7 +504,7 @@ func TestCleanLogininfor(t *testing.T) {
 
 func TestSelectLogininforList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Logininfors().SelectLogininforList(ctx, &v12.SysLogininfor{}, &api.GetOptions{})
+	result, err := sqlCli.Logininfors().SelectLogininforList(ctx, &v1.SysLogininfor{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -508,7 +519,7 @@ func TestSelectLogininforList(t *testing.T) {
 
 func TestSelectMenuList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Menus().SelectMenuList(ctx, &v12.SysMenu{}, &api.GetOptions{})
+	result, err := sqlCli.Menus().SelectMenuList(ctx, &v1.SysMenu{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -530,7 +541,7 @@ func TestSelectMenuPerms(t *testing.T) {
 
 func TestSelectMenuListByUserId(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Menus().SelectMenuListByUserId(ctx, &v12.SysMenu{}, 2, &api.GetOptions{})
+	result, err := sqlCli.Menus().SelectMenuListByUserId(ctx, &v1.SysMenu{}, 2, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -609,7 +620,7 @@ func TestSelectNoticeById(t *testing.T) {
 
 func TestSelectNoticeList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Notices().SelectNoticeList(ctx, &v12.SysNotice{}, &api.GetOptions{})
+	result, err := sqlCli.Notices().SelectNoticeList(ctx, &v1.SysNotice{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -620,7 +631,7 @@ func TestSelectNoticeList(t *testing.T) {
 
 func TestInsertNotice(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	err := sqlCli.Notices().InsertNotice(ctx, &v12.SysNotice{NoticeType: "C", NoticeTitle: "test", NoticeContent: "test"}, &api.CreateOptions{})
+	err := sqlCli.Notices().InsertNotice(ctx, &v1.SysNotice{NoticeType: "C", NoticeTitle: "test", NoticeContent: "test"}, &api.CreateOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -632,7 +643,7 @@ func TestInsertNotice(t *testing.T) {
 
 func TestInsertOperLog(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	err := sqlCli.OperLogs().InsertOperLog(ctx, &v12.SysOperLog{Title: "test", OperTime: time.Now()}, &api.CreateOptions{})
+	err := sqlCli.OperLogs().InsertOperLog(ctx, &v1.SysOperLog{Title: "test", OperTime: time.Now()}, &api.CreateOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -640,7 +651,7 @@ func TestInsertOperLog(t *testing.T) {
 
 func TestSelectOperLogList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.OperLogs().SelectOperLogList(ctx, &v12.SysOperLog{}, &api.GetOptions{})
+	result, err := sqlCli.OperLogs().SelectOperLogList(ctx, &v1.SysOperLog{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -672,7 +683,7 @@ func TestCleanOperLog(t *testing.T) {
 
 func TestBatchRoleDept(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	list := []*v12.SysRoleDept{
+	list := []*v1.SysRoleDept{
 		{RoleId: 3, DeptId: 4},
 		{RoleId: 5, DeptId: 6},
 	}
@@ -699,16 +710,16 @@ func TestDeleteRoleDept(t *testing.T) {
 func TestTxRollback(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
 	tx := sqlCli.Begin()
-	tx.Users().InsertUser(ctx, &v12.SysUser{UserId: 5, Username: "test"}, &api.CreateOptions{})
-	tx.Roles().InsertRole(ctx, &v12.SysRole{RoleId: 5, RoleKey: "test", RoleName: "test"}, &api.CreateOptions{})
+	tx.Users().InsertUser(ctx, &v1.SysUser{UserId: 5, Username: "test"}, &api.CreateOptions{})
+	tx.Roles().InsertRole(ctx, &v1.SysRole{RoleId: 5, RoleKey: "test", RoleName: "test"}, &api.CreateOptions{})
 	tx.Rollback()
 }
 
 func TestTxCommit(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
 	tx := sqlCli.Begin()
-	tx.Users().InsertUser(ctx, &v12.SysUser{UserId: 5, Username: "test"}, &api.CreateOptions{})
-	tx.Roles().InsertRole(ctx, &v12.SysRole{RoleId: 5, RoleKey: "test", RoleName: "test"}, &api.CreateOptions{})
+	tx.Users().InsertUser(ctx, &v1.SysUser{UserId: 5, Username: "test"}, &api.CreateOptions{})
+	tx.Roles().InsertRole(ctx, &v1.SysRole{RoleId: 5, RoleKey: "test", RoleName: "test"}, &api.CreateOptions{})
 	tx.Commit()
 }
 
@@ -753,6 +764,7 @@ func TestSub(t *testing.T) {
 	t.Run("test-UpdateDeptChildren", TestUpdateDeptChildren)
 
 	t.Run("test-SelectDictDataList", TestSelectDictDataList)
+	t.Run("test-SelectDictDataByType", TestSelectDictDataByType)
 	t.Run("test-SelectDictLabel", TestSelectDictLabel)
 	t.Run("test-CountDictDataByType", TestCountDictDataByType)
 	t.Run("test-InsertDictData", TestInsertDictData)

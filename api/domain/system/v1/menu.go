@@ -9,22 +9,22 @@ import (
 
 type SysMenu struct {
 	api.ObjectMeta `json:"metadata,omitempty"`
-	MenuId         int64      `json:"menuId,omitempty" gorm:"column:menu_id"`
-	MenuName       string     `json:"menuName,omitempty" gorm:"column:menu_name"`
-	ParentName     string     `json:"parentName,omitempty" gorm:"column:parent_name"`
-	ParentId       int64      `json:"parentId,omitempty" gorm:"column:parent_id"`
-	OrderNum       int64      `json:"orderNum,omitempty" gorm:"column:order_num"`
-	Path           string     `json:"path,omitempty" gorm:"column:path"`
-	Component      string     `json:"component,omitempty" gorm:"column:component"`
-	Query          string     `json:"query,omitempty" gorm:"column:query"`
-	IsFrame        string     `json:"isFrame,omitempty" gorm:"column:is_frame"`
-	IsCache        string     `json:"isCache,omitempty" gorm:"column:is_cache"`
-	MenuType       string     `json:"menuType,omitempty" gorm:"column:menu_type"`
-	Visible        string     `json:"visible,omitempty" gorm:"column:visible"`
-	Status         string     `json:"status,omitempty" gorm:"column:status"`
-	Perms          string     `json:"perms,omitempty" gorm:"column:perms"`
-	Icon           string     `json:"icon,omitempty" gorm:"column:icon"`
-	Children       []*SysMenu `json:"-" gorm:"-"`
+	MenuId         int64      `json:"menuId,omitempty" gorm:"column:menu_id" query:"menuId"`
+	MenuName       string     `json:"menuName,omitempty" gorm:"column:menu_name" query:"menuName"`
+	ParentName     string     `json:"parentName,omitempty" gorm:"column:parent_name" query:"parentName"`
+	ParentId       int64      `json:"parentId,omitempty" gorm:"column:parent_id" query:"parentId"`
+	OrderNum       int64      `json:"orderNum,omitempty" gorm:"column:order_num" query:"orderNum"`
+	Path           string     `json:"path,omitempty" gorm:"column:path" query:"path"`
+	Component      string     `json:"component,omitempty" gorm:"column:component" query:"component"`
+	Query          string     `json:"query,omitempty" gorm:"column:query" query:"query"`
+	IsFrame        string     `json:"isFrame,omitempty" gorm:"column:is_frame" query:"isFrame"`
+	IsCache        string     `json:"isCache,omitempty" gorm:"column:is_cache" query:"isCache"`
+	MenuType       string     `json:"menuType,omitempty" gorm:"column:menu_type" query:"menuType"`
+	Visible        string     `json:"visible,omitempty" gorm:"column:visible" query:"visible"`
+	Status         string     `json:"status,omitempty" gorm:"column:status" query:"status"`
+	Perms          string     `json:"perms,omitempty" gorm:"column:perms" query:"perms"`
+	Icon           string     `json:"icon,omitempty" gorm:"column:icon" query:"icon"`
+	Children       []*SysMenu `json:"children,omitempty" gorm:"-" query:"children"`
 }
 
 func (s *SysMenu) TableName() string {

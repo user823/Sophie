@@ -104,8 +104,9 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		user_.POST("/importData", secure.RequirePermissions("system:user:import"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_IMPORT}), userController.ImportData)
 		user_.POST("/importTemplate", userController.ImportTemplate)
 		user_.GET("/getInfo", userController.GetInfo)
+		user_.GET("/info/:username", userController.GetInfoWithName)
 		user_.GET("/:userid", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId)
-		user_.GET("", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId)
+		user_.GET("", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId2)
 		user_.POST("", secure.RequirePermissions("system:user:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), userController.Add)
 		user_.PUT("", secure.RequirePermissions("system:user:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), userController.Edit)
 		user_.DELETE("/:userIds", secure.RequirePermissions("system:user:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), userController.Remove)
@@ -298,9 +299,9 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 type rpcLogSaver struct{}
 
 func (r *rpcLogSaver) SaveLog(ctx context.Context, operLog *v1.OperLog, options *api.CreateOptions) error {
-	resp, err := rpc.Remoting.CreateSysOperLog(ctx, &v1.CreateSysOperLogRequest{operLog})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
-		return err
+	resp, err := rpc.Remoting.CreateSysOperLog(ctx, &v1.CreateSysOperLogRequest{OperLog: operLog})
+	if err != nil || resp.Code != code.SUCCESS {
+		return rpc.ErrRPC
 	}
 	return nil
 }

@@ -215,6 +215,20 @@ func TestTxCommit(t *testing.T) {
 	tx.Commit()
 }
 
+func selectUserVo(db *gorm.DB) *gorm.DB {
+	return db.Preload("Dept").Preload("Roles").Table("sys_user u").Joins("" +
+		"left join sys_dept d on u.dept_id = d.dept_id").Joins("" +
+		"left join sys_user_role ur on u.user_id = ur.user_id").Joins("" +
+		"left join sys_role r on r.role_id = ur.role_id")
+}
+
+func TestSelectUserVo(t *testing.T) {
+	query := selectUserVo(db).Where("u.user_name = 2")
+	var result []*v1.SysUser
+	query.Find(&result)
+	t.Logf("%d", len(result))
+}
+
 func TestDBSub(t *testing.T) {
 	t.Run("test-connection", TestQuery)
 	t.Run("test-marshal", TestMarshal)
@@ -230,4 +244,6 @@ func TestDBSub(t *testing.T) {
 
 	t.Run("test-TxRollBack", TestTxRollback)
 	t.Run("test-TxCommit", TestTxCommit)
+
+	t.Run("test-SelectUserVo", TestSelectUserVo)
 }

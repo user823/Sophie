@@ -9,18 +9,18 @@ import (
 
 type SysDept struct {
 	api.ObjectMeta `json:"metadata,omitempty"`
-	DeptId         int64      `json:"deptId,omitempty" gorm:"column:dept_id"`
-	ParentId       int64      `json:"parentId,omitempty" gorm:"column:parent_id"`
-	Ancestors      string     `json:"ancestors,omitempty" gorm:"column:ancestors"`
-	DeptName       string     `json:"deptName,omitempty" gorm:"column:dept_name"`
-	OrderNum       int64      `json:"orderNum,omitempty" gorm:"column:order_num"`
-	Leader         string     `json:"leader,omitempty" gorm:"column:leader"`
-	Phone          string     `json:"phone,omitempty" gorm:"column:phone"`
-	Email          string     `json:"email,omitempty" gorm:"column:email"`
-	Status         string     `json:"status,omitempty" gorm:"column:status"`
-	DelFlag        string     `json:"delFlag,omitempty" gorm:"column:del_flag"`
-	ParentName     string     `json:"parentName,omitempty" gorm:"column:parent_name"`
-	Children       []*SysDept `json:"-" gorm:"-"`
+	DeptId         int64      `json:"deptId,omitempty" gorm:"column:dept_id" query:"deptId"`
+	ParentId       int64      `json:"parentId,omitempty" gorm:"column:parent_id" query:"parentId"`
+	Ancestors      string     `json:"ancestors,omitempty" gorm:"column:ancestors" query:"ancestors"`
+	DeptName       string     `json:"deptName,omitempty" gorm:"column:dept_name" query:"deptName"`
+	OrderNum       int64      `json:"orderNum,omitempty" gorm:"column:order_num" query:"orderNum"`
+	Leader         string     `json:"leader,omitempty" gorm:"column:leader" query:"leader"`
+	Phone          string     `json:"phone,omitempty" gorm:"column:phone" query:"phone"`
+	Email          string     `json:"email,omitempty" gorm:"column:email" query:"email"`
+	Status         string     `json:"status,omitempty" gorm:"column:status" query:"status"`
+	DelFlag        string     `json:"delFlag,omitempty" gorm:"column:del_flag" query:"delFlag"`
+	ParentName     string     `json:"parentName,omitempty" gorm:"column:parent_name" query:"parentName"`
+	Children       []*SysDept `json:"children,omitempty" gorm:"-" query:"children"`
 }
 
 func (d *SysDept) TableName() string {

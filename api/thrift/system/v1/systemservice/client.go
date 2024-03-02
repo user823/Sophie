@@ -21,7 +21,7 @@ type Client interface {
 	RefreshConfig(ctx context.Context, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ListDepts(ctx context.Context, req *v1.ListDeptsRequest, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error)
 	ListDeptsExcludeChild(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error)
-	GetDeptById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.DeptResponse, err error)
+	GetDeptById(ctx context.Context, req *v1.GetDeptByIdReq, callOptions ...callopt.Option) (r *v1.DeptResponse, err error)
 	CreateDept(ctx context.Context, req *v1.CreateDeptRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateDept(ctx context.Context, req *v1.UpdateDeptRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteDept(ctx context.Context, req *v1.DeleteDeptRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -49,11 +49,11 @@ type Client interface {
 	ListSysMenus(ctx context.Context, req *v1.ListSysMenusRequest, callOptions ...callopt.Option) (r *v1.ListSysMenusResponse, err error)
 	GetSysMenuById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.SysMenuResponse, err error)
 	ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest, callOptions ...callopt.Option) (r *v1.ListSysMenusResponse, err error)
-	ListTreeMenuByRoleid(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.RoleMenuResponse, err error)
+	ListTreeMenuByRoleid(ctx context.Context, req *v1.ListTreeMenuByRoleidRequest, callOptions ...callopt.Option) (r *v1.RoleMenuResponse, err error)
 	CreateMenu(ctx context.Context, req *v1.CreateMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateMenu(ctx context.Context, req *v1.UpdateMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteMenu(ctx context.Context, req *v1.DeleteMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
-	GetRouters(ctx context.Context, callOptions ...callopt.Option) (r *v1.RoutersResonse, err error)
+	GetRouters(ctx context.Context, req *v1.GetRoutersRequest, callOptions ...callopt.Option) (r *v1.RoutersResonse, err error)
 	ListSysNotices(ctx context.Context, req *v1.ListSysNoticesRequest, callOptions ...callopt.Option) (r *v1.ListSysNoticesResponse, err error)
 	GetSysNoticeById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.SysNoticeResponse, err error)
 	CreateSysNotice(ctx context.Context, req *v1.CreateSysNoticeRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -71,7 +71,7 @@ type Client interface {
 	UpdateSysPost(ctx context.Context, req *v1.UpdateSysPostRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteSysPost(ctx context.Context, req *v1.DeleteSysPostRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	PostOptionSelect(ctx context.Context, callOptions ...callopt.Option) (r *v1.PostOptionSelectResponse, err error)
-	Profile(ctx context.Context, callOptions ...callopt.Option) (r *v1.ProfileResponse, err error)
+	Profile(ctx context.Context, req *v1.ProfileRequest, callOptions ...callopt.Option) (r *v1.ProfileResponse, err error)
 	UpdateProfile(ctx context.Context, req *v1.UpdateProfileRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdatePassword(ctx context.Context, req *v1.UpdatePasswordRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ListSysRole(ctx context.Context, req *v1.ListSysRolesRequest, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error)
@@ -89,11 +89,11 @@ type Client interface {
 	CancelAuthUserAll(ctx context.Context, req *v1.CancelAuthUserAllRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	SelectAuthUserAll(ctx context.Context, req *v1.SelectAuthUserAllRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeptTreeByRoleId(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.DeptTreeByRoleIdResponse, err error)
-	GetSysRoleByUser(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error)
 	ListSysUsers(ctx context.Context, req *v1.ListSysUsersRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error)
 	ExportSysUser(ctx context.Context, req *v1.ExportSysUserRequest, callOptions ...callopt.Option) (r *v1.ExportSysUserResponse, err error)
 	ImportUserData(ctx context.Context, req *v1.ImportUserDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	GetUserInfoByName(ctx context.Context, name string, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error)
+	GetUserInfo(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error)
 	RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRequest, callOptions ...callopt.Option) (r *v1.RegisterSysUserResponse, err error)
 	GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error)
 	CreateSysUser(ctx context.Context, req *v1.CreateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -187,9 +187,9 @@ func (p *kSystemServiceClient) ListDeptsExcludeChild(ctx context.Context, id int
 	return p.kClient.ListDeptsExcludeChild(ctx, id)
 }
 
-func (p *kSystemServiceClient) GetDeptById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.DeptResponse, err error) {
+func (p *kSystemServiceClient) GetDeptById(ctx context.Context, req *v1.GetDeptByIdReq, callOptions ...callopt.Option) (r *v1.DeptResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetDeptById(ctx, id)
+	return p.kClient.GetDeptById(ctx, req)
 }
 
 func (p *kSystemServiceClient) CreateDept(ctx context.Context, req *v1.CreateDeptRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
@@ -327,9 +327,9 @@ func (p *kSystemServiceClient) ListTreeMenu(ctx context.Context, req *v1.ListTre
 	return p.kClient.ListTreeMenu(ctx, req)
 }
 
-func (p *kSystemServiceClient) ListTreeMenuByRoleid(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.RoleMenuResponse, err error) {
+func (p *kSystemServiceClient) ListTreeMenuByRoleid(ctx context.Context, req *v1.ListTreeMenuByRoleidRequest, callOptions ...callopt.Option) (r *v1.RoleMenuResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListTreeMenuByRoleid(ctx, id)
+	return p.kClient.ListTreeMenuByRoleid(ctx, req)
 }
 
 func (p *kSystemServiceClient) CreateMenu(ctx context.Context, req *v1.CreateMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
@@ -347,9 +347,9 @@ func (p *kSystemServiceClient) DeleteMenu(ctx context.Context, req *v1.DeleteMen
 	return p.kClient.DeleteMenu(ctx, req)
 }
 
-func (p *kSystemServiceClient) GetRouters(ctx context.Context, callOptions ...callopt.Option) (r *v1.RoutersResonse, err error) {
+func (p *kSystemServiceClient) GetRouters(ctx context.Context, req *v1.GetRoutersRequest, callOptions ...callopt.Option) (r *v1.RoutersResonse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetRouters(ctx)
+	return p.kClient.GetRouters(ctx, req)
 }
 
 func (p *kSystemServiceClient) ListSysNotices(ctx context.Context, req *v1.ListSysNoticesRequest, callOptions ...callopt.Option) (r *v1.ListSysNoticesResponse, err error) {
@@ -437,9 +437,9 @@ func (p *kSystemServiceClient) PostOptionSelect(ctx context.Context, callOptions
 	return p.kClient.PostOptionSelect(ctx)
 }
 
-func (p *kSystemServiceClient) Profile(ctx context.Context, callOptions ...callopt.Option) (r *v1.ProfileResponse, err error) {
+func (p *kSystemServiceClient) Profile(ctx context.Context, req *v1.ProfileRequest, callOptions ...callopt.Option) (r *v1.ProfileResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.Profile(ctx)
+	return p.kClient.Profile(ctx, req)
 }
 
 func (p *kSystemServiceClient) UpdateProfile(ctx context.Context, req *v1.UpdateProfileRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
@@ -527,11 +527,6 @@ func (p *kSystemServiceClient) DeptTreeByRoleId(ctx context.Context, id int64, c
 	return p.kClient.DeptTreeByRoleId(ctx, id)
 }
 
-func (p *kSystemServiceClient) GetSysRoleByUser(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.ListSysRolesResponse, err error) {
-	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetSysRoleByUser(ctx, id)
-}
-
 func (p *kSystemServiceClient) ListSysUsers(ctx context.Context, req *v1.ListSysUsersRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListSysUsers(ctx, req)
@@ -550,6 +545,11 @@ func (p *kSystemServiceClient) ImportUserData(ctx context.Context, req *v1.Impor
 func (p *kSystemServiceClient) GetUserInfoByName(ctx context.Context, name string, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.GetUserInfoByName(ctx, name)
+}
+
+func (p *kSystemServiceClient) GetUserInfo(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.GetUserInfo(ctx, id)
 }
 
 func (p *kSystemServiceClient) RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRequest, callOptions ...callopt.Option) (r *v1.RegisterSysUserResponse, err error) {

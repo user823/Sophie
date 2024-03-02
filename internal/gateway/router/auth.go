@@ -49,10 +49,11 @@ func newBasicAuth() auth.AuthStrategy {
 		}()
 
 		resp, err := rpc.Remoting.GetUserInfoByName(context.Background(), username)
-		if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+		if err != nil || resp.BaseResp.Code != code2.SUCCESS {
 			msg = fmt.Sprintf("登陆用户：%s 出现未知错误，请重试", username)
 			return nil, false
 		}
+
 		user := v12.UserInfo2SysUser(resp.Data)
 
 		if err = auth.Compare(user.Password, password); err != nil {
@@ -118,7 +119,6 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 		}()
 
 		resp, err := rpc.Remoting.GetUserInfoByName(context.Background(), login.Username)
-		err = rpc.ParseRpcErr(resp.BaseResp, err)
 		user := v12.UserInfo2SysUser(resp.Data)
 		if err != nil {
 			log.Errorf("get user information failed: %s", err.Error())
@@ -188,11 +188,13 @@ func authentizator() func(data interface{}, ctx context.Context, c *app.RequestC
 			var v v1.SysUser
 			v.Unmarshal(str)
 
+			// 用于后续步骤的权限校验
 			resp, err := rpc.Remoting.GetUserInfoByName(ctx, v.Username)
-			if err = rpc.ParseRpcErr(resp.GetBaseResp(), err); err != nil {
+			if err != nil || resp.BaseResp.Code != code2.SUCCESS {
 				log.Errorf("Get user info error: %s", err.Error())
 				return false
 			}
+
 			loginUser := v13.LoginUser{
 				Roles:       resp.GetRoles(),
 				Permissions: resp.GetPermissions(),
@@ -285,7 +287,8 @@ func appendLogininfo(logininfo *v12.Logininfo) {
 	resp, err := rpc.Remoting.CreateSysLogininfo(context.Background(), &v12.CreateSysLogininfoRequest{
 		LoginInfo: logininfo,
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+
+	if err != nil || resp.Code != code2.SUCCESS {
 		log.Errorf("login info append error: %s", err.Error())
 	}
 }

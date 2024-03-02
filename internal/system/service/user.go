@@ -174,11 +174,8 @@ func (s *userService) CheckUserAllowed(ctx context.Context, user *v1.SysUser, op
 
 // 判断当前用户能否查到目标用户的信息
 func (s *userService) CheckUserDataScope(ctx context.Context, id int64, opts *api.GetOptions) bool {
-	logininfor, err := utils.GetLogininfoFromCtx(ctx)
-	if err != nil {
-		return false
-	}
-	if !logininfor.User.IsAdmin() {
+	logininfor := utils.GetLogininfoFromCtx(ctx)
+	if !v1.IsUserAdmin(logininfor.User.UserId) {
 		users, err := s.store.Users().SelectUserList(ctx, &v1.SysUser{UserId: id}, opts)
 		// 没有权限访问用户数据
 		if err != nil || len(users) == 0 {

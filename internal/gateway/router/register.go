@@ -6,8 +6,10 @@ import (
 	v12 "github.com/user823/Sophie/api/domain/system/v1"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/gateway/rpc"
+	code2 "github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/internal/pkg/middleware/auth"
 	"github.com/user823/Sophie/pkg/core"
+	"github.com/user823/Sophie/pkg/log"
 )
 
 func Register(ctx context.Context, c *app.RequestContext) {
@@ -26,8 +28,8 @@ func Register(ctx context.Context, c *app.RequestContext) {
 			Avatar:   v12.AVATAR_URL,
 		},
 	})
-	if err = rpc.ParseRpcErr(resp.GetBaseResp(), err); err != nil {
-		core.WriteResponseE(c, err, nil)
+	if err != nil || resp.BaseResp.Code != code2.SUCCESS {
+		log.Errorf("Register user error: %s", err.Error())
 		return
 	}
 

@@ -5,6 +5,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/gateway/rpc"
+	"github.com/user823/Sophie/internal/gateway/utils"
+	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/pkg/core"
 )
 
@@ -26,16 +28,26 @@ func (o *OnlineUserController) List(ctx context.Context, c *app.RequestContext) 
 		return
 	}
 
-	resp, err := rpc.Remoting.ListSysUserOnlines(ctx, &v1.ListSysUserOnlinesRequest{
-		PageInfo: &req.PageInfo,
-		UserName: req.UserName,
-		Ipaddr:   req.Ipaddr,
-	})
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
 		return
 	}
 
+	resp, err := rpc.Remoting.ListSysUserOnlines(ctx, &v1.ListSysUserOnlinesRequest{
+		PageInfo: &req.PageInfo,
+		UserName: req.UserName,
+		Ipaddr:   req.Ipaddr,
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
+		return
+	}
 	result := map[string]any{
 		"code":  resp.BaseResp.Code,
 		"msg":   resp.BaseResp.Msg,
@@ -52,11 +64,22 @@ func (o *OnlineUserController) ForceLogout(ctx context.Context, c *app.RequestCo
 		return
 	}
 
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+
 	resp, err := rpc.Remoting.ForceLogout(ctx, &v1.ForceLogoutRequest{
 		TokenId: req.TokenId,
+		User:    v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 

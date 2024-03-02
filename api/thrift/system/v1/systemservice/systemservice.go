@@ -97,11 +97,11 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"CancelAuthUserAll":       kitex.NewMethodInfo(cancelAuthUserAllHandler, newSystemServiceCancelAuthUserAllArgs, newSystemServiceCancelAuthUserAllResult, false),
 		"SelectAuthUserAll":       kitex.NewMethodInfo(selectAuthUserAllHandler, newSystemServiceSelectAuthUserAllArgs, newSystemServiceSelectAuthUserAllResult, false),
 		"DeptTreeByRoleId":        kitex.NewMethodInfo(deptTreeByRoleIdHandler, newSystemServiceDeptTreeByRoleIdArgs, newSystemServiceDeptTreeByRoleIdResult, false),
-		"GetSysRoleByUser":        kitex.NewMethodInfo(getSysRoleByUserHandler, newSystemServiceGetSysRoleByUserArgs, newSystemServiceGetSysRoleByUserResult, false),
 		"ListSysUsers":            kitex.NewMethodInfo(listSysUsersHandler, newSystemServiceListSysUsersArgs, newSystemServiceListSysUsersResult, false),
 		"ExportSysUser":           kitex.NewMethodInfo(exportSysUserHandler, newSystemServiceExportSysUserArgs, newSystemServiceExportSysUserResult, false),
 		"ImportUserData":          kitex.NewMethodInfo(importUserDataHandler, newSystemServiceImportUserDataArgs, newSystemServiceImportUserDataResult, false),
 		"GetUserInfoByName":       kitex.NewMethodInfo(getUserInfoByNameHandler, newSystemServiceGetUserInfoByNameArgs, newSystemServiceGetUserInfoByNameResult, false),
+		"GetUserInfo":             kitex.NewMethodInfo(getUserInfoHandler, newSystemServiceGetUserInfoArgs, newSystemServiceGetUserInfoResult, false),
 		"RegisterSysUser":         kitex.NewMethodInfo(registerSysUserHandler, newSystemServiceRegisterSysUserArgs, newSystemServiceRegisterSysUserResult, false),
 		"GetUserInfoById":         kitex.NewMethodInfo(getUserInfoByIdHandler, newSystemServiceGetUserInfoByIdArgs, newSystemServiceGetUserInfoByIdResult, false),
 		"CreateSysUser":           kitex.NewMethodInfo(createSysUserHandler, newSystemServiceCreateSysUserArgs, newSystemServiceCreateSysUserResult, false),
@@ -313,7 +313,7 @@ func newSystemServiceListDeptsExcludeChildResult() interface{} {
 func getDeptByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceGetDeptByIdArgs)
 	realResult := result.(*v1.SystemServiceGetDeptByIdResult)
-	success, err := handler.(v1.SystemService).GetDeptById(ctx, realArg.Id)
+	success, err := handler.(v1.SystemService).GetDeptById(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -817,7 +817,7 @@ func newSystemServiceListTreeMenuResult() interface{} {
 func listTreeMenuByRoleidHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceListTreeMenuByRoleidArgs)
 	realResult := result.(*v1.SystemServiceListTreeMenuByRoleidResult)
-	success, err := handler.(v1.SystemService).ListTreeMenuByRoleid(ctx, realArg.Id)
+	success, err := handler.(v1.SystemService).ListTreeMenuByRoleid(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -887,9 +887,9 @@ func newSystemServiceDeleteMenuResult() interface{} {
 }
 
 func getRoutersHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-
+	realArg := arg.(*v1.SystemServiceGetRoutersArgs)
 	realResult := result.(*v1.SystemServiceGetRoutersResult)
-	success, err := handler.(v1.SystemService).GetRouters(ctx)
+	success, err := handler.(v1.SystemService).GetRouters(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -1211,9 +1211,9 @@ func newSystemServicePostOptionSelectResult() interface{} {
 }
 
 func profileHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-
+	realArg := arg.(*v1.SystemServiceProfileArgs)
 	realResult := result.(*v1.SystemServiceProfileResult)
-	success, err := handler.(v1.SystemService).Profile(ctx)
+	success, err := handler.(v1.SystemService).Profile(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -1534,24 +1534,6 @@ func newSystemServiceDeptTreeByRoleIdResult() interface{} {
 	return v1.NewSystemServiceDeptTreeByRoleIdResult()
 }
 
-func getSysRoleByUserHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
-	realArg := arg.(*v1.SystemServiceGetSysRoleByUserArgs)
-	realResult := result.(*v1.SystemServiceGetSysRoleByUserResult)
-	success, err := handler.(v1.SystemService).GetSysRoleByUser(ctx, realArg.Id)
-	if err != nil {
-		return err
-	}
-	realResult.Success = success
-	return nil
-}
-func newSystemServiceGetSysRoleByUserArgs() interface{} {
-	return v1.NewSystemServiceGetSysRoleByUserArgs()
-}
-
-func newSystemServiceGetSysRoleByUserResult() interface{} {
-	return v1.NewSystemServiceGetSysRoleByUserResult()
-}
-
 func listSysUsersHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceListSysUsersArgs)
 	realResult := result.(*v1.SystemServiceListSysUsersResult)
@@ -1622,6 +1604,24 @@ func newSystemServiceGetUserInfoByNameArgs() interface{} {
 
 func newSystemServiceGetUserInfoByNameResult() interface{} {
 	return v1.NewSystemServiceGetUserInfoByNameResult()
+}
+
+func getUserInfoHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.SystemServiceGetUserInfoArgs)
+	realResult := result.(*v1.SystemServiceGetUserInfoResult)
+	success, err := handler.(v1.SystemService).GetUserInfo(ctx, realArg.Id)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newSystemServiceGetUserInfoArgs() interface{} {
+	return v1.NewSystemServiceGetUserInfoArgs()
+}
+
+func newSystemServiceGetUserInfoResult() interface{} {
+	return v1.NewSystemServiceGetUserInfoResult()
 }
 
 func registerSysUserHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
@@ -1949,9 +1949,9 @@ func (p *kClient) ListDeptsExcludeChild(ctx context.Context, id int64) (r *v1.Li
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetDeptById(ctx context.Context, id int64) (r *v1.DeptResponse, err error) {
+func (p *kClient) GetDeptById(ctx context.Context, req *v1.GetDeptByIdReq) (r *v1.DeptResponse, err error) {
 	var _args v1.SystemServiceGetDeptByIdArgs
-	_args.Id = id
+	_args.Req = req
 	var _result v1.SystemServiceGetDeptByIdResult
 	if err = p.c.Call(ctx, "GetDeptById", &_args, &_result); err != nil {
 		return
@@ -2226,9 +2226,9 @@ func (p *kClient) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest)
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListTreeMenuByRoleid(ctx context.Context, id int64) (r *v1.RoleMenuResponse, err error) {
+func (p *kClient) ListTreeMenuByRoleid(ctx context.Context, req *v1.ListTreeMenuByRoleidRequest) (r *v1.RoleMenuResponse, err error) {
 	var _args v1.SystemServiceListTreeMenuByRoleidArgs
-	_args.Id = id
+	_args.Req = req
 	var _result v1.SystemServiceListTreeMenuByRoleidResult
 	if err = p.c.Call(ctx, "ListTreeMenuByRoleid", &_args, &_result); err != nil {
 		return
@@ -2266,8 +2266,9 @@ func (p *kClient) DeleteMenu(ctx context.Context, req *v1.DeleteMenuRequest) (r 
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetRouters(ctx context.Context) (r *v1.RoutersResonse, err error) {
+func (p *kClient) GetRouters(ctx context.Context, req *v1.GetRoutersRequest) (r *v1.RoutersResonse, err error) {
 	var _args v1.SystemServiceGetRoutersArgs
+	_args.Req = req
 	var _result v1.SystemServiceGetRoutersResult
 	if err = p.c.Call(ctx, "GetRouters", &_args, &_result); err != nil {
 		return
@@ -2443,8 +2444,9 @@ func (p *kClient) PostOptionSelect(ctx context.Context) (r *v1.PostOptionSelectR
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) Profile(ctx context.Context) (r *v1.ProfileResponse, err error) {
+func (p *kClient) Profile(ctx context.Context, req *v1.ProfileRequest) (r *v1.ProfileResponse, err error) {
 	var _args v1.SystemServiceProfileArgs
+	_args.Req = req
 	var _result v1.SystemServiceProfileResult
 	if err = p.c.Call(ctx, "Profile", &_args, &_result); err != nil {
 		return
@@ -2621,16 +2623,6 @@ func (p *kClient) DeptTreeByRoleId(ctx context.Context, id int64) (r *v1.DeptTre
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetSysRoleByUser(ctx context.Context, id int64) (r *v1.ListSysRolesResponse, err error) {
-	var _args v1.SystemServiceGetSysRoleByUserArgs
-	_args.Id = id
-	var _result v1.SystemServiceGetSysRoleByUserResult
-	if err = p.c.Call(ctx, "GetSysRoleByUser", &_args, &_result); err != nil {
-		return
-	}
-	return _result.GetSuccess(), nil
-}
-
 func (p *kClient) ListSysUsers(ctx context.Context, req *v1.ListSysUsersRequest) (r *v1.ListSysUsersResponse, err error) {
 	var _args v1.SystemServiceListSysUsersArgs
 	_args.Req = req
@@ -2666,6 +2658,16 @@ func (p *kClient) GetUserInfoByName(ctx context.Context, name string) (r *v1.Use
 	_args.Name = name
 	var _result v1.SystemServiceGetUserInfoByNameResult
 	if err = p.c.Call(ctx, "GetUserInfoByName", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
+func (p *kClient) GetUserInfo(ctx context.Context, id int64) (r *v1.UserInfoResponse, err error) {
+	var _args v1.SystemServiceGetUserInfoArgs
+	_args.Id = id
+	var _result v1.SystemServiceGetUserInfoResult
+	if err = p.c.Call(ctx, "GetUserInfo", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil

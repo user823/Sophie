@@ -71,13 +71,15 @@ type GetOptions struct {
 	// 启用缓存
 	Cache bool `json:"cache,omitempty"`
 	// 分页信息
-	PageNum       int64  `json:"pageNum,omitempty"`
-	PageSize      int64  `json:"pageSize,omitempty"`
-	OrderByColumn string `json:"orderByColumn,omitempty"`
-	IsAsc         bool   `json:"isAsc,omitempty"`
+	PageNum       int64  `json:"pageNum,omitempty" query:"pageNum"`
+	PageSize      int64  `json:"pageSize,omitempty" query:"pageSize"`
+	OrderByColumn string `json:"orderByColumn,omitempty" query:"orderByColumn"`
+	// 用于绑定前端参数
+	QIsAsc string `query:"isAsc"`
+	IsAsc  bool   `json:"isAsc,omitempty"`
 	// 日期范围
-	BeginTime int64 `json:"beginTime,omitempty"`
-	EndTime   int64 `json:"endTime,omitempty"`
+	BeginTime int64 `json:"beginTime,omitempty" query:"beginTime"`
+	EndTime   int64 `json:"endTime,omitempty" query:"endTime"`
 }
 
 func (g *GetOptions) StartPage() {

@@ -74,6 +74,7 @@ func (s *deptService) SelectDeptTreeList(ctx context.Context, dept *v1.SysDept, 
 	return s.BuildDeptTreeSelect(ctx, depts, opts)
 }
 
+// 返回所有顶层节点
 func (s *deptService) BuildDeptTree(ctx context.Context, depts []*v1.SysDept, opts *api.GetOptions) *v1.DeptList {
 	list := make([]*v1.SysDept, 0, len(depts))
 	deptIds := make([]int64, 0, len(depts))
@@ -88,6 +89,7 @@ func (s *deptService) BuildDeptTree(ctx context.Context, depts []*v1.SysDept, op
 			list = append(list, depts[i])
 		}
 	}
+	// 全是顶层节点
 	if len(list) == 0 {
 		list = depts
 	}
@@ -147,11 +149,8 @@ func (s *deptService) CheckDeptNameUnique(ctx context.Context, dept *v1.SysDept,
 }
 
 func (s *deptService) CheckDeptDataScope(ctx context.Context, deptId int64, opts *api.GetOptions) bool {
-	logininfo, err := utils.GetLogininfoFromCtx(ctx)
-	if err != nil {
-		return false
-	}
-	if !logininfo.User.IsAdmin() {
+	logininfo := utils.GetLogininfoFromCtx(ctx)
+	if !v1.IsUserAdmin(logininfo.User.UserId) {
 		depts := s.SelectDeptList(ctx, &v1.SysDept{DeptId: deptId}, opts)
 		if depts.TotalCount == 0 {
 			// 没有权限访问部分数据
@@ -211,7 +210,7 @@ func deptRecursionFn(list []*v1.SysDept, t *v1.SysDept) {
 }
 
 func getDeptChildList(list []*v1.SysDept, t *v1.SysDept) []*v1.SysDept {
-	tlist := make([]*v1.SysDept, 0, len(list))
+	var tlist []*v1.SysDept
 	for i := range list {
 		if list[i].ParentId != 0 && list[i].ParentId == t.DeptId {
 			tlist = append(tlist, list[i])

@@ -8,10 +8,10 @@ import (
 
 type SysDictType struct {
 	api.ObjectMeta `json:"metadata,omitempty"`
-	DictId         int64  `json:"dictId,omitempty" gorm:"column:dict_id"`
-	DictName       string `json:"dictName,omitempty" gorm:"column:dict_name"`
-	DictType       string `json:"dictType,omitempty" gorm:"column:dict_type"`
-	Status         string `json:"status,omitempty" gorm:"column:status"`
+	DictId         int64  `json:"dictId,omitempty" gorm:"column:dict_id" query:"dictId"`
+	DictName       string `json:"dictName,omitempty" gorm:"column:dict_name" query:"dictName"`
+	DictType       string `json:"dictType,omitempty" gorm:"column:dict_type" query:"dictType"`
+	Status         string `json:"status,omitempty" gorm:"column:status" query:"status"`
 }
 
 func (s *SysDictType) TableName() string {

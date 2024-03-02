@@ -8,12 +8,12 @@ import (
 
 type SysConfig struct {
 	api.ObjectMeta `json:"metadata,omitempty"`
-	ConfigId       int64  `json:"configId,omitempty" gorm:"column:config_id"`
-	ConfigName     string `json:"configName,omitempty" gorm:"column:config_name"`
-	ConfigKey      string `json:"configKey,omitempty" gorm:"column:config_key"`
-	ConfigValue    string `json:"configValue,omitempty" gorm:"column:config_value"`
+	ConfigId       int64  `json:"configId,omitempty" gorm:"column:config_id" query:"configId"`
+	ConfigName     string `json:"configName,omitempty" gorm:"column:config_name" query:"configName"`
+	ConfigKey      string `json:"configKey,omitempty" gorm:"column:config_key" query:"configKey"`
+	ConfigValue    string `json:"configValue,omitempty" gorm:"column:config_value" query:"configValue"`
 	// 是否系统内置
-	ConfigType string `json:"configType" gorm:"column:config_type"`
+	ConfigType string `json:"configType,omitempty" gorm:"column:config_type" query:"configType"`
 }
 
 func (s *SysConfig) TableName() string {

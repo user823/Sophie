@@ -1,6 +1,8 @@
 package strutil
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -73,4 +75,37 @@ func EqualIgnoreCase(s1, s2 string) bool {
 
 func IsHttp(path string) bool {
 	return strings.HasPrefix(path, "http") || strings.HasPrefix(path, "https")
+}
+
+func ReplaceEach(input string, old []string, new []string) string {
+	// 构建正则表达式
+	regex := regexp.MustCompile("(" +
+		"(" + regexp.QuoteMeta(old[0]) + ")" +
+		"|(" + regexp.QuoteMeta(old[1]) + ")" +
+		"|(" + regexp.QuoteMeta(old[2]) + ")" +
+		"|\\." +
+		"|:" +
+		")")
+
+	// 替换匹配的部分
+	result := regex.ReplaceAllStringFunc(input, func(match string) string {
+		switch match {
+		case old[0], old[1], old[2]:
+			return ""
+		case ".", ":":
+			return "/"
+		default:
+			return match
+		}
+	})
+
+	return result
+}
+
+func Strs2Int64(strs string) (res []int64) {
+	for _, param := range strings.Split(strs, ",") {
+		num, _ := strconv.ParseInt(param, 10, 64)
+		res = append(res, num)
+	}
+	return
 }

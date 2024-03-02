@@ -1,6 +1,7 @@
 package v1
 
 import (
+	v12 "github.com/user823/Sophie/api/domain/gateway/v1"
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/pkg/utils"
 )
@@ -15,7 +16,7 @@ func SysUser2UserInfo(user *v1.SysUser) *UserInfo {
 	}
 
 	deptInfo := SysDept2DeptInfo(&user.Dept)
-	roles := make([]*RoleInfo, 0, len(user.Roles))
+	var roles []*RoleInfo
 	for i := range user.Roles {
 		roles = append(roles, SysRole2RoleInfo(&user.Roles[i]))
 	}
@@ -70,7 +71,7 @@ func SysDept2DeptInfo(dept *v1.SysDept) *DeptInfo {
 		params = data
 	}
 
-	children := make([]*DeptInfo, 0, len(dept.Children))
+	var children []*DeptInfo
 	for i := range dept.Children {
 		children = append(children, SysDept2DeptInfo(dept.Children[i]))
 	}
@@ -426,4 +427,12 @@ func MSysOperLog2Operlog(logs []*v1.SysOperLog) []*OperLog {
 		res = append(res, SysOperLog2OperLog(logs[i]))
 	}
 	return res
+}
+
+func LoginUserTrans(loginUser *v12.LoginUser) *LoginUser {
+	return &LoginUser{
+		Permissions: loginUser.Permissions,
+		Roles:       loginUser.Roles,
+		User:        SysUser2UserInfo(&loginUser.User),
+	}
 }

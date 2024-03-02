@@ -3,9 +3,14 @@ package system
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/user823/Sophie/api"
+	v12 "github.com/user823/Sophie/api/domain/system/v1"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/gateway/rpc"
+	"github.com/user823/Sophie/internal/gateway/utils"
+	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/pkg/core"
+	"github.com/user823/Sophie/pkg/utils/strutil"
 )
 
 type LogininfoController struct{}
@@ -15,9 +20,8 @@ func NewLogininfoController() *LogininfoController {
 }
 
 type logininforRequestParam struct {
-	v1.PageInfo
-	v1.Logininfo
-	v1.DateRange
+	api.GetOptions
+	v12.SysLogininfor
 }
 
 type deleteLogininforParam struct {
@@ -35,13 +39,32 @@ func (l *LogininfoController) List(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, err := rpc.Remoting.ListSysLogininfos(ctx, &v1.ListSysLogininfosRequest{
-		PageInfo:  &req.PageInfo,
-		LoginInfo: &req.Logininfo,
-		DateRange: &req.DateRange,
-	})
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.ListSysLogininfos(ctx, &v1.ListSysLogininfosRequest{
+		PageInfo: &v1.PageInfo{
+			PageNum:       req.PageNum,
+			PageSize:      req.PageSize,
+			OrderByColumn: req.OrderByColumn,
+			IsAsc:         req.QIsAsc,
+		},
+		LoginInfo: v1.SysLogininfor2Logininfor(&req.SysLogininfor),
+		DateRange: &v1.DateRange{
+			BeginTime: req.BeginTime,
+			EndTime:   req.EndTime,
+		},
+		User: v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -59,17 +82,25 @@ func (l *LogininfoController) Export(ctx context.Context, c *app.RequestContext)
 }
 
 func (l *LogininfoController) Remove(ctx context.Context, c *app.RequestContext) {
-	var req deleteLogininforParam
-	if err := c.BindAndValidate(&req); err != nil {
-		core.Fail(c, "请求参数错误", nil)
+	infoIdsStr := c.Param("infoIds")
+	infoIds := strutil.Strs2Int64(infoIdsStr)
+
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
 		return
 	}
 
 	resp, err := rpc.Remoting.RemoveSysLogininfosById(ctx, &v1.RemoveSysLogininfosByIdRequest{
-		InfoIds: req.InfoIds,
+		InfoIds: infoIds,
+		User:    v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -78,8 +109,12 @@ func (l *LogininfoController) Remove(ctx context.Context, c *app.RequestContext)
 
 func (l *LogininfoController) Clean(ctx context.Context, c *app.RequestContext) {
 	resp, err := rpc.Remoting.LogininfoClean(ctx)
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -87,15 +122,15 @@ func (l *LogininfoController) Clean(ctx context.Context, c *app.RequestContext) 
 }
 
 func (l *LogininfoController) Unlock(ctx context.Context, c *app.RequestContext) {
-	var req unlockParam
-	if err := c.BindAndValidate(&req); err != nil {
-		core.Fail(c, "请求参数错误", nil)
+	userName := c.Param("userName")
+
+	resp, err := rpc.Remoting.UnlockByUserName(ctx, userName)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
 		return
 	}
-
-	resp, err := rpc.Remoting.UnlockByUserName(ctx, req.Username)
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
-		core.WriteResponseE(c, err, nil)
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 

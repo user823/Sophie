@@ -5,6 +5,8 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/gateway/rpc"
+	"github.com/user823/Sophie/internal/gateway/utils"
+	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/pkg/core"
 )
 
@@ -20,9 +22,21 @@ type updatePwsParam struct {
 }
 
 func (p *ProfileController) Profile(ctx context.Context, c *app.RequestContext) {
-	resp, err := rpc.Remoting.Profile(ctx)
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.Profile(ctx, &v1.ProfileRequest{
+		User: v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -42,11 +56,22 @@ func (p *ProfileController) UpdateProfile(ctx context.Context, c *app.RequestCon
 		return
 	}
 
-	resp, err := rpc.Remoting.UpdateProfile(ctx, &v1.UpdateProfileRequest{
-		UserInfo: &req.UserInfo,
-	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.UpdateProfile(ctx, &v1.UpdateProfileRequest{
+		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -60,12 +85,23 @@ func (p *ProfileController) UpdatePwd(ctx context.Context, c *app.RequestContext
 		return
 	}
 
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+
 	resp, err := rpc.Remoting.UpdatePassword(ctx, &v1.UpdatePasswordRequest{
 		OldPassword:  req.OldPassword,
 		NewPassword_: req.NewPassword,
+		User:         v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 

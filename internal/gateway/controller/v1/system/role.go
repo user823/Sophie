@@ -3,19 +3,21 @@ package system
 import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/user823/Sophie/api"
+	v12 "github.com/user823/Sophie/api/domain/system/v1"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/gateway/rpc"
+	"github.com/user823/Sophie/internal/gateway/utils"
+	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/pkg/core"
+	"github.com/user823/Sophie/pkg/utils/strutil"
+	"strconv"
 )
 
 type RoleController struct{}
 
 func NewRoleController() *RoleController {
 	return &RoleController{}
-}
-
-type deleteRoleParam struct {
-	RoleIds []int64 `json:"roleIds"`
 }
 
 type userRoleParam struct {
@@ -29,9 +31,8 @@ type roleUsersParam struct {
 }
 
 type roleRequestParam struct {
-	v1.RoleInfo
-	v1.PageInfo
-	v1.DateRange
+	v12.SysRole
+	api.GetOptions
 }
 
 func (r *RoleController) List(ctx context.Context, c *app.RequestContext) {
@@ -41,13 +42,33 @@ func (r *RoleController) List(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, err := rpc.Remoting.ListSysRole(ctx, &v1.ListSysRolesRequest{
-		PageInfo:  &req.PageInfo,
-		DateRange: &req.DateRange,
-		RoleInfo:  &req.RoleInfo,
-	})
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.ListSysRole(ctx, &v1.ListSysRolesRequest{
+		PageInfo: &v1.PageInfo{
+			PageNum:       req.PageNum,
+			PageSize:      req.PageSize,
+			OrderByColumn: req.OrderByColumn,
+			IsAsc:         req.QIsAsc,
+		},
+		DateRange: &v1.DateRange{
+			BeginTime: req.BeginTime,
+			EndTime:   req.EndTime,
+		},
+		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
+		User:     v1.LoginUserTrans(&info),
+	})
+
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -64,15 +85,16 @@ func (r *RoleController) Export(ctx context.Context, c *app.RequestContext) {
 }
 
 func (r *RoleController) GetInfo(ctx context.Context, c *app.RequestContext) {
-	var req roleRequestParam
-	if err := c.BindAndValidate(&req); err != nil {
-		core.Fail(c, "请求参数错误", nil)
+	roleId := c.Param("roleId")
+	roleid, _ := strconv.ParseInt(roleId, 10, 64)
+
+	resp, err := rpc.Remoting.GetSysRoleByid(ctx, roleid)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
 		return
 	}
-
-	resp, err := rpc.Remoting.GetSysRoleByid(ctx, req.RoleId)
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
-		core.WriteResponseE(c, err, nil)
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -90,11 +112,22 @@ func (r *RoleController) Add(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, err := rpc.Remoting.CreateSysRole(ctx, &v1.CreateSysRoleRequest{
-		RoleInfo: &req.RoleInfo,
-	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.CreateSysRole(ctx, &v1.CreateSysRoleRequest{
+		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -108,11 +141,22 @@ func (r *RoleController) Edit(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, err := rpc.Remoting.UpdateSysRole(ctx, &v1.UpdateSysRoleRequest{
-		RoleInfo: &req.RoleInfo,
-	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.UpdateSysRole(ctx, &v1.UpdateSysRoleRequest{
+		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -126,11 +170,22 @@ func (r *RoleController) DataScope(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp, err := rpc.Remoting.DataScope(ctx, &v1.DataScopeRequest{
-		RoleInfo: &req.RoleInfo,
-	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.DataScope(ctx, &v1.DataScopeRequest{
+		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -144,11 +199,22 @@ func (r *RoleController) ChangeStatus(ctx context.Context, c *app.RequestContext
 		return
 	}
 
-	resp, err := rpc.Remoting.ChangeSysRoleStatus(ctx, &v1.ChangeSysRoleStatusRequest{
-		RoleInfo: &req.RoleInfo,
-	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.ChangeSysRoleStatus(ctx, &v1.ChangeSysRoleStatusRequest{
+		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -156,17 +222,25 @@ func (r *RoleController) ChangeStatus(ctx context.Context, c *app.RequestContext
 }
 
 func (r *RoleController) Remove(ctx context.Context, c *app.RequestContext) {
-	var req deleteRoleParam
-	if err := c.BindAndValidate(&req); err != nil {
-		core.Fail(c, "请求参数错误", nil)
+	roleIdsStr := c.Param("roleIds")
+	roleIds := strutil.Strs2Int64(roleIdsStr)
+
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
 		return
 	}
 
 	resp, err := rpc.Remoting.DeleteSysRole(ctx, &v1.DeleteSysRoleRequest{
-		RoleIds: req.RoleIds,
+		RoleIds: roleIds,
+		User:    v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -175,8 +249,12 @@ func (r *RoleController) Remove(ctx context.Context, c *app.RequestContext) {
 
 func (r *RoleController) OptionSelect(ctx context.Context, c *app.RequestContext) {
 	resp, err := rpc.Remoting.ListRoleOption(ctx)
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -194,12 +272,28 @@ func (r *RoleController) AllocatedList(ctx context.Context, c *app.RequestContex
 		return
 	}
 
-	resp, err := rpc.Remoting.AllocatedList(ctx, &v1.AllocatedListRequest{
-		PageInfo: &req.PageInfo,
-		UserInfo: &req.UserInfo,
-	})
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.AllocatedList(ctx, &v1.AllocatedListRequest{
+		PageInfo: &v1.PageInfo{
+			PageNum:       req.PageNum,
+			PageSize:      req.PageSize,
+			OrderByColumn: req.OrderByColumn,
+			IsAsc:         req.QIsAsc,
+		},
+		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -219,12 +313,28 @@ func (r *RoleController) UnallocatedList(ctx context.Context, c *app.RequestCont
 		return
 	}
 
-	resp, err := rpc.Remoting.UnallocatedList(ctx, &v1.UnallocatedListRequest{
-		PageInfo: &req.PageInfo,
-		UserInfo: &req.UserInfo,
-	})
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.UnallocatedList(ctx, &v1.UnallocatedListRequest{
+		PageInfo: &v1.PageInfo{
+			PageNum:       req.PageNum,
+			PageSize:      req.PageSize,
+			OrderByColumn: req.OrderByColumn,
+			IsAsc:         req.QIsAsc,
+		},
+		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
+		User:     v1.LoginUserTrans(&info),
+	})
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 
@@ -244,12 +354,23 @@ func (r *RoleController) CancelAuthUser(ctx context.Context, c *app.RequestConte
 		return
 	}
 
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+
 	resp, err := rpc.Remoting.CancelAuthUser(ctx, &v1.CancelAuthUserRequest{
 		RoleId: req.RoleId,
 		UserId: req.UserId,
+		User:   v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -263,12 +384,23 @@ func (r *RoleController) CancelAuthUserAll(ctx context.Context, c *app.RequestCo
 		return
 	}
 
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+
 	resp, err := rpc.Remoting.CancelAuthUserAll(ctx, &v1.CancelAuthUserAllRequest{
 		RoleId:  req.RoleId,
 		UserIds: req.UserIds,
+		User:    v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -282,12 +414,23 @@ func (r *RoleController) SelectAuthUserALl(ctx context.Context, c *app.RequestCo
 		return
 	}
 
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
+		return
+	}
+
 	resp, err := rpc.Remoting.SelectAuthUserAll(ctx, &v1.SelectAuthUserAllRequest{
 		RoleId:  req.RoleId,
 		UserIds: req.UserIds,
+		User:    v1.LoginUserTrans(&info),
 	})
-	if err = rpc.ParseRpcErr(resp, err); err != nil {
+	if err != nil {
 		core.WriteResponseE(c, err, nil)
+		return
+	}
+	if resp.Code != code.SUCCESS {
+		core.Fail(c, resp.Msg, nil)
 		return
 	}
 
@@ -295,15 +438,16 @@ func (r *RoleController) SelectAuthUserALl(ctx context.Context, c *app.RequestCo
 }
 
 func (r *RoleController) DeptTree(ctx context.Context, c *app.RequestContext) {
-	var req roleRequestParam
-	if err := c.BindAndValidate(&req); err != nil {
-		core.Fail(c, "请求参数错误", nil)
+	roleIdStr := c.Param("roleId")
+	roleId, _ := strconv.ParseInt(roleIdStr, 10, 64)
+
+	resp, err := rpc.Remoting.DeptTreeByRoleId(ctx, roleId)
+	if err != nil {
+		core.WriteResponseE(c, err, nil)
 		return
 	}
-
-	resp, err := rpc.Remoting.DeptTreeByRoleId(ctx, req.RoleId)
-	if err = rpc.ParseRpcErr(resp.BaseResp, err); err != nil {
-		core.WriteResponseE(c, err, nil)
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
 

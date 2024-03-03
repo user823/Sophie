@@ -18,8 +18,16 @@ type codeValid struct {
 	UUID string `json:"uuid" vd:"required"`
 }
 
+type CaptchaController struct {
+	captchaEnabled bool
+}
+
+func NewCaptchaController(on bool) *CaptchaController {
+	return &CaptchaController{on}
+}
+
 // 创建验证码
-func createCaptcha(ctx context.Context, c *app.RequestContext) {
+func (f *CaptchaController) CreateCaptcha(ctx context.Context, c *app.RequestContext) {
 	rdb := kv.NewKVStore("redis").(kv.RedisStore)
 	rdb.SetKeyPrefix(kv.CAPTHA_CODE_KEY)
 
@@ -29,7 +37,7 @@ func createCaptcha(ctx context.Context, c *app.RequestContext) {
 	log.Infof("uuid: %s, ans: %s", uuid, ans)
 
 	// 测试
-	body := map[string]interface{}{"captchaEnabled": true, "img": captchaInfo, "uuid": uuid}
+	body := map[string]interface{}{"captchaEnabled": f.captchaEnabled, "img": captchaInfo, "uuid": uuid}
 
 	if err := rdb.SetKey(ctx, uuid, ans, utils.SecondToNano(kv.CAPTHA_CODE_KEY_VALID)); err != nil {
 		body["captchaEnabled"] = false
@@ -40,7 +48,13 @@ func createCaptcha(ctx context.Context, c *app.RequestContext) {
 }
 
 // 校验验证码
-func checkCaptcha(ctx context.Context, c *app.RequestContext) {
+func (f *CaptchaController) CheckCaptcha(ctx context.Context, c *app.RequestContext) {
+	// 不开启验证码
+	if !f.captchaEnabled {
+		c.Next(ctx)
+		return
+	}
+
 	var req codeValid
 	if err := c.BindAndValidate(&req); err != nil {
 		log.Errorf("Code request bind or validate error: %s", err.Error())
@@ -48,6 +62,7 @@ func checkCaptcha(ctx context.Context, c *app.RequestContext) {
 		c.Abort()
 		return
 	}
+
 	rdb := kv.NewKVStore("redis").(kv.RedisStore)
 	rdb.SetKeyPrefix(kv.CAPTHA_CODE_KEY)
 	if !rdb.Connected() {

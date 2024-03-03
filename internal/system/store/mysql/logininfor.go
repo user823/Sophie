@@ -22,13 +22,13 @@ func (s *mysqlLogininforStore) InsertLogininfor(ctx context.Context, logininfor 
 func (s *mysqlLogininforStore) SelectLogininforList(ctx context.Context, logininfor *v1.SysLogininfor, opts *api.GetOptions) ([]*v1.SysLogininfor, error) {
 	query := s.db.Table("sys_logininfor")
 	if logininfor.Ipaddr != "" {
-		query = query.Where("ipaddr like %?%", logininfor.Ipaddr)
+		query = query.Where("ipaddr like ?", "%"+logininfor.Ipaddr+"%")
 	}
 	if logininfor.Status != "" {
 		query = query.Where("status = ?", logininfor.Status)
 	}
 	if logininfor.UserName != "" {
-		query = query.Where("user_name like %?%", logininfor.UserName)
+		query = query.Where("user_name like ?", "%"+logininfor.UserName+"%")
 	}
 	query = opts.SQLCondition(query, "create_time")
 	query = query.Order("info_id DESC")

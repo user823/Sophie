@@ -3,7 +3,7 @@ package utils
 import (
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/user823/Sophie/api"
-	v1 "github.com/user823/Sophie/api/domain/gateway/v1"
+	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/pkg/errors"
 )
 

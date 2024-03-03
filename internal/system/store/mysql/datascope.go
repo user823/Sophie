@@ -65,7 +65,7 @@ func dateScopeFromCtx(ctx context.Context, db *gorm.DB, userAlias string, deptAl
 		} else if dataScope == DATA_SCOPE_DEPT {
 			queryCondition.WriteString(fmt.Sprintf("%s.dept_id = %d", deptAlias, user.DeptId))
 		} else if dataScope == DATA_SCOPE_DEPT_AND_CHILD {
-			queryCondition.WriteString(fmt.Sprintf("%s.dept_id IN (SELECT dept_id FROM sys_dept WHERE dept_id = %d OR find_in_set( %d, ancestors ))", deptAlias, user.DeptId, user.DeptId))
+			queryCondition.WriteString(fmt.Sprintf("%s.dept_id IN (SELECT dept_id FROM sys_dept WHERE dept_id = %d OR find_in_set( %d, ancestors))", deptAlias, user.DeptId, user.DeptId))
 		} else if dataScope == DATA_SCOPE_SELF {
 			if userAlias != "" {
 				queryCondition.WriteString(fmt.Sprintf("%s.user_id = %d", userAlias, user.UserId))

@@ -38,7 +38,7 @@ func (o *OnlineUserController) List(ctx context.Context, c *app.RequestContext) 
 		PageInfo: &req.PageInfo,
 		UserName: req.UserName,
 		Ipaddr:   req.Ipaddr,
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -72,7 +72,7 @@ func (o *OnlineUserController) ForceLogout(ctx context.Context, c *app.RequestCo
 
 	resp, err := rpc.Remoting.ForceLogout(ctx, &v1.ForceLogoutRequest{
 		TokenId: req.TokenId,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

@@ -32,7 +32,7 @@ func (s *mysqlDeptStore) SelectDeptList(ctx context.Context, dept *v1.SysDept, o
 		query = query.Where("parent_id = ?", dept.ParentId)
 	}
 	if dept.DeptName != "" {
-		query = query.Where("dept_name like %?%", dept.DeptName)
+		query = query.Where("dept_name like ?", "%"+dept.DeptName+"%")
 	}
 	if dept.Status != "" {
 		query = query.Where("status = ?", dept.Status)

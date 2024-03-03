@@ -25,13 +25,13 @@ func selectPostVo(db *gorm.DB) *gorm.DB {
 func (s *mysqlPostStore) SelectPostList(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) ([]*v1.SysPost, error) {
 	query := selectPostVo(s.db)
 	if post.PostCode != "" {
-		query = query.Where("post_code like %?%", post.PostCode)
+		query = query.Where("post_code like ?", "%"+post.PostCode+"%")
 	}
 	if post.Status != "" {
 		query = query.Where("status = ? ", post.Status)
 	}
 	if post.PostName != "" {
-		query = query.Where("post_name like %?%", post.PostName)
+		query = query.Where("post_name like ?", "%"+post.PostName+"%")
 	}
 	query = opts.SQLCondition(query, "")
 

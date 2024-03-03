@@ -50,7 +50,7 @@ func (n *NoticeController) List(ctx context.Context, c *app.RequestContext) {
 			IsAsc:         req.QIsAsc,
 		},
 		NoticeInfo: v1.SysNotice2NoticeInfo(&req.SysNotice),
-		User:       v1.LoginUserTrans(&info),
+		User:       &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -106,7 +106,7 @@ func (n *NoticeController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateSysNotice(ctx, &v1.CreateSysNoticeRequest{
 		NoticeInfo: v1.SysNotice2NoticeInfo(&req.SysNotice),
-		User:       v1.LoginUserTrans(&info),
+		User:       &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -135,7 +135,7 @@ func (n *NoticeController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateSysNotice(ctx, &v1.UpdateSysNoticeRequest{
 		NoticeInfo: v1.SysNotice2NoticeInfo(&req.SysNotice),
-		User:       v1.LoginUserTrans(&info),
+		User:       &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -161,7 +161,7 @@ func (n *NoticeController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteSysNotice(ctx, &v1.DeleteSysNoticeRequest{
 		NoticeIds: noticeIds,
-		User:      v1.LoginUserTrans(&info),
+		User:      &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

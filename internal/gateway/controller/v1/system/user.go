@@ -58,7 +58,7 @@ func (u *UserController) List(ctx context.Context, c *app.RequestContext) {
 			IsAsc:         req.QIsAsc,
 		},
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
@@ -93,6 +93,7 @@ func (u *UserController) GetInfo(ctx context.Context, c *app.RequestContext) {
 	loginUser, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
 		core.Fail(c, "获取用户登录信息失败，请重试", nil)
+		return
 	}
 
 	resp, err := rpc.Remoting.GetUserInfo(ctx, loginUser.User.UserId)
@@ -150,7 +151,7 @@ func (u *UserController) GetInfoWithId(ctx context.Context, c *app.RequestContex
 		User: &v1.LoginUser{
 			Roles:       loginUser.Roles,
 			Permissions: loginUser.Permissions,
-			User:        v1.SysUser2UserInfo(&loginUser.User),
+			User:        loginUser.User,
 		},
 	})
 	if err != nil {
@@ -185,7 +186,7 @@ func (u *UserController) GetInfoWithId2(ctx context.Context, c *app.RequestConte
 		User: &v1.LoginUser{
 			Roles:       loginUser.Roles,
 			Permissions: loginUser.Permissions,
-			User:        v1.SysUser2UserInfo(&loginUser.User),
+			User:        loginUser.User,
 		},
 	})
 	if err != nil {
@@ -220,7 +221,7 @@ func (u *UserController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateSysUser(ctx, &v1.CreateSysUserRequest{
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 
 	if err != nil {
@@ -250,7 +251,7 @@ func (u *UserController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateSysUser(ctx, &v1.UpdateSysUserRequest{
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
@@ -275,7 +276,7 @@ func (u *UserController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteSysUser(ctx, &v1.DeleteSysUserRequest{
 		UserIds: strutil.Strs2Int64(userIdsStr),
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
@@ -304,7 +305,7 @@ func (u *UserController) ResetPwd(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.ResetPassword(ctx, &v1.ResetPasswordRequest{
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
@@ -333,7 +334,7 @@ func (u *UserController) ChangeStatus(ctx context.Context, c *app.RequestContext
 
 	resp, err := rpc.Remoting.ChangeSysUserStatus(ctx, &v1.ChangeSysUserStatus{
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
@@ -386,7 +387,7 @@ func (u *UserController) InsertAuthRole(ctx context.Context, c *app.RequestConte
 	resp, err := rpc.Remoting.AuthRole(ctx, &v1.AuthRoleRequest{
 		UserId:  req.UserId,
 		RoleIds: req.RoleIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
@@ -415,7 +416,7 @@ func (u *UserController) DeptTree(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.ListDeptsTree(ctx, &v1.ListDeptsTreeRequest{
 		DeptInfo: &req,
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)

@@ -62,13 +62,13 @@ func (s *mysqlConfigStore) SelectConfigById(ctx context.Context, configid int64,
 func (s *mysqlConfigStore) SelectConfigList(ctx context.Context, config *v1.SysConfig, opts *api.GetOptions) ([]*v1.SysConfig, error) {
 	query := selectConfigVo(s.db)
 	if config.ConfigName != "" {
-		query = query.Where("config_name like %?%", config.ConfigName)
+		query = query.Where("config_name like ?", "%"+config.ConfigName+"%")
 	}
 	if config.ConfigType != "" {
 		query = query.Where("config_type = ?", config.ConfigType)
 	}
 	if config.ConfigKey != "" {
-		query = query.Where("config_key like %?%", config.ConfigKey)
+		query = query.Where("config_key like ?", "%"+config.ConfigKey+"%")
 	}
 	query = opts.SQLCondition(query, "sys_config.create_time")
 

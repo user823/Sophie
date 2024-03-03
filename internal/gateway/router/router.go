@@ -68,6 +68,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 
 	// 获取基础组件
 	logsaver := &rpcLogSaver{}
+	captchaController := NewCaptchaController(false)
 
 	// 安装通用中间件
 	if h == nil {
@@ -86,10 +87,10 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 	a_ := s.Group("/auth")
 	{
 		jwtStrategy := newJWTAuth(opt.Info).(*auth.JWTStrategy)
-		a_.POST("/login", checkCaptcha, jwtStrategy.LoginHandler)
+		a_.POST("/login", captchaController.CheckCaptcha, jwtStrategy.LoginHandler)
 		a_.DELETE("/logout", jwtStrategy.LogoutHandler)
 		a_.POST("/refresh", jwtStrategy.RefreshHandler)
-		a_.POST("/register", checkCaptcha, Register)
+		a_.POST("/register", captchaController.CheckCaptcha, Register)
 	}
 
 	auto := newAutoAuth(opt.Info)
@@ -99,7 +100,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		// 用户服务
 		userController := system.NewUserController()
 		user_ := system_.Group("/user")
-		user_.GET("/lise", secure.RequirePermissions("system:user:list"), userController.List)
+		user_.GET("/list", secure.RequirePermissions("system:user:list"), userController.List)
 		user_.POST("/export", secure.RequirePermissions("system:user:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), userController.Export)
 		user_.POST("/importData", secure.RequirePermissions("system:user:import"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_IMPORT}), userController.ImportData)
 		user_.POST("/importTemplate", userController.ImportTemplate)
@@ -269,7 +270,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 	code_ := s.Group("/code")
 	{
 		// 验证码服务
-		code_.GET("", createCaptcha)
+		code_.GET("", captchaController.CreateCaptcha)
 
 		// 代码生成服务
 		//genController := gen.NewGenController()

@@ -33,7 +33,7 @@ func (d *DeptController) List(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.ListDepts(ctx, &v1.ListDeptsRequest{
 		DeptInfo:  v1.SysDept2DeptInfo(&req),
-		LoginUser: v1.LoginUserTrans(&info),
+		LoginUser: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -76,7 +76,7 @@ func (d *DeptController) GetInfo(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.GetDeptById(ctx, &v1.GetDeptByIdReq{
 		Id:   deptId,
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -105,7 +105,7 @@ func (d *DeptController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateDept(ctx, &v1.CreateDeptRequest{
 		Dept: v1.SysDept2DeptInfo(&req),
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -134,7 +134,7 @@ func (d *DeptController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateDept(ctx, &v1.UpdateDeptRequest{
 		Dept: v1.SysDept2DeptInfo(&req),
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -160,7 +160,7 @@ func (d *DeptController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteDept(ctx, &v1.DeleteDeptRequest{
 		DeptId: deptId,
-		User:   v1.LoginUserTrans(&info),
+		User:   &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

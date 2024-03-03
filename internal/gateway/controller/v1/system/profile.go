@@ -29,7 +29,7 @@ func (p *ProfileController) Profile(ctx context.Context, c *app.RequestContext) 
 	}
 
 	resp, err := rpc.Remoting.Profile(ctx, &v1.ProfileRequest{
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -45,6 +45,7 @@ func (p *ProfileController) Profile(ctx context.Context, c *app.RequestContext) 
 		"msg":       resp.BaseResp.Msg,
 		"roleGroup": resp.RoleGroup,
 		"postGroup": resp.PostGroup,
+		"data":      resp.UserInfo,
 	}
 	core.JSON(c, result)
 }
@@ -64,7 +65,7 @@ func (p *ProfileController) UpdateProfile(ctx context.Context, c *app.RequestCon
 
 	resp, err := rpc.Remoting.UpdateProfile(ctx, &v1.UpdateProfileRequest{
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -94,7 +95,7 @@ func (p *ProfileController) UpdatePwd(ctx context.Context, c *app.RequestContext
 	resp, err := rpc.Remoting.UpdatePassword(ctx, &v1.UpdatePasswordRequest{
 		OldPassword:  req.OldPassword,
 		NewPassword_: req.NewPassword,
-		User:         v1.LoginUserTrans(&info),
+		User:         &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

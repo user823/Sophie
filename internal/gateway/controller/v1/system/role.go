@@ -60,7 +60,7 @@ func (r *RoleController) List(ctx context.Context, c *app.RequestContext) {
 			EndTime:   req.EndTime,
 		},
 		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 
 	if err != nil {
@@ -120,7 +120,7 @@ func (r *RoleController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateSysRole(ctx, &v1.CreateSysRoleRequest{
 		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -149,7 +149,7 @@ func (r *RoleController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateSysRole(ctx, &v1.UpdateSysRoleRequest{
 		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -178,7 +178,7 @@ func (r *RoleController) DataScope(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DataScope(ctx, &v1.DataScopeRequest{
 		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -207,7 +207,7 @@ func (r *RoleController) ChangeStatus(ctx context.Context, c *app.RequestContext
 
 	resp, err := rpc.Remoting.ChangeSysRoleStatus(ctx, &v1.ChangeSysRoleStatusRequest{
 		RoleInfo: v1.SysRole2RoleInfo(&req.SysRole),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -233,7 +233,7 @@ func (r *RoleController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteSysRole(ctx, &v1.DeleteSysRoleRequest{
 		RoleIds: roleIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -286,7 +286,7 @@ func (r *RoleController) AllocatedList(ctx context.Context, c *app.RequestContex
 			IsAsc:         req.QIsAsc,
 		},
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -327,7 +327,7 @@ func (r *RoleController) UnallocatedList(ctx context.Context, c *app.RequestCont
 			IsAsc:         req.QIsAsc,
 		},
 		UserInfo: v1.SysUser2UserInfo(&req.SysUser),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -363,7 +363,7 @@ func (r *RoleController) CancelAuthUser(ctx context.Context, c *app.RequestConte
 	resp, err := rpc.Remoting.CancelAuthUser(ctx, &v1.CancelAuthUserRequest{
 		RoleId: req.RoleId,
 		UserId: req.UserId,
-		User:   v1.LoginUserTrans(&info),
+		User:   &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -393,7 +393,7 @@ func (r *RoleController) CancelAuthUserAll(ctx context.Context, c *app.RequestCo
 	resp, err := rpc.Remoting.CancelAuthUserAll(ctx, &v1.CancelAuthUserAllRequest{
 		RoleId:  req.RoleId,
 		UserIds: req.UserIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -423,7 +423,7 @@ func (r *RoleController) SelectAuthUserALl(ctx context.Context, c *app.RequestCo
 	resp, err := rpc.Remoting.SelectAuthUserAll(ctx, &v1.SelectAuthUserAllRequest{
 		RoleId:  req.RoleId,
 		UserIds: req.UserIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

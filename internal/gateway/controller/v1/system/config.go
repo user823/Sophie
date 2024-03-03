@@ -54,7 +54,7 @@ func (f *ConfigController) List(ctx context.Context, c *app.RequestContext) {
 			BeginTime: req.BeginTime,
 			EndTime:   req.EndTime,
 		},
-		LoginUser: v1.LoginUserTrans(&info),
+		LoginUser: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -126,7 +126,7 @@ func (f *ConfigController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateConfig(ctx, &v1.CreateConfigRequest{
 		ConfigInfo: v1.SysConfig2ConfigInfo(&req.SysConfig),
-		User:       v1.LoginUserTrans(&info),
+		User:       &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -155,7 +155,7 @@ func (f *ConfigController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateConfig(ctx, &v1.UpdateConfigReqeust{
 		ConfigInfo: v1.SysConfig2ConfigInfo(&req.SysConfig),
-		User:       v1.LoginUserTrans(&info),
+		User:       &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -181,7 +181,7 @@ func (f *ConfigController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteConfig(ctx, &v1.DeleteConfigReqeust{
 		ConfigIds: configIds,
-		User:      v1.LoginUserTrans(&info),
+		User:      &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

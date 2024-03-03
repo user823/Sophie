@@ -25,13 +25,13 @@ func selectDictTypeVo(db *gorm.DB) *gorm.DB {
 func (s *mysqlDictType) SelectDictTypeList(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) ([]*v1.SysDictType, error) {
 	query := selectDictTypeVo(s.db)
 	if dictType.DictName != "" {
-		query = query.Where("dict_name like %?%", dictType.DictName)
+		query = query.Where("dict_name like ?", "%"+dictType.DictName+"%")
 	}
 	if dictType.Status != "" {
 		query = query.Where("status = ?", dictType.Status)
 	}
 	if dictType.DictType != "" {
-		query = query.Where("dict_type like %?%", dictType.DictType)
+		query = query.Where("dict_type like ?", "%"+dictType.DictType+"%")
 	}
 	query = opts.SQLCondition(query, "sys_dict_type.create_time")
 

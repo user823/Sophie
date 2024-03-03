@@ -38,7 +38,7 @@ func (s *mysqlRoleStore) SelectRoleList(ctx context.Context, role *v1.SysRole, o
 		query = query.Where("r.status = ?", role.Status)
 	}
 	if role.RoleKey != "" {
-		query = query.Where("r.role_key like %?%", role.RoleKey)
+		query = query.Where("r.role_key like ?", "%"+role.RoleKey+"%")
 	}
 	query = opts.SQLCondition(query, "r.create_time")
 	query, err := dateScopeFromCtx(ctx, query, "", "d")

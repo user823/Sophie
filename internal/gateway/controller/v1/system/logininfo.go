@@ -57,7 +57,7 @@ func (l *LogininfoController) List(ctx context.Context, c *app.RequestContext) {
 			BeginTime: req.BeginTime,
 			EndTime:   req.EndTime,
 		},
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -93,7 +93,7 @@ func (l *LogininfoController) Remove(ctx context.Context, c *app.RequestContext)
 
 	resp, err := rpc.Remoting.RemoveSysLogininfosById(ctx, &v1.RemoveSysLogininfosByIdRequest{
 		InfoIds: infoIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

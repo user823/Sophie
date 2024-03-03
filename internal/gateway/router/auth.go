@@ -29,6 +29,12 @@ var (
 	}
 )
 
+// 未授权时返回消息
+const (
+	ErrExpireMsg       = "登录状态已过期，请重新登录"
+	ErrUnauthorizedMsg = "账号或密码错误1"
+)
+
 // 登陆参数绑定与校验
 type loginInfo struct {
 	Username string `json:"username" form:"username" vd:"required,min=2,max=20"`
@@ -118,7 +124,7 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 		}()
 
 		resp, err := rpc.Remoting.GetUserInfoByName(context.Background(), login.Username)
-		user := v12.UserInfo2SysUser(resp.Data)
+		user := resp.Data
 		if err != nil || resp.BaseResp.Code != code.SUCCESS {
 			msgErr = errors.WithCodeMessagef(err, int(resp.BaseResp.Code), "系统内部错误")
 			return nil, msgErr
@@ -136,15 +142,15 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 
 		// 验证密码
 		if err = auth.Compare(user.Password, login.Password); err != nil {
-			msgErr = fmt.Errorf("用户名或者密码错误")
+			msgErr = fmt.Errorf(ErrUnauthorizedMsg)
 			return "", msgErr
 		}
 
 		// 登陆成功，设置授权上下文信息
-		loginUser := v13.LoginUser{
+		loginUser := v12.LoginUser{
 			Roles:       resp.GetRoles(),
 			Permissions: resp.GetPermissions(),
-			User:        *user,
+			User:        resp.Data,
 		}
 		c.Set(api.LOGIN_INFO_KEY, loginUser)
 		return *user, nil
@@ -154,9 +160,9 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 // 登陆成功时设置jwt 载荷信息
 func payloadFunc() func(data interface{}) jwt.MapClaims {
 	return func(data interface{}) jwt.MapClaims {
-		if v, ok := data.(v1.SysUser); ok {
+		if v, ok := data.(v12.UserInfo); ok {
 			return jwt.MapClaims{
-				auth.UsernameKey: v.String(),
+				auth.UsernameKey: v.UserName,
 			}
 		}
 		return jwt.MapClaims{}
@@ -173,21 +179,19 @@ func authentizator() func(data interface{}, ctx context.Context, c *app.RequestC
 			return false
 		}
 
-		if str, ok := data.(string); ok {
-			var v v1.SysUser
-			v.Unmarshal(str)
+		if username, ok := data.(string); ok {
 
 			// 用于后续步骤的权限校验
-			resp, err := rpc.Remoting.GetUserInfoByName(ctx, v.Username)
+			resp, err := rpc.Remoting.GetUserInfoByName(ctx, username)
 			if err != nil || resp.BaseResp.Code != code.SUCCESS {
 				log.Errorf("Get user info error, code: %d, error: %v", resp.BaseResp.Code, err)
 				return false
 			}
 
-			loginUser := v13.LoginUser{
+			loginUser := v12.LoginUser{
 				Roles:       resp.GetRoles(),
 				Permissions: resp.GetPermissions(),
-				User:        v,
+				User:        resp.Data,
 			}
 			c.Set(api.LOGIN_INFO_KEY, loginUser)
 			return true
@@ -199,9 +203,15 @@ func authentizator() func(data interface{}, ctx context.Context, c *app.RequestC
 
 // message 是根据authenticator的err构造的信息
 func unauthorized() func(ctx context.Context, c *app.RequestContext, code int, message string) {
-	return func(ctx context.Context, c *app.RequestContext, code int, message string) {
+	return func(ctx context.Context, c *app.RequestContext, cod int, message string) {
+		switch message {
+		case ErrExpireMsg:
+			cod = code.UNAUTHRIZED
+		case ErrUnauthorizedMsg:
+			cod = code.ERROR
+		}
 		core.WriteResponse(c, core.ErrResponse{
-			Code:    code,
+			Code:    cod,
 			Message: message,
 		})
 	}
@@ -211,9 +221,9 @@ func httpMessageFunc() func(e error, ctx context.Context, c *app.RequestContext)
 	return func(e error, ctx context.Context, c *app.RequestContext) string {
 		switch e {
 		case jwt.ErrExpiredToken:
-			return "登录状态已过期"
+			return ErrExpireMsg
 		default:
-			return "身份验证失败"
+			return ErrUnauthorizedMsg
 		}
 	}
 }
@@ -228,12 +238,13 @@ func loginResponse() func(ctx context.Context, c *app.RequestContext, code int, 
 
 		// 设置登录状态
 		carry, _ := c.Get(api.LOGIN_INFO_KEY)
-		v := carry.(v13.LoginUser)
-		sysLoginInfo := auth.GetLogininfo(c, v.User.Username)
-		record := fmt.Sprintf("%s:%s:%s:%d", v.User.Username, message, sysLoginInfo.Ipaddr, sysLoginInfo.AccessTime)
+		v := carry.(v12.LoginUser)
+		sysLoginInfo := auth.GetLogininfo(c, v.User.UserName)
+		record := fmt.Sprintf("%s:%s:%s:%d", v.User.UserName, message, sysLoginInfo.Ipaddr, sysLoginInfo.AccessTime)
 		redisLoginStatus(message, record, utils.Time2Second(time)*1e9)
 
-		core.OK(c, "操作成功", data)
+		core.OK(c, "", data)
+		//c.String(200, system.FakeLogin)
 	}
 }
 

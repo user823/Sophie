@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/user823/Sophie/api"
-	"github.com/user823/Sophie/api/domain/gateway/v1"
+	v12 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/pkg/core"
 	"github.com/user823/Sophie/pkg/log"
@@ -36,10 +36,14 @@ func RequirePermissions(permissions string, opts ...Option) app.HandlerFunc {
 		if !ok || data == nil {
 			core.WriteResponse(c, core.ErrResponse{Code: code.UNAUTHRIZED, Message: "登录信息失效，请重新登录"})
 		}
-		loginInfo := data.(v1.LoginUser)
+		loginInfo := data.(v12.LoginUser)
 
 		// 获取用户权限
 		perms := loginInfo.Permissions
+		if hasPerm("*.*.*", perms) {
+			c.Next(ctx)
+			return
+		}
 		if options.Logic == AND {
 			for _, permission := range requirePermissions {
 				if !hasPerm(permission, perms) {

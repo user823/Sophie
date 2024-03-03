@@ -65,7 +65,7 @@ func (d *DictController) ListType(ctx context.Context, c *app.RequestContext) {
 			BeginTime: req.BeginTime,
 			EndTime:   req.EndTime,
 		},
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -121,7 +121,7 @@ func (d *DictController) AddType(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateDictType(ctx, &v1.CreateDictTypeRequest{
 		DictType: v1.SysDictType2DictType(&req.SysDictType),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -150,7 +150,7 @@ func (d *DictController) EditType(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateDictType(ctx, &v1.UpdateDictTypeRequest{
 		DictType: v1.SysDictType2DictType(&req.SysDictType),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -176,7 +176,7 @@ func (d *DictController) RemoveType(ctx context.Context, c *app.RequestContext) 
 
 	resp, err := rpc.Remoting.DeleteDictType(ctx, &v1.DeleteDictTypeRequest{
 		DictIds: dictIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -240,7 +240,7 @@ func (d *DictController) ListData(ctx context.Context, c *app.RequestContext) {
 			OrderByColumn: req.OrderByColumn,
 			IsAsc:         req.QIsAsc,
 		},
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -312,7 +312,7 @@ func (d *DictController) AddData(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateDictData(ctx, &v1.CreateDictDataRequest{
 		DictData: v1.SysDictData2DictData(&req.SysDictData),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -341,7 +341,7 @@ func (d *DictController) EditData(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateDictData(ctx, &v1.UpdateDictDataRequest{
 		DictData: v1.SysDictData2DictData(&req.SysDictData),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -367,7 +367,7 @@ func (d *DictController) RemoveData(ctx context.Context, c *app.RequestContext) 
 
 	resp, err := rpc.Remoting.DeleteDictData(ctx, &v1.DeleteDictDataRequest{
 		DictCodes: dictCodes,
-		User:      v1.LoginUserTrans(&info),
+		User:      &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

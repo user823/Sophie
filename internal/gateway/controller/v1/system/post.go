@@ -50,7 +50,7 @@ func (p *PostController) List(ctx context.Context, c *app.RequestContext) {
 			IsAsc:         req.QIsAsc,
 		},
 		PostInfo: v1.SysPost2PostInfo(&req.SysPost),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -110,7 +110,7 @@ func (p *PostController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateSysPost(ctx, &v1.CreateSysPostRequest{
 		PostInfo: v1.SysPost2PostInfo(&req.SysPost),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -139,7 +139,7 @@ func (p *PostController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateSysPost(ctx, &v1.UpdateSysPostRequest{
 		PostInfo: v1.SysPost2PostInfo(&req.SysPost),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -165,7 +165,7 @@ func (p *PostController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteSysPost(ctx, &v1.DeleteSysPostRequest{
 		PostIds: postIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

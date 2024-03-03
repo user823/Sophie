@@ -30,10 +30,10 @@ func (s *mysqlOperLogStore) InsertOperLog(ctx context.Context, operlog *v1.SysOp
 func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, error) {
 	query := selectOperLogVo(s.db)
 	if operlog.OperIp != "" {
-		query = query.Where("oper_ip like %?%", operlog.OperId)
+		query = query.Where("oper_ip like ?", "%"+operlog.OperIp)
 	}
 	if operlog.Title != "" {
-		query = query.Where("title like %?%", operlog.Title)
+		query = query.Where("title like ?", "%"+operlog.Title+"%")
 	}
 	if operlog.BusinessType != nil {
 		query = query.Where("business_type = ?", operlog.BusinessType)
@@ -45,7 +45,7 @@ func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.S
 		query = query.Where("status = ?", operlog.Status)
 	}
 	if operlog.OperName != "" {
-		query = query.Where("oper_name like %?%", operlog.OperName)
+		query = query.Where("oper_name like ?", "%"+operlog.OperName+"%")
 	}
 	query = opts.SQLCondition(query, "")
 	query = query.Order("oper_id DESC")

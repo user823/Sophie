@@ -47,13 +47,13 @@ func (s *mysqlNoticeStore) SelectNoticeById(ctx context.Context, noticeid int64,
 func (s *mysqlNoticeStore) SelectNoticeList(ctx context.Context, notice *v1.SysNotice, opts *api.GetOptions) ([]*v1.SysNotice, error) {
 	query := selectNoticeVo(s.db)
 	if notice.NoticeTitle != "" {
-		query = query.Where("notice_title like %?%", notice.NoticeTitle)
+		query = query.Where("notice_title like ?", "%"+notice.NoticeTitle+"%")
 	}
 	if notice.NoticeType != "" {
 		query = query.Where("notice_type = ?", notice.NoticeType)
 	}
 	if notice.CreateBy != "" {
-		query = query.Where("create_by like %?%", notice.CreateBy)
+		query = query.Where("create_by like ?", "%"+notice.CreateBy+"%")
 	}
 	query = opts.SQLCondition(query, "")
 

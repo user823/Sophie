@@ -37,7 +37,7 @@ func (s *mysqlUserStore) SelectUserList(ctx context.Context, sysUser *v1.SysUser
 		query = query.Where("u.status = ?", sysUser.Status)
 	}
 	if sysUser.Phonenumber != "" {
-		query = query.Where("u.phonenumber like %?%", sysUser.Phonenumber)
+		query = query.Where("u.phonenumber like ?", "%"+sysUser.Phonenumber+"%")
 	}
 	if sysUser.DeptId != 0 {
 		query = query.Where("u.dept_id = ? OR u.dept_id in (select t.dept_id form sys_dept t where find_in_set(?, ancestors) ))", sysUser.DeptId, sysUser.DeptId)
@@ -61,10 +61,10 @@ func (s *mysqlUserStore) SelectAllocatedList(ctx context.Context, sysUser *v1.Sy
 		"left join sys_user_role ur on u.user_id = ur.user_id").Joins(""+
 		"left join sys_role r on r.role_id = ur.role_id").Where("u.del_flag = 0 and r.role_id = ?", sysUser.RoleId)
 	if sysUser.Username != "" {
-		query = query.Where("u.user_name like %?%", sysUser.Username)
+		query = query.Where("u.user_name like ?", "%"+sysUser.Username+"%")
 	}
 	if sysUser.Phonenumber != "" {
-		query = query.Where("u.phonenumber like %?%", sysUser.Phonenumber)
+		query = query.Where("u.phonenumber like ?", "%"+sysUser.Phonenumber+"%")
 	}
 	query = opts.SQLCondition(query, "")
 	query, err := dateScopeFromCtx(ctx, query, "u", "d")
@@ -87,10 +87,10 @@ func (s *mysqlUserStore) SelectUnallocatedList(ctx context.Context, sysUser *v1.
 		Where("u.del_flag = 0").
 		Not("EXISTS (SELECT 1 FROM sys_user_role WHERE user_id = u.user_id AND role_id = ?)", sysUser.RoleId)
 	if sysUser.Username != "" {
-		query = query.Where("u.user_name like %?%", sysUser.Username)
+		query = query.Where("u.user_name like ?", "%"+sysUser.Username+"%")
 	}
 	if sysUser.Phonenumber != "" {
-		query = query.Where("u.phonenumber like %?%", sysUser.Phonenumber)
+		query = query.Where("u.phonenumber like ?", "%"+sysUser.Phonenumber+"%")
 	}
 
 	query = opts.SQLCondition(query, "")

@@ -130,10 +130,11 @@ func (s *menuService) SelectMenuTreeByUserId(ctx context.Context, userId int64, 
 		if err != nil {
 			return &v1.MenuList{ListMeta: api.ListMeta{0}}
 		}
-	}
-	result, err = s.store.Menus().SelectMenuTreeByUserId(ctx, userId, opts)
-	if err != nil {
-		return &v1.MenuList{ListMeta: api.ListMeta{0}}
+	} else {
+		result, err = s.store.Menus().SelectMenuTreeByUserId(ctx, userId, opts)
+		if err != nil {
+			return &v1.MenuList{ListMeta: api.ListMeta{0}}
+		}
 	}
 
 	root := &v1.SysMenu{MenuId: 0}

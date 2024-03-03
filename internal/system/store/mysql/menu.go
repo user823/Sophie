@@ -25,7 +25,7 @@ func selectMenuVo(db *gorm.DB) *gorm.DB {
 func (s *mysqlMenuStore) SelectMenuList(ctx context.Context, menu *v1.SysMenu, opts *api.GetOptions) ([]*v1.SysMenu, error) {
 	query := selectMenuVo(s.db)
 	if menu.MenuName != "" {
-		query = query.Where("menu_name like %?%", menu.MenuName)
+		query = query.Where("menu_name like ?", "%"+menu.MenuName+"%")
 	}
 	if menu.Visible != "" {
 		query = query.Where("visible = ?", menu.Visible)
@@ -59,7 +59,7 @@ func (s *mysqlMenuStore) SelectMenuListByUserId(ctx context.Context, menu *v1.Sy
 		"left join sys_role ro on ur.role_id = ro.role_id").Where("ur.user_id = ?", userid).Distinct("" +
 		"m.menu_id, m.parent_id, m.menu_name, m.path, m.component, m.query, m.visible, m.status, m.perms, m.is_cache, m.menu_type, m.icon, m.order_num, m.create_time")
 	if menu.MenuName != "" {
-		query = query.Where("m.menu_name like %?%", menu.MenuName)
+		query = query.Where("m.menu_name like ?", "%"+menu.MenuName+"%")
 	}
 	if menu.Visible != "" {
 		query = query.Where("m.visible = ?", menu.Visible)

@@ -49,7 +49,7 @@ func (o *OpelogController) List(ctx context.Context, c *app.RequestContext) {
 			IsAsc:         req.QIsAsc,
 		},
 		OperLog: v1.SysOperLog2OperLog(&req.SysOperLog),
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -85,7 +85,7 @@ func (o *OpelogController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteSysOperLog(ctx, &v1.DeleteSysOperLogRequest{
 		OperIds: operIds,
-		User:    v1.LoginUserTrans(&info),
+		User:    &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

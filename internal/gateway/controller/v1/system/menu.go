@@ -41,7 +41,7 @@ func (m *MenuController) List(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.ListSysMenus(ctx, &v1.ListSysMenusRequest{
 		MenuInfo: v1.SysMenu2MenuInfo(&req),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -87,7 +87,7 @@ func (m *MenuController) TreeSelect(ctx context.Context, c *app.RequestContext) 
 
 	resp, err := rpc.Remoting.ListTreeMenu(ctx, &v1.ListTreeMenuRequest{
 		MenuInfo: v1.SysMenu2MenuInfo(&req),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -112,7 +112,7 @@ func (m *MenuController) RoleMenuTreeselect(ctx context.Context, c *app.RequestC
 	}
 	resp, err := rpc.Remoting.ListTreeMenuByRoleid(ctx, &v1.ListTreeMenuByRoleidRequest{
 		Id:   roleId,
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -147,7 +147,7 @@ func (m *MenuController) Add(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.CreateMenu(ctx, &v1.CreateMenuRequest{
 		MenuInfo: v1.SysMenu2MenuInfo(&req),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -176,7 +176,7 @@ func (m *MenuController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.UpdateMenu(ctx, &v1.UpdateMenuRequest{
 		MenuInfo: v1.SysMenu2MenuInfo(&req),
-		User:     v1.LoginUserTrans(&info),
+		User:     &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -202,7 +202,7 @@ func (m *MenuController) Remove(ctx context.Context, c *app.RequestContext) {
 
 	resp, err := rpc.Remoting.DeleteMenu(ctx, &v1.DeleteMenuRequest{
 		MenuId: menuId,
-		User:   v1.LoginUserTrans(&info),
+		User:   &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)
@@ -223,7 +223,7 @@ func (m *MenuController) GetRouters(ctx context.Context, c *app.RequestContext) 
 		return
 	}
 	resp, err := rpc.Remoting.GetRouters(ctx, &v1.GetRoutersRequest{
-		User: v1.LoginUserTrans(&info),
+		User: &info,
 	})
 	if err != nil {
 		core.WriteResponseE(c, err, nil)

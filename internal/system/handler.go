@@ -1340,7 +1340,7 @@ func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, req *v1.GetUser
 		// 该用户对应岗位和角色
 		sysUser := userSrv.SelectUserById(ctx, req.Id, &api.GetOptions{Cache: true})
 		postIds := postSrv.SelectPostListByUserId(ctx, req.Id, &api.GetOptions{Cache: true})
-		roleIds := make([]int64, 0, len(sysUser.Roles))
+		var roleIds []int64
 		for i := range sysUser.Roles {
 			roleIds = append(roleIds, sysUser.Roles[i].RoleId)
 		}

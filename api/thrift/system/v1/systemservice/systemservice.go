@@ -1645,7 +1645,7 @@ func newSystemServiceRegisterSysUserResult() interface{} {
 func getUserInfoByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceGetUserInfoByIdArgs)
 	realResult := result.(*v1.SystemServiceGetUserInfoByIdResult)
-	success, err := handler.(v1.SystemService).GetUserInfoById(ctx, realArg.Id)
+	success, err := handler.(v1.SystemService).GetUserInfoById(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -2683,9 +2683,9 @@ func (p *kClient) RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRe
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetUserInfoById(ctx context.Context, id int64) (r *v1.UserInfoByIdResponse, err error) {
+func (p *kClient) GetUserInfoById(ctx context.Context, req *v1.GetUserInfoByIdRequest) (r *v1.UserInfoByIdResponse, err error) {
 	var _args v1.SystemServiceGetUserInfoByIdArgs
-	_args.Id = id
+	_args.Req = req
 	var _result v1.SystemServiceGetUserInfoByIdResult
 	if err = p.c.Call(ctx, "GetUserInfoById", &_args, &_result); err != nil {
 		return

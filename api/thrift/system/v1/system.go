@@ -42280,6 +42280,232 @@ func (p *RegisterSysUserRequest) Field2DeepEqual(src *LoginUser) bool {
 	return true
 }
 
+type GetUserInfoByIdRequest struct {
+	Id   int64      `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+	User *LoginUser `thrift:"user,2" frugal:"2,default,LoginUser" json:"user"`
+}
+
+func NewGetUserInfoByIdRequest() *GetUserInfoByIdRequest {
+	return &GetUserInfoByIdRequest{}
+}
+
+func (p *GetUserInfoByIdRequest) InitDefault() {
+	*p = GetUserInfoByIdRequest{}
+}
+
+func (p *GetUserInfoByIdRequest) GetId() (v int64) {
+	return p.Id
+}
+
+var GetUserInfoByIdRequest_User_DEFAULT *LoginUser
+
+func (p *GetUserInfoByIdRequest) GetUser() (v *LoginUser) {
+	if !p.IsSetUser() {
+		return GetUserInfoByIdRequest_User_DEFAULT
+	}
+	return p.User
+}
+func (p *GetUserInfoByIdRequest) SetId(val int64) {
+	p.Id = val
+}
+func (p *GetUserInfoByIdRequest) SetUser(val *LoginUser) {
+	p.User = val
+}
+
+var fieldIDToName_GetUserInfoByIdRequest = map[int16]string{
+	1: "id",
+	2: "user",
+}
+
+func (p *GetUserInfoByIdRequest) IsSetUser() bool {
+	return p.User != nil
+}
+
+func (p *GetUserInfoByIdRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_GetUserInfoByIdRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *GetUserInfoByIdRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.Id = v
+	}
+	return nil
+}
+func (p *GetUserInfoByIdRequest) ReadField2(iprot thrift.TProtocol) error {
+	p.User = NewLoginUser()
+	if err := p.User.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *GetUserInfoByIdRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("GetUserInfoByIdRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *GetUserInfoByIdRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *GetUserInfoByIdRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("user", thrift.STRUCT, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.User.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *GetUserInfoByIdRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("GetUserInfoByIdRequest(%+v)", *p)
+
+}
+
+func (p *GetUserInfoByIdRequest) DeepEqual(ano *GetUserInfoByIdRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Id) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.User) {
+		return false
+	}
+	return true
+}
+
+func (p *GetUserInfoByIdRequest) Field1DeepEqual(src int64) bool {
+
+	if p.Id != src {
+		return false
+	}
+	return true
+}
+func (p *GetUserInfoByIdRequest) Field2DeepEqual(src *LoginUser) bool {
+
+	if !p.User.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
 type RegisterSysUserResponse struct {
 	BaseResp *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	IsOk     bool      `thrift:"isOk,2" frugal:"2,default,bool" json:"isOk"`
@@ -47130,7 +47356,7 @@ type SystemService interface {
 
 	RegisterSysUser(ctx context.Context, req *RegisterSysUserRequest) (r *RegisterSysUserResponse, err error)
 
-	GetUserInfoById(ctx context.Context, id int64) (r *UserInfoByIdResponse, err error)
+	GetUserInfoById(ctx context.Context, req *GetUserInfoByIdRequest) (r *UserInfoByIdResponse, err error)
 
 	CreateSysUser(ctx context.Context, req *CreateSysUserRequest) (r *BaseResp, err error)
 
@@ -47928,9 +48154,9 @@ func (p *SystemServiceClient) RegisterSysUser(ctx context.Context, req *Register
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *SystemServiceClient) GetUserInfoById(ctx context.Context, id int64) (r *UserInfoByIdResponse, err error) {
+func (p *SystemServiceClient) GetUserInfoById(ctx context.Context, req *GetUserInfoByIdRequest) (r *UserInfoByIdResponse, err error) {
 	var _args SystemServiceGetUserInfoByIdArgs
-	_args.Id = id
+	_args.Req = req
 	var _result SystemServiceGetUserInfoByIdResult
 	if err = p.Client_().Call(ctx, "GetUserInfoById", &_args, &_result); err != nil {
 		return
@@ -52215,7 +52441,7 @@ func (p *systemServiceProcessorGetUserInfoById) Process(ctx context.Context, seq
 	var err2 error
 	result := SystemServiceGetUserInfoByIdResult{}
 	var retval *UserInfoByIdResponse
-	if retval, err2 = p.handler.GetUserInfoById(ctx, args.Id); err2 != nil {
+	if retval, err2 = p.handler.GetUserInfoById(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing GetUserInfoById: "+err2.Error())
 		oprot.WriteMessageBegin("GetUserInfoById", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -80654,7 +80880,7 @@ func (p *SystemServiceRegisterSysUserResult) Field0DeepEqual(src *RegisterSysUse
 }
 
 type SystemServiceGetUserInfoByIdArgs struct {
-	Id int64 `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+	Req *GetUserInfoByIdRequest `thrift:"req,1" frugal:"1,default,GetUserInfoByIdRequest" json:"req"`
 }
 
 func NewSystemServiceGetUserInfoByIdArgs() *SystemServiceGetUserInfoByIdArgs {
@@ -80665,15 +80891,24 @@ func (p *SystemServiceGetUserInfoByIdArgs) InitDefault() {
 	*p = SystemServiceGetUserInfoByIdArgs{}
 }
 
-func (p *SystemServiceGetUserInfoByIdArgs) GetId() (v int64) {
-	return p.Id
+var SystemServiceGetUserInfoByIdArgs_Req_DEFAULT *GetUserInfoByIdRequest
+
+func (p *SystemServiceGetUserInfoByIdArgs) GetReq() (v *GetUserInfoByIdRequest) {
+	if !p.IsSetReq() {
+		return SystemServiceGetUserInfoByIdArgs_Req_DEFAULT
+	}
+	return p.Req
 }
-func (p *SystemServiceGetUserInfoByIdArgs) SetId(val int64) {
-	p.Id = val
+func (p *SystemServiceGetUserInfoByIdArgs) SetReq(val *GetUserInfoByIdRequest) {
+	p.Req = val
 }
 
 var fieldIDToName_SystemServiceGetUserInfoByIdArgs = map[int16]string{
-	1: "id",
+	1: "req",
+}
+
+func (p *SystemServiceGetUserInfoByIdArgs) IsSetReq() bool {
+	return p.Req != nil
 }
 
 func (p *SystemServiceGetUserInfoByIdArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -80696,7 +80931,7 @@ func (p *SystemServiceGetUserInfoByIdArgs) Read(iprot thrift.TProtocol) (err err
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -80733,11 +80968,9 @@ ReadStructEndError:
 }
 
 func (p *SystemServiceGetUserInfoByIdArgs) ReadField1(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
+	p.Req = NewGetUserInfoByIdRequest()
+	if err := p.Req.Read(iprot); err != nil {
 		return err
-	} else {
-		p.Id = v
 	}
 	return nil
 }
@@ -80771,10 +81004,10 @@ WriteStructEndError:
 }
 
 func (p *SystemServiceGetUserInfoByIdArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Id); err != nil {
+	if err := p.Req.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -80801,15 +81034,15 @@ func (p *SystemServiceGetUserInfoByIdArgs) DeepEqual(ano *SystemServiceGetUserIn
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.Req) {
 		return false
 	}
 	return true
 }
 
-func (p *SystemServiceGetUserInfoByIdArgs) Field1DeepEqual(src int64) bool {
+func (p *SystemServiceGetUserInfoByIdArgs) Field1DeepEqual(src *GetUserInfoByIdRequest) bool {
 
-	if p.Id != src {
+	if !p.Req.DeepEqual(src) {
 		return false
 	}
 	return true

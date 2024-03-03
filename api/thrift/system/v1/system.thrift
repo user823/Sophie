@@ -114,7 +114,7 @@ service SystemService {
     UserInfoResponse GetUserInfo(1:i64 id)
     RegisterSysUserResponse RegisterSysUser(1:RegisterSysUserRequest req)
     // 设置id = -1 表示不需要额外信息
-    UserInfoByIdResponse GetUserInfoById(1:i64 id)
+    UserInfoByIdResponse GetUserInfoById(1:GetUserInfoByIdRequest req)
     BaseResp CreateSysUser(1:CreateSysUserRequest req)
     BaseResp UpdateSysUser(1:UpdateSysUserRequest req)
     BaseResp DeleteSysUser(1:DeleteSysUserRequest req)
@@ -950,6 +950,11 @@ struct UserInfoByIdResponse {
 
 struct RegisterSysUserRequest {
     1:UserInfo userInfo
+    2:LoginUser user
+}
+
+struct GetUserInfoByIdRequest {
+    1:i64 id
     2:LoginUser user
 }
 

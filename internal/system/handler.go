@@ -1303,11 +1303,13 @@ func (s *SystemServiceImpl) RegisterSysUser(ctx context.Context, req *v1.Registe
 }
 
 // GetUserInfoById implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, id int64) (resp *v1.UserInfoByIdResponse, err error) {
+func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, req *v1.GetUserInfoByIdRequest) (resp *v1.UserInfoByIdResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	userSrv := service.NewUsers(store)
 	postSrv := service.NewPosts(store)
 	roleSrv := service.NewRoles(store)
+	loginuser := req.GetUser()
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginuser)
 
 	roleList := roleSrv.SelectRoleAll(ctx, &api.GetOptions{Cache: true})
 	// 搜索所有角色
@@ -1315,16 +1317,16 @@ func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, id int64) (resp
 	// 搜索所有岗位
 	// 搜索所有岗位
 	posts := postSrv.SelectPostAll(ctx, &api.GetOptions{Cache: true})
-	if id != -1 {
+	if req.Id != -1 {
 		// 查询用户权限
-		if !userSrv.CheckUserDataScope(ctx, id, &api.GetOptions{Cache: true}) {
+		if !userSrv.CheckUserDataScope(ctx, req.Id, &api.GetOptions{Cache: true}) {
 			return &v1.UserInfoByIdResponse{
 				BaseResp: utils.Fail("没有权限访问用户数据！"),
 			}, nil
 		}
 
 		// 过滤角色
-		if !v13.IsUserAdmin(id) {
+		if !v13.IsUserAdmin(req.Id) {
 			j := 0
 			for i := 0; i < len(roleList.Items); i++ {
 				if !roles[i].IsAdmin() {
@@ -1336,8 +1338,8 @@ func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, id int64) (resp
 		}
 
 		// 该用户对应岗位和角色
-		sysUser := userSrv.SelectUserById(ctx, id, &api.GetOptions{Cache: true})
-		postIds := postSrv.SelectPostListByUserId(ctx, id, &api.GetOptions{Cache: true})
+		sysUser := userSrv.SelectUserById(ctx, req.Id, &api.GetOptions{Cache: true})
+		postIds := postSrv.SelectPostListByUserId(ctx, req.Id, &api.GetOptions{Cache: true})
 		roleIds := make([]int64, 0, len(sysUser.Roles))
 		for i := range sysUser.Roles {
 			roleIds = append(roleIds, sysUser.Roles[i].RoleId)

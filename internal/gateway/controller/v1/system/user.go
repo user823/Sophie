@@ -139,8 +139,20 @@ func (u *UserController) GetInfoWithId(ctx context.Context, c *app.RequestContex
 	userIdStr := c.Param("userId")
 	userid, _ := strconv.ParseInt(userIdStr, 10, 64)
 
+	loginUser, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.Fail(c, "获取用户登录信息失败，请重试", nil)
+	}
+
 	// 绑定的userid 可以为空
-	resp, err := rpc.Remoting.GetUserInfoById(ctx, userid)
+	resp, err := rpc.Remoting.GetUserInfoById(ctx, &v1.GetUserInfoByIdRequest{
+		Id: userid,
+		User: &v1.LoginUser{
+			Roles:       loginUser.Roles,
+			Permissions: loginUser.Permissions,
+			User:        v1.SysUser2UserInfo(&loginUser.User),
+		},
+	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
 		return
@@ -163,7 +175,19 @@ func (u *UserController) GetInfoWithId(ctx context.Context, c *app.RequestContex
 
 // 匹配/system/user
 func (u *UserController) GetInfoWithId2(ctx context.Context, c *app.RequestContext) {
-	resp, err := rpc.Remoting.GetUserInfoById(ctx, -1)
+	loginUser, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.Fail(c, "获取用户登录信息失败，请重试", nil)
+	}
+
+	resp, err := rpc.Remoting.GetUserInfoById(ctx, &v1.GetUserInfoByIdRequest{
+		Id: -1,
+		User: &v1.LoginUser{
+			Roles:       loginUser.Roles,
+			Permissions: loginUser.Permissions,
+			User:        v1.SysUser2UserInfo(&loginUser.User),
+		},
+	})
 	if err != nil {
 		core.WriteResponseE(c, rpc.ErrRPC, nil)
 		return

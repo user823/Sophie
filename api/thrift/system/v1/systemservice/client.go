@@ -95,7 +95,7 @@ type Client interface {
 	GetUserInfoByName(ctx context.Context, name string, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error)
 	GetUserInfo(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoResponse, err error)
 	RegisterSysUser(ctx context.Context, req *v1.RegisterSysUserRequest, callOptions ...callopt.Option) (r *v1.RegisterSysUserResponse, err error)
-	GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error)
+	GetUserInfoById(ctx context.Context, req *v1.GetUserInfoByIdRequest, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error)
 	CreateSysUser(ctx context.Context, req *v1.CreateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateSysUser(ctx context.Context, req *v1.UpdateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteSysUser(ctx context.Context, req *v1.DeleteSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -557,9 +557,9 @@ func (p *kSystemServiceClient) RegisterSysUser(ctx context.Context, req *v1.Regi
 	return p.kClient.RegisterSysUser(ctx, req)
 }
 
-func (p *kSystemServiceClient) GetUserInfoById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error) {
+func (p *kSystemServiceClient) GetUserInfoById(ctx context.Context, req *v1.GetUserInfoByIdRequest, callOptions ...callopt.Option) (r *v1.UserInfoByIdResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetUserInfoById(ctx, id)
+	return p.kClient.GetUserInfoById(ctx, req)
 }
 
 func (p *kSystemServiceClient) CreateSysUser(ctx context.Context, req *v1.CreateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {

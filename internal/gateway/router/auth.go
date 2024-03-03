@@ -11,7 +11,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	v12 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/gateway/rpc"
-	code2 "github.com/user823/Sophie/internal/pkg/code"
+	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/internal/pkg/middleware/auth"
 	"github.com/user823/Sophie/pkg/core"
 	"github.com/user823/Sophie/pkg/db/kv"
@@ -19,7 +19,6 @@ import (
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/utils"
 	"github.com/user823/Sophie/pkg/utils/strutil"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -49,7 +48,7 @@ func newBasicAuth() auth.AuthStrategy {
 		}()
 
 		resp, err := rpc.Remoting.GetUserInfoByName(context.Background(), username)
-		if err != nil || resp.BaseResp.Code != code2.SUCCESS {
+		if err != nil || resp.BaseResp.Code != code.SUCCESS {
 			msg = fmt.Sprintf("登陆用户：%s 出现未知错误，请重试", username)
 			return nil, false
 		}
@@ -120,19 +119,9 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 
 		resp, err := rpc.Remoting.GetUserInfoByName(context.Background(), login.Username)
 		user := v12.UserInfo2SysUser(resp.Data)
-		if err != nil {
-			log.Errorf("get user information failed: %s", err.Error())
-
-			// 未找到用户
-			if err == gorm.ErrRecordNotFound {
-				log.Errorf("get user information failed: %s", err.Error())
-				msgErr = fmt.Errorf("登陆用户：%s 不存在", login.Username)
-				return "", msgErr
-			}
-
-			// 其他错误
-			msgErr = fmt.Errorf("登陆用户：%s 出现未知错误，请重试", login.Username)
-			return "", msgErr
+		if err != nil || resp.BaseResp.Code != code.SUCCESS {
+			msgErr = errors.WithCodeMessagef(err, int(resp.BaseResp.Code), "系统内部错误")
+			return nil, msgErr
 		}
 
 		if v1.UserStatus["DELETED"].Code == user.DelFlag {
@@ -190,8 +179,8 @@ func authentizator() func(data interface{}, ctx context.Context, c *app.RequestC
 
 			// 用于后续步骤的权限校验
 			resp, err := rpc.Remoting.GetUserInfoByName(ctx, v.Username)
-			if err != nil || resp.BaseResp.Code != code2.SUCCESS {
-				log.Errorf("Get user info error: %s", err.Error())
+			if err != nil || resp.BaseResp.Code != code.SUCCESS {
+				log.Errorf("Get user info error, code: %d, error: %v", resp.BaseResp.Code, err)
 				return false
 			}
 
@@ -249,7 +238,7 @@ func loginResponse() func(ctx context.Context, c *app.RequestContext, code int, 
 }
 
 func logoutResponse() func(ctx context.Context, c *app.RequestContext, code int) {
-	return func(ctx context.Context, c *app.RequestContext, code int) {
+	return func(ctx context.Context, c *app.RequestContext, cod int) {
 		claims := jwt.ExtractClaims(ctx, c)
 		user := claims[auth.UsernameKey]
 		if v, ok := user.(v1.SysUser); ok {
@@ -263,8 +252,8 @@ func logoutResponse() func(ctx context.Context, c *app.RequestContext, code int)
 			appendLogininfo(logininfo)
 		}
 
-		c.JSON(code2.SUCCESS, map[string]interface{}{
-			"code": code,
+		c.JSON(code.SUCCESS, map[string]interface{}{
+			"code": cod,
 		})
 	}
 }
@@ -285,7 +274,7 @@ func appendLogininfo(logininfo *v12.Logininfo) {
 		LoginInfo: logininfo,
 	})
 
-	if err != nil || resp.Code != code2.SUCCESS {
+	if err != nil || resp.Code != code.SUCCESS {
 		log.Errorf("login info append error: %s", err.Error())
 	}
 }

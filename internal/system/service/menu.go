@@ -9,6 +9,8 @@ import (
 	"github.com/user823/Sophie/internal/system/store"
 	"github.com/user823/Sophie/pkg/utils/intutil"
 	"github.com/user823/Sophie/pkg/utils/strutil"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"strings"
 )
 
@@ -160,12 +162,7 @@ func (s *menuService) BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo.
 		router.Path = getRouterPath(menus[i])
 		router.Component = getComponent(menus[i])
 		router.Query = menus[i].Query
-		router.Meta = vo.MetaVo{
-			Title:   menus[i].MenuName,
-			Icon:    menus[i].Icon,
-			NoCache: menus[i].IsCache == "1",
-			Link:    menus[i].Path,
-		}
+		router.Meta = NewMetaVo(menus[i].MenuName, menus[i].Icon, menus[i].IsCache == "1", menus[i].Path)
 
 		cMenus := menus[i].Children
 		if len(cMenus) > 0 && v1.TYPE_DIR == menus[i].MenuType {
@@ -178,7 +175,7 @@ func (s *menuService) BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo.
 			children.Path = menus[i].Path
 			children.Component = menus[i].Component
 			children.Name = strings.ToTitle(menus[i].Path)
-			children.Meta = vo.MetaVo{menus[i].MenuName, menus[i].Icon, menus[i].IsCache == "1", menus[i].Path}
+			children.Meta = NewMetaVo(menus[i].MenuName, menus[i].Icon, menus[i].IsCache == "1", menus[i].Path)
 			children.Query = menus[i].Query
 			router.Children = []vo.RouterVo{children}
 		} else if menus[i].ParentId == 0 && isInnerLink(menus[i]) {
@@ -265,7 +262,8 @@ func (s *menuService) CheckMenuNameUnique(ctx context.Context, menu *v1.SysMenu,
 }
 
 func getRouterName(menu *v1.SysMenu) string {
-	routerName := strings.ToTitle(menu.Path)
+	c := cases.Title(language.English)
+	routerName := c.String(menu.Path)
 	// 非外链并且是一级目录（类型为目录）
 	if isMenuFrame(menu) {
 		routerName = ""
@@ -344,4 +342,16 @@ func getMenuChildList(list []*v1.SysMenu, t *v1.SysMenu) []*v1.SysMenu {
 		}
 	}
 	return tlist
+}
+
+func NewMetaVo(title, icon string, noCache bool, link string) vo.MetaVo {
+	res := vo.MetaVo{
+		Title:   title,
+		Icon:    icon,
+		NoCache: noCache,
+	}
+	if strutil.IsHttp(link) {
+		res.Link = link
+	}
+	return res
 }

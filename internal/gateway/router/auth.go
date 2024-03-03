@@ -244,10 +244,7 @@ func loginResponse() func(ctx context.Context, c *app.RequestContext, code int, 
 		record := fmt.Sprintf("%s:%s:%s:%d", v.User.Username, message, sysLoginInfo.Ipaddr, sysLoginInfo.AccessTime)
 		redisLoginStatus(message, record, utils.Time2Second(time)*1e9)
 
-		core.WriteResponse(c, core.ErrResponse{
-			Code: code,
-			Data: data,
-		})
+		core.OK(c, "操作成功", data)
 	}
 }
 

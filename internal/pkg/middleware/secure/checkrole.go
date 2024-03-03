@@ -36,7 +36,7 @@ func RequireRoles(roles string, opts ...Option) app.HandlerFunc {
 		if !ok || data == nil {
 			core.WriteResponse(c, core.ErrResponse{Code: code.UNAUTHRIZED, Message: "登录信息失效，请重新登录"})
 		}
-		loginInfo := data.(*v1.LoginUser)
+		loginInfo := data.(v1.LoginUser)
 
 		// 修改选项设置
 		for i := range opts {

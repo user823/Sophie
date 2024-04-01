@@ -14,15 +14,15 @@ type Client interface {
 	ListGenTables(ctx context.Context, req *v1.ListGenTablesRequest, callOptions ...callopt.Option) (r *v1.ListGenTablesResponse, err error)
 	GetInfo(ctx context.Context, tableId int64, callOptions ...callopt.Option) (r *v1.GetInfoResponse, err error)
 	DataList(ctx context.Context, req *v1.DataListRequest, callOptions ...callopt.Option) (r *v1.ListGenTablesResponse, err error)
-	ColumnList(ctx context.Context, tableId int64, callOptions ...callopt.Option) (r *v1.ListGenTablesResponse, err error)
-	ImportTableSave(ctx context.Context, tables string, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
+	ColumnList(ctx context.Context, tableId int64, callOptions ...callopt.Option) (r *v1.ListGenTableColumnsResponse, err error)
+	ImportTableSave(ctx context.Context, req *v1.ImportTableSaveRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	EditSave(ctx context.Context, req *v1.EditSaveRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	Remove(ctx context.Context, req *v1.RemoveRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	Preview(ctx context.Context, tableId int64, callOptions ...callopt.Option) (r *v1.PreviewResponse, err error)
 	Download(ctx context.Context, tableName string, callOptions ...callopt.Option) (r *v1.DownloadResponse, err error)
 	GenCode(ctx context.Context, tableName string, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	SynchDb(ctx context.Context, tableName string, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
-	BatchGenCode(ctx context.Context, tables string, callOptions ...callopt.Option) (r *v1.BatchGenCodeResponse, err error)
+	BatchGenCode(ctx context.Context, tables string, callOptions ...callopt.Option) (r *v1.DownloadResponse, err error)
 }
 
 // NewClient creates a client for the service defined in IDL.
@@ -69,14 +69,14 @@ func (p *kGenServiceClient) DataList(ctx context.Context, req *v1.DataListReques
 	return p.kClient.DataList(ctx, req)
 }
 
-func (p *kGenServiceClient) ColumnList(ctx context.Context, tableId int64, callOptions ...callopt.Option) (r *v1.ListGenTablesResponse, err error) {
+func (p *kGenServiceClient) ColumnList(ctx context.Context, tableId int64, callOptions ...callopt.Option) (r *v1.ListGenTableColumnsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ColumnList(ctx, tableId)
 }
 
-func (p *kGenServiceClient) ImportTableSave(ctx context.Context, tables string, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
+func (p *kGenServiceClient) ImportTableSave(ctx context.Context, req *v1.ImportTableSaveRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ImportTableSave(ctx, tables)
+	return p.kClient.ImportTableSave(ctx, req)
 }
 
 func (p *kGenServiceClient) EditSave(ctx context.Context, req *v1.EditSaveRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
@@ -109,7 +109,7 @@ func (p *kGenServiceClient) SynchDb(ctx context.Context, tableName string, callO
 	return p.kClient.SynchDb(ctx, tableName)
 }
 
-func (p *kGenServiceClient) BatchGenCode(ctx context.Context, tables string, callOptions ...callopt.Option) (r *v1.BatchGenCodeResponse, err error) {
+func (p *kGenServiceClient) BatchGenCode(ctx context.Context, tables string, callOptions ...callopt.Option) (r *v1.DownloadResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.BatchGenCode(ctx, tables)
 }

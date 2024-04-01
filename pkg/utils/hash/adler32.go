@@ -16,8 +16,8 @@ func newAdler32Hasher() Hasher {
 	}
 }
 
-func (a *adler32Hasher) HashKey(keyname string) string {
+func (a *adler32Hasher) HashKey(key []byte) string {
 	a.adler.Reset()
-	b := a.adler.Sum([]byte(keyname))
+	b := a.adler.Sum(key)
 	return hex.EncodeToString(b)
 }

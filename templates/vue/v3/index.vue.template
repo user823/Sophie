@@ -1,0 +1,540 @@
+<template>
+    <div class="app-container">
+        <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+{{range .columns -}}
+{{if require .IsQuery -}}
+{{$dictType := .DictType -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{$comment := getColumnComment .ColumnComment -}}
+{{if eq .HtmlType "input" -}}
+            <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                <el-input
+                    v-model="queryParams.{{$AttrName}}"
+                    placeholder="请输入{{$comment}}"
+                    clearable
+                    @keyup.enter.native="handleQuery"
+                />
+            </el-form-item>
+{{else if and (eq .HtmlType "select" "radio") ($dictType) -}}
+            <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                <el-select v-model="queryParams.{{$AttrName}}" placeholder="请选择{{$comment}}" clearable>
+                    <el-option
+                        v-for="dict in dict.type.{{$dictType}}"
+                        :key="dict.value"
+                        :label="dict.label"
+                        :value="dict.value"
+                    />
+                </el-select>
+            </el-form-item>
+{{else if and (eq .HtmlType "datetime") (ne .QueryType "BETWEEN")}}
+            <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                <el-date-picker clearable
+                    v-model="queryParams.{{$AttrName}}"
+                    type="date"
+                    value-format="yyyy-MM-dd"
+                    placeholder="请选择{{$comment}}"
+                </el-date-picker>
+            </el-form-item>
+{{else if and (eq .HtmlType "datetime") (eq .QueryType "BETWEEN")}}
+            <el-form-item label={{$comment}} style="width: 308px">
+                <el-date-picker
+                    v-model="daterange{{$AttrName}}"
+                    value-format="yyyy-MM-dd"
+                    type="daterange"
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                ></el-date-picker>
+            </el-form-item>
+{{end}}
+{{end}}
+{{end}}
+            <el-form-item>
+                <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+                <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+            </el-form-item>
+        </el-form>
+
+        <el-row :gutter="10" class="mb8">
+            <el-col :span="1.5">
+                <el-button
+                    type="primary"
+                    plain
+                    icon="Plus"
+                    @click="handleAdd"
+                    v-hasPremi="['{{.moduleName}}:{{.businessName}}:add']"
+                >新增</el-button>
+            </el-col>
+            <el-col :span="1.5">
+                <el-button
+                    type="success"
+                    plain
+                    icon="Edit"
+                    :disabled="single"
+                    @click="handleUpdate"
+                    v-hasPermi="['{{.moduleName}}:{{.businessName}}:edit']"
+                >修改</el-button>
+            </el-col>
+            <el-col :span="1.5">
+                <el-button
+                    type="danger"
+                    plain
+                    icon="Delete"
+                    :disabled="multiple"
+                    @click="handleDelete"
+                    v-hasPermi="['{{.moduleName}}:{{.businessName}}:remove']"
+                >删除</el-button>
+            </el-col>
+            <el-col :span="1.5">
+                <el-button
+                    type="warning"
+                    plain
+                    icon="Download"
+                    @click="handleExport"
+                    v-hasPermi="['{{.moduleName}}:{{.businessName}}:export']"
+                >导出</el-button>
+            </el-col>
+            <right-toolbar v-model:showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+        </el-row>
+
+        <el-table v-loading="loading" :data="{{.businessName}}List" @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55" align="center" />
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{$comment := getColumnComment .ColumnComment -}}
+{{if require .IsPk -}}
+            <el-table-column label="{{.comment}}" align="center" prop="{{$AttrName}}" />
+{{else if and (require .IsList) (eq .HtmlType "datetime") -}}
+            <el-table-column label="{{.comment}}" align="center" prop="{{$AttrName}}" width="180">
+                <template slot-scope="scope">
+                    <span>{{"{{"}}  parseTime(scope.row.{{$AttrName}} ) {{"}}"}}</span>
+                </template>
+            </el-table-column>
+{{else if and (require .IsList) (eq .HtmlType "imageUpload") -}}
+            <el-table-column label="{{.comment}}" align="center" prop="{{$AttrName}} width="100">
+                <template slot-scope="scope">
+                    <image-preview :src="scope.row.{{$AttrName}}" :width="50" :height="50"/>
+                <template>
+            <el-table-column>
+{{else if and (require .IsList) (.DictType) -}}
+            <el-table-column label="{{.comment}}" align="center" prop="{{$AttrName}}">
+                <template slot-scope="scope">
+{{if eq .HtmlType "checkbox" -}}
+                    <dict-tag :options="dict.type.{{.DictType}}" :value="scope.row.{{$AttrName}} ? scope.row.{{$AttrName}}.split(',') : []"/>
+{{else -}}
+                    <dict-tag :options="dict.type.{{.DictType}}" :value="scope.row.{{$AttrName}}"/>
+{{end}}
+                </template>
+            <el-table-column>
+{{else if and (require .IsList) ($AttrName) -}}
+            <el-table-column label="{{.comment}}" align="center" prop="{{.GoFiled}}" />
+{{end}}
+{{end}}
+            <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+                <template #default="scope">
+                    <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['{{.moduleName}}:{{.businessName}}:edit']">修改</el-button>
+                    <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['{{.moduleName}}:{{.businessName}}:remove']">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <pagination
+            v-show="total>0"
+            :total="total"
+            :page.sync="queryParams.pageNum"
+            :limit.sync="queryParams.pageSize"
+            @pagination="getList"
+        />
+
+        <!-- 添加或修改{{.functionName}}对话框 -->
+        <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+             <el-form ref="{{.businessName}}Ref" :model="form" :rules="rules" label-width="80px">
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if and (require .IsInsert) (not (require .IsPk)) -}}
+{{if or (.IsUsableColumn) (not (.IsSuperColumn)) -}}
+{{$comment := getColumnComment .ColumnComment -}}
+{{if eq .HtmlType "input" -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <el-input v-model="form.{{$AttrName}}" placeholder="请输入{{$comment}}" />
+                </el-form-item>
+{{else if eq .HtmlType "imageUpload" -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <image-upload v-model="form.{{$AttrName}}"/>
+                </el-form-item>
+{{else if eq .HtmlType "fileUpload" -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <file-upload v-model="form.{{$AttrName}}"/>
+                </el-form-item>
+{{else if eq .HtmlType "editor" -}}
+                <el-form-item label="{{$comment}}">
+                    <editor v-model="form.{{$AttrName}}" :min-height="192"/>
+                </el-form-item>
+{{else if and (eq .HtmlType "select") (.DictType) -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <el-select v-model="form.{{$AttrName}}" placeholder="请选择{{$comment}}"?
+                        <el-option
+                            v-for="dict in dict.type.{{.DictType}}"
+                            :key="dict.value"
+                            :label="dict.label"
+{{if eq .GoType "int64" -}}
+                            :value="parseInt(dict.value)"
+{{else -}}
+                            :value="dict.value"
+{{end}}
+                        ></el-option>
+                    </el-select>
+                </el-form-item>
+{{else if and (eq .HtmlType "checkbox") (.DictType) -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <el-checkbox-group v-model="form.{{.GoFeild}}">
+                        <el-checkbox
+                            v-for="dict in dict.type.{{.DictType}}"
+                            :key="dict.value"
+                            :label="dict.value">
+                            {{"{{"}}dict.label{{"}}"}}
+                        </el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+{{else if and (eq .HtmlType "radio") (.DictType) -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <el-radio-group v-model="form.{{$AttrName}}">
+                        <el-radio
+                            v-for="dict in dict.type.{{.DictType}}"
+                            :key="dict.value"
+{{if eq .GoType "int64" -}}
+                            :label="parseInt(dict.value)"
+{{else -}}
+                            :label="dict.value"
+{{end}}
+                        >{{"{{"}}dict.label{{"}}"}}</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+{{else if .HtmlType "datetime" -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}">
+                    <el-date-picker clearable
+                        v-model="form.${field}"
+                        type="date"
+                        value-format="yyyy-MM-dd"
+                        placeholder="请选择{{$comment}}">
+                    </el-date-picker>
+                </el-form-item>
+{{else if .HtmlType "textarea" -}}
+                <el-form-item label="{{$comment}}" prop="{{$AttrName}}"
+                    <el-input v-model="form.{{$AttrName}}" type="textarea" placeholder="请输入内容" />
+                <el-form-item>
+{{end}}
+{{end}}
+{{end}}
+{{end}}
+{{if .subTable -}}
+                <el-divider content-position="center">{{.subTable.functionName}}信息</el-divider>
+                <el-row :gutter="10" class="mb8">
+                    <el-col :span="1.5">
+                        <el-button type="primary" icon="Plus" @click="handleAdd{{.subClassName}}">添加</el-button>
+                    </el-col>
+                    <el-col :span="1.5">
+                        <el-button type="danger" icon="Delete" @click="handleDelete{{.subClassName}}">删除</el-button>
+                    </el-col>
+                </el-row>
+                <el-table :data="{{.subclassName}}List" :row-class-name="row{{.subClassName}}Index" @selection-change="handle{{.subClassName}}SelectionChange" ref="{{.subclassName}}">
+                    <el-table-column type="selection" width="50" align="center" />
+                    <el-table-column label="序号" align="center" prop="index" width="50"/>
+{{$subTableFkclassName := .subTableFkclassName -}}
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{$comment := getColumnComment .ColumnComment -}}
+{{if or (require .IsPk) (eq .GoField $subTableFkclassName) -}}
+{{else if and (require .IsList) (eq .HtmlType "input") -}}
+                    <el-table-column label="{{$comment}}" prop="{{$AttrName}}" width="150">
+                        <template slot-scope="scope">
+                            <el-input v-model="scope.row.{{$AttrName}}" placeholder="请输入{{$comment}}" />
+                        </template>
+                    </el-table-column>
+{{else if and (require .IsList) (eq .HtmlType "datetime") -}}
+                    <el-table-column label="{{$comment}}" prop="{{$AttrName}}" width="240">
+                        <template #default="scope">
+                            <el-date-picker clearable v-model="scope.row.{{$AttrName}}" type="date" value-format="yyyy-MM-dd" placeholder="请选择{{$comment}}" />
+                        </template>
+                    </el-table-column>
+{{else if and (require .IsList) (eq .HtmlType "select" "radio") ($.DictType) -}}
+                    <el-table-column label="$comment" prop="${GoField}" width="150">
+                        <template slot-scope="scope">
+                            <el-select v-model="scope.row.$GoField" placeholder="请选择$comment">
+                                <el-option
+                                    v-for="dict in dict.type.$column.dictType"
+                                    :key="dict.value"
+                                    :label="dict.label"
+                                    :value="dict.value"
+                                ></el-option>
+                            </el-select>
+                        </template>
+                    </el-table-column>
+{{end}}
+{{end}}
+                </el-table>
+{{end}}
+            </el-form>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button type="primary" @click="submitForm">确 定</el-button>
+                    <el-button @click="cancel">取 消</el-button>
+                </div>
+            </template>
+        </el-dialog>
+    </div>
+</template>
+
+<script setup name="{{.BusinessName}}">
+import { list{{.BusinessName}}, get{{.BusinessName}}, del{{.BusinessName}}, add{{.BusinessName}}, update{{.BusinessName}} } from "@/api/{{.moduleName}}/{{.businessName}}";
+
+const { proxy } = getCurrentInstance();
+{{if .dicts -}}
+{{$dictsNoSymbol := replace .dicts "'" "" -}}
+const {{"{"}} $$dictsNoSymbol {{"}"}} = proxy.useDict(.dicts);
+{{end}}
+
+const {{.businessName}}List = ref([]);
+{{if .sub -}}
+const {{.subclassName}}List = ref([]);
+{{end}}
+const open = ref(false);
+const loading = ref(true);
+const showSearch = ref(true);
+const ids = ref([]);
+{{if .sub -}}
+const checked{{.subClassName}} = ref([])
+{{end}}
+const single = ref(true);
+const multiple = ref(true);
+const total = ref(0);
+const title = ref("");
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if and (eq .HtmlType "datetime") (eq .QueryType "BETWEEN")}}
+const daterange{{.GoField}} = ref([]);
+{{end}}
+{{end}}
+
+const data = reactive({
+    form: {},
+    queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+{{$columnlength := len .columns -}}
+{{range $index, $elem := .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if require .IsQuery -}}
+        {{$AttrName}}: null{{if ne $index (sub $columnlength 1) -}},{{end}}
+{{end}}
+{{end}}
+    },
+    rules: {
+{{$columnlength := len .columns -}}
+{{range $index, $elem := .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if require .IsRequire -}}
+{{$comment := getColumnComment .ColumnComment -}}
+                {{$AttrName}}: [
+                    { required: true, message: "{{$comment}}不能为空", trigger: {{if eq .HtmlType "select" "radio" -}}"change"{{else}}"blur"{{end}} }
+                ]{{if ne $index $columnlength}},{{end}}
+{{end}}
+{{end}}
+
+const { queryParams, form, rules } = toRefs(data);
+
+/** 查询{{.functionName}}列表 */
+function getList() {
+    loading.value = true;
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if and (eq .HtmlType "datetime") (eq .QueryType "BETWEEN") -}}
+            this.queryParams.params = {};
+{{break}}
+{{end}}
+{{end}}
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if and (eq .HtmlType "datetime") (eq .QueryType "BETWEEN") -}}
+            if (null != this.daterange{{.GoField}} && '' != this.daterange{{.GoField}}) {
+                this.queryParams.params["begin{{.GoField}}"] = this.daterange{{.GoField}}[0];
+                this.queryParams.params["end{{.GoField}}"] = this.daterange{{.GoField}}[1];
+            }
+{{end}}
+{{end}}
+    list{{.BusinessName}}(queryParams.value).then(response => {
+        {{.businessName}}List.value = response.rows;
+        total.value = response.total;
+        loading.value = false;
+    });
+}
+
+// 取消按钮
+function cancel() {
+    open.value = false;
+    reset();
+}
+
+// 表单重置
+function reset() {
+    form.value = {
+{{$columnlength := len .columns -}}
+{{range $index, $elem := .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if eq .HtmlType "checkbox" -}}
+            {{$AttrName}}: []{{if ne $index (sub $columnlength 1) -}},{{end}}
+{{else}}
+            {{$AttrName}}: null{{if ne $index (sub $columnlength 1) -}},{{end}}
+{{end}}
+{{end}}
+    };
+{{$subclassName := .subclassName -}}
+{{if .sub -}}
+    {{$subclassName}}List.value = [];
+{{end}}
+    proxy.resetForm("{{.businessName}}Ref");
+}
+
+/** 搜索按钮操作 */
+function handleQuery() {
+    queryParams.value.pageNum = 1;
+    getList();
+}
+
+/** 重置按钮操作 */
+function resetQuery() {
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if and (eq .HtmlType "datetime") (eq .QueryType "BETWEEN") -}}
+            this.daterange{{.GoField}} = [];
+{{end}}
+{{end}}
+    proxy.resetForm("queryRef");
+    handleQuery();
+}
+
+// 多选框选中数据
+function handleSelectionChange(selection) {
+  ids.value = selection.map(item => item.{{.pkColumn.GoField}});
+  single.value = selection.length != 1;
+  multiple.value = !selection.length;
+}
+
+/** 新增按钮操作 */
+function handleAdd() {
+    reset();
+    open.value = true;
+    title.value = "添加{{.functionName}}";
+}
+
+/** 修改按钮操作 */
+function handleUpdate(row) {
+    reset();
+    const _{{.pkColumn.GoField}} = row.{{.pkColumn.GoField}} || ids.value
+    get{{.BusinessName}}(_{{.pkColumn.GoField}}).then(response => {
+        form.value = response.data;
+{{$subclassName := .subclassName -}}
+{{$functionName := .functionName -}}
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if eq .HtmlType "checkbox" -}}
+        form.value.{{$AttrName}} = this.form.{{$AttrName}}.split(",");
+{{end}}
+{{end}}
+{{if .sub -}}
+        {{$subclassName}}List.value = response.data.{{$subclassName}}List;
+{{end}}
+        open.value = true;
+        title.value = "修改{{.functionName}}";
+    });
+}
+
+/** 提交按钮 */
+function submitForm() {
+    proxy.#[[$]]#refs["{{.businessName}}Ref"].validate(valid => {
+        if (valid) {
+{{range .columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if eq .HtmlType "checkbox" -}}
+            form.value.{{$AttrName}} = this.form.{{$AttrName}}.join(",");
+{{end}}
+{{end}}
+{{if .sub -}}
+            form.value.{{.subclassName}}List = this.{{.subclassName}}List;
+{{end}}
+            if (form.value.${pkColumn.GoField} != null) {
+                update${BusinessName}(form.value).then(response => {
+                    proxy.#[[$modal]]#.msgSuccess("修改成功");
+                    open.value = false;
+                    getList();
+                });
+            } else {
+                add${BusinessName}(form.value).then(response => {
+                    proxy.#[[$modal]]#.msgSuccess("新增成功");
+                    open.value = false;
+                    getList();
+                });
+            }
+        }
+    });
+}
+
+/** 删除按钮操作 */
+function handleDelete(row) {
+    const _{{.pkColumn.GoField}}s = row.{{.pkColumn.GoField}} || ids.value;
+    proxy.#[[$modal]]#.confirm('是否确认删除{{.functionName}}编号为"' + _{{.pkColumn.GoField}}s + '"的数据项？').then(function() {
+        return del{{.BusinessName}}(_{{.pkColumn.GoField}}s);
+    }).then(() => {
+        getList();
+        proxy.#[[$modal]]#.msgSuccess("删除成功");
+    }).catch(() => {});
+}
+
+{{$subClassName := .subClassName -}}
+{{$subTableFkclassName := .subTableFkclassName -}}
+{{if .sub -}}
+/** {{.subTable.functionName}}序号 */
+function row{{$subClassName}}Index({ row, rowIndex }) {
+    row.index = rowIndex + 1;
+}
+
+/** {{.subTable.functionName}}添加按钮操作 */
+function handleAdd{{$subClassName}}() {
+    let obj = {};
+{{range .Columns -}}
+{{$AttrName := CamelCaseToSnakeCase .GoField -}}
+{{if or (require .IsPk) (eq .GoField $subTableFkclassName) -}}
+{{else if and (require .IsList) (.GoField) -}}
+    obj.{{$AttrName}} = "";
+{{end}}
+{{end}}
+    {{$subclassName}}List.value.push(obj);
+}
+
+/** {{.subTable.functionName}}删除按钮操作 */
+function handleDelete{{$subClassName}}() {
+  if (checked{{$subClassName}}.value.length == 0) {
+    proxy.#[[$modal]]#.msgError("请先选择要删除的{{.subTable.functionName}}数据");
+  } else {
+    const {{$subclassName}}s = {{$subclassName}}List.value;
+    const checked{{$subClassName}}s = checked{{$subClassName}}.value;
+    {{$subclassName}}List.value = {{$subclassName}}s.filter(function(item) {
+      return checked{{$subClassName}}s.indexOf(item.index) == -1
+    });
+  }
+}
+
+/** 复选框选中数据 */
+function handle{{$subClassName}}SelectionChange(selection) {
+  checked{{$subClassName}}.value = selection.map(item => item.index)
+}
+{{end}}
+/** 导出按钮操作 */
+function handleExport() {
+  proxy.download('{{.moduleName}}/{{.businessName}}/export', {
+    ...queryParams.value
+  }, `{{.businessName}}_#[[${new Date().getTime()}]]#.xlsx`)
+}
+
+getList();
+</script>

@@ -52,7 +52,7 @@ service SystemService {
     // sys menu service
     ListSysMenusResponse ListSysMenus(1:ListSysMenusRequest req)
     SysMenuResponse GetSysMenuById(1:i64 id)
-    ListSysMenusResponse ListTreeMenu(1:ListTreeMenuRequest req)
+    ListTreeMenuResponse ListTreeMenu(1:ListTreeMenuRequest req)
     RoleMenuResponse ListTreeMenuByRoleid(1:ListTreeMenuByRoleidRequest req)
     BaseResp CreateMenu(1:CreateMenuRequest req)
     BaseResp UpdateMenu(1:UpdateMenuRequest req)
@@ -102,7 +102,7 @@ service SystemService {
     BaseResp CancelAuthUser(1:CancelAuthUserRequest req)
     BaseResp CancelAuthUserAll(1:CancelAuthUserAllRequest req)
     BaseResp SelectAuthUserAll(1:SelectAuthUserAllRequest req)
-    DeptTreeByRoleIdResponse DeptTreeByRoleId(1:i64 id)
+    DeptTreeByRoleIdResponse DeptTreeByRoleId(1:DeptTreeByRoleIdRequest req)
 
     // user service
     ListSysUsersResponse ListSysUsers(1:ListSysUsersRequest req)
@@ -119,8 +119,9 @@ service SystemService {
     BaseResp UpdateSysUser(1:UpdateSysUserRequest req)
     BaseResp DeleteSysUser(1:DeleteSysUserRequest req)
     BaseResp ResetPassword(1:ResetPasswordRequest req)
+    BaseResp UpdateUserAvatar(1:UpdateUserAvatarRequest req)
     BaseResp ChangeSysUserStatus(1:ChangeSysUserStatus req)
-    AuthRoleInfoResponse GetAuthRoleById(1:i64 id)
+    AuthRoleInfoResponse GetAuthRoleById(1:GetAuthRoleByIdRequest req)
     BaseResp AuthRole(1:AuthRoleRequest req) // 给其他人授权
     ListDeptsTreeResponse ListDeptsTree(1:ListDeptsTreeRequest req)
 
@@ -148,9 +149,9 @@ struct DateRange {
 
 struct ConfigInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 configId
@@ -183,7 +184,6 @@ struct ExportConfigResponse {
     1:BaseResp baseResp
     2:list<ConfigInfo> list
     3:string sheetName
-    4:string title
 }
 
 struct ConfigResponse {
@@ -208,9 +208,9 @@ struct DeleteConfigReqeust {
 
 struct DeptInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 deptId
@@ -264,9 +264,9 @@ struct DeleteDeptRequest {
 
 struct DictData {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 dictCode
@@ -302,7 +302,6 @@ struct ExportDictDataResponse {
     1:BaseResp baseResp
     2:list<DictData> list
     3:string sheetName
-    4:string title
 }
 
 struct DictDataResponse {
@@ -327,9 +326,9 @@ struct DeleteDictDataRequest {
 
 struct DictType {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 dictId
@@ -361,7 +360,6 @@ struct ExportDictTypeResponse {
     1:BaseResp baseResp
     2:list<DictType> list
     3:string sheetName
-    4:string title
 }
 
 struct DictTypeResponse {
@@ -390,18 +388,17 @@ struct DictTypeOptionSelectResponse {
 }
 
 struct Logininfo {
-    1:string createBy
-    2:i64 createTime
-    3:string updateBy
-    4:i64 updateTime
-    5:string remark
-    6:map<string,string> params
-    7:i64 infoId
-    8:string userName
-    9:string status
-    10:string ipaddr
-    11:string msg
-    12:i64 accessTime
+    1:string userName
+    2:string status
+    3:string ipaddr
+    4:string msg
+    5:string accessTime
+    6:string tokenId
+    7:string deptName
+    8:string browser
+    9:string os
+    10:string loginTime
+    11:i64 infoId
 }
 
 struct ListSysLogininfosRequest {
@@ -427,7 +424,6 @@ struct ExportLogininfoResponse {
     1:BaseResp baseResp
     2:list<Logininfo> list
     3:string sheetName
-    4:string title
 }
 
 struct RemoveSysLogininfosByIdRequest {
@@ -442,9 +438,9 @@ struct CreateSysLogininfoRequest {
 
 struct MenuInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 menuId
@@ -483,6 +479,11 @@ struct SysMenuResponse {
 struct ListTreeMenuRequest {
     1:MenuInfo menuInfo
     2:LoginUser user
+}
+
+struct ListTreeMenuResponse {
+    1:BaseResp baseResp
+    2:list<TreeSelect> data
 }
 
 struct TreeSelect {
@@ -556,9 +557,9 @@ struct RoutersResonse {
 
 struct NoticeInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 noticeId
@@ -602,9 +603,9 @@ struct UpdateSysNoticeRequest {
 
 struct OperLog {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 operId
@@ -622,7 +623,7 @@ struct OperLog {
     19:string jsonResult
     20:string status
     21:string errorMsg
-    22:i64 operTime
+    22:string operTime
     23:i64 costTime
 }
 
@@ -648,7 +649,6 @@ struct ExportSysOperLogResponse {
     1:BaseResp baseResp
     2:list<OperLog> operLogs
     3:string sheetName
-    4:string title
 }
 
 struct DeleteSysOperLogRequest {
@@ -663,9 +663,9 @@ struct CreateSysOperLogRequest {
 
 struct PostInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 postId
@@ -698,7 +698,6 @@ struct ExportSysPostResponse {
     1:BaseResp baseResp
     2:list<PostInfo> list
     3:string sheetName
-    4:string title
 }
 
 struct SysPostResponse {
@@ -728,9 +727,9 @@ struct PostOptionSelectResponse {
 
 struct RoleInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 roleId
@@ -750,9 +749,9 @@ struct RoleInfo {
 
 struct UserInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:i64 userId
@@ -767,7 +766,7 @@ struct UserInfo {
     16:string status
     17:string delFlag
     18:string loginIp
-    19:i64 loginDate
+    19:string loginDate
     20:DeptInfo dept
     21:list<RoleInfo> roles
     22:list<i64> roleIds
@@ -826,7 +825,6 @@ struct ExportSysRoleResponse {
     1:BaseResp baseResp
     2:list<RoleInfo> list
     3:string sheetName
-    4:string title
 }
 
 struct SysRoleResponse {
@@ -894,6 +892,11 @@ struct SelectAuthUserAllRequest {
     3:LoginUser user
 }
 
+struct DeptTreeByRoleIdRequest {
+    1:i64 id
+    2:LoginUser user
+}
+
 struct DeptTreeByRoleIdResponse {
     1:BaseResp baseResp
     2:list<i64> checkedKeys
@@ -922,7 +925,6 @@ struct ExportSysUserResponse {
     1:BaseResp baseResp
     2:list<UserInfo> list
     3:string sheetName
-    4:string title
 }
 
 struct ImportUserDataRequest {
@@ -990,8 +992,18 @@ struct ResetPasswordRequest {
     2:LoginUser user
 }
 
+struct UpdateUserAvatarRequest {
+    1:LoginUser user
+    2:string avatar
+}
+
 struct ChangeSysUserStatus {
     1:UserInfo userInfo
+    2:LoginUser user
+}
+
+struct GetAuthRoleByIdRequest {
+    1:i64 id
     2:LoginUser user
 }
 
@@ -1026,9 +1038,9 @@ struct ListSysUserOnlinesRequest {
 
 struct UserOnlineInfo {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
     7:string tokenId
@@ -1037,7 +1049,7 @@ struct UserOnlineInfo {
     10:string loginLocation
     11:string browser
     12:string os
-    13:i64 loginTime
+    13:string loginTime
 }
 
 struct ListSysUserOnline {

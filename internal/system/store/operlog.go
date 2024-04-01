@@ -10,7 +10,7 @@ type OperLogStore interface {
 	// 新增操作日志
 	InsertOperLog(ctx context.Context, operlog *v1.SysOperLog, opts *api.CreateOptions) error
 	// 查询系统操作日志集合
-	SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, error)
+	SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, int64, error)
 	// 批量删除系统操作日志
 	DeleteOperLogByIds(ctx context.Context, operids []int64, opts *api.DeleteOptions) error
 	// 查询操作日志详情

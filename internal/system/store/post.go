@@ -8,9 +8,9 @@ import (
 
 type PostStore interface {
 	// 查询岗位数据集合
-	SelectPostList(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) ([]*v1.SysPost, error)
+	SelectPostList(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) ([]*v1.SysPost, int64, error)
 	// 查询所有岗位
-	SelectPostAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysPost, error)
+	SelectPostAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysPost, int64, error)
 	// 通过岗位id查询岗位信息
 	SelectPostById(ctx context.Context, postid int64, opts *api.GetOptions) (*v1.SysPost, error)
 	// 根据用户id获取岗位选择框列表

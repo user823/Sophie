@@ -2,6 +2,9 @@ package gateway
 
 import (
 	"crypto/tls"
+	"github.com/cloudwego/hertz/pkg/app/server/binding"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/user823/Sophie/pkg/db/kv"
 	"net"
 	"strconv"
 
@@ -18,14 +21,8 @@ import (
 	"github.com/user823/Sophie/internal/gateway/router"
 	"github.com/user823/Sophie/internal/pkg/middleware"
 	"github.com/user823/Sophie/internal/pkg/options"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-)
-
-const (
-	CIRCUITBREAK = 0.8
-	MINSAMPLE    = 200
 )
 
 // 创建、运行服务必要的配置
@@ -37,7 +34,7 @@ type Config struct {
 	InsecureServing  *InsecureServingInfo
 	Discover         *DiscoverInfo
 	Jwt              *router.JwtInfo
-	Redis            *redis.RedisConfig
+	Redis            *kv.RedisConfig
 	Middlewares      []app.HandlerFunc
 	Healthz          bool
 	Log              *log.Options
@@ -68,19 +65,7 @@ func CreateConfigFromOptions(opts *Options) (*Config, error) {
 		Timeout:    opts.Jwt.Timeout,
 		MaxRefresh: opts.Jwt.MaxRefresh,
 	}
-	redisConfig := &redis.RedisConfig{
-		Addrs:                 opts.RedisOptions.Addrs,
-		MasterName:            opts.RedisOptions.MasterName,
-		Username:              opts.RedisOptions.Username,
-		Password:              opts.RedisOptions.Password,
-		Database:              opts.RedisOptions.Database,
-		MaxIdle:               opts.RedisOptions.MaxIdle,
-		MaxActive:             opts.RedisOptions.MaxActive,
-		Timeout:               opts.RedisOptions.Timeout,
-		EnableCluster:         opts.RedisOptions.EnableCluster,
-		UseSSL:                opts.RedisOptions.UseSSL,
-		SSLInsecureSkipVerify: opts.RedisOptions.SSLInsecureSkipVerify,
-	}
+	redisConfig := opts.RedisOptions.BuildRdsConfig()
 
 	// 需要使用的中间件
 	middlewares := middleware.Get("recovery", "requestid")
@@ -122,10 +107,15 @@ func (cfg *Config) CreateHertzOptions() (result []config.Option) {
 	// 设置最大请求体(5 MB)
 	result = append(result, hserver.WithMaxKeepBodySize(5*1024))
 
-	// 自定义参数验证
+	// 自定义json 绑定器、验证器
+	bindConfig := binding.NewBindConfig()
+	bindConfig.UseThirdPartyJSONUnmarshaler(func(data []byte, v interface{}) error {
+		return jsoniter.Unmarshal(data, v)
+	})
 	vd := go_playground.NewValidator()
 	vd.SetValidateTag("vd")
-	result = append(result, hserver.WithCustomValidator(vd))
+	bindConfig.Validator = vd
+	result = append(result, hserver.WithBindConfig(bindConfig))
 
 	return
 }
@@ -156,8 +146,8 @@ func (cfg *Config) CreateRemoteClientOptions() (result []client.Option) {
 	cbs := circuitbreak.NewCBSuite(circuitbreak.RPCInfo2Key)
 	cbConfig := circuitbreak.CBConfig{
 		Enable:    true,
-		ErrRate:   CIRCUITBREAK,
-		MinSample: MINSAMPLE,
+		ErrRate:   cfg.RPCClient.Circuitbreak,
+		MinSample: cfg.RPCClient.Minsample,
 	}
 	// 实例级熔断
 	cbs.UpdateInstanceCBConfig(cbConfig)

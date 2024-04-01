@@ -10,6 +10,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/system/store"
 	"github.com/user823/Sophie/internal/system/store/mysql"
+	"github.com/user823/Sophie/pkg/errors"
 	"github.com/user823/Sophie/pkg/utils"
 )
 
@@ -24,7 +25,16 @@ func (s *esLogininforStore) InsertLogininfor(ctx context.Context, logininfor *v1
 	return sqlCli.Logininfors().InsertLogininfor(ctx, logininfor, opts)
 }
 
-func (s *esLogininforStore) SelectLogininforList(ctx context.Context, logininfor *v1.SysLogininfor, opts *api.GetOptions) ([]*v1.SysLogininfor, error) {
+func (s *esLogininforStore) SelectLogininforList(ctx context.Context, logininfor *v1.SysLogininfor, opts *api.GetOptions) ([]*v1.SysLogininfor, int64, error) {
+	// 如果未启用缓存
+	if !opts.Cache {
+		mycli, err := mysql.GetMySQLFactoryOr(nil)
+		if err != nil {
+			return []*v1.SysLogininfor{}, 0, errors.New("获取mysql client失败")
+		}
+		return mycli.Logininfors().SelectLogininforList(ctx, logininfor, opts)
+	}
+
 	filters := make([]types.Query, 0, 4)
 	if logininfor.Ipaddr != "" {
 		cond := "*" + logininfor.Ipaddr + "*"
@@ -70,12 +80,23 @@ func (s *esLogininforStore) SelectLogininforList(ctx context.Context, logininfor
 		})
 	}
 
+	// 先查询结果集总数
+	resp1, err := s.es.Count().Index("sys_logininfor").Query(&types.Query{
+		Bool: &types.BoolQuery{Filter: filters},
+	}).Do(ctx)
+	if err != nil {
+		return []*v1.SysLogininfor{}, 0, err
+	}
+	total := resp1.Count
+
+	// 分页查询
+	opts.StartPage()
 	resp, err := s.es.Search().Index("sys_logininfor").Query(&types.Query{
 		Bool: &types.BoolQuery{Filter: filters},
-	}).Sort(types.SortOptions{SortOptions: map[string]types.FieldSort{"info_id": {Order: &sortorder.SortOrder{"desc"}}}}).Do(ctx)
+	}).From(int(opts.PageNum-1) * int(opts.PageSize)).Size(int(opts.PageSize)).Sort(types.SortOptions{SortOptions: map[string]types.FieldSort{"info_id": {Order: &sortorder.SortOrder{"desc"}}}}).Do(ctx)
 
 	if err != nil {
-		return []*v1.SysLogininfor{}, err
+		return []*v1.SysLogininfor{}, 0, err
 	}
 
 	result := make([]*v1.SysLogininfor, 0, resp.Hits.Total.Value)
@@ -84,32 +105,16 @@ func (s *esLogininforStore) SelectLogininforList(ctx context.Context, logininfor
 		jsoniter.Unmarshal(hit.Source_, &record)
 		result = append(result, &record)
 	}
-	return result, nil
+	return result, total, nil
 }
 
 func (s *esLogininforStore) DeleteLogininforByIds(ctx context.Context, ids []int64, opts *api.DeleteOptions) error {
-	//_, err := s.es.DeleteByQuery("sys_logininfor").Query(&types.Query{
-	//	Terms: &types.TermsQuery{
-	//		TermsQuery: map[string]types.TermsQueryField{
-	//			"info_id": ids,
-	//		},
-	//	},
-	//}).Do(ctx)
-	//if err != nil {
-	//	return err
-	//}
 
 	sqlCli, _ := mysql.GetMySQLFactoryOr(nil)
 	return sqlCli.Logininfors().DeleteLogininforByIds(ctx, ids, opts)
 }
 
 func (s *esLogininforStore) CleanLogininfor(ctx context.Context, opts *api.DeleteOptions) error {
-	//_, err := s.es.DeleteByQuery("sys_logininfor").Query(&types.Query{
-	//	MatchAll: &types.MatchAllQuery{},
-	//}).Do(ctx)
-	//if err != nil {
-	//	return err
-	//}
 
 	sqlCli, _ := mysql.GetMySQLFactoryOr(nil)
 	return sqlCli.Logininfors().CleanLogininfor(ctx, opts)

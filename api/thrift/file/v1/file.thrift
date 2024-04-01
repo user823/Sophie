@@ -26,6 +26,7 @@ struct FileInfo {
 struct UploadRequest {
     1:binary data
     2:string path
+    3:i64 userId
 }
 
 struct UploadResponse {

@@ -1,0 +1,63 @@
+package {{.moduleName}}
+
+import (
+	jsoniter "github.com/json-iterator/go"
+	"github.com/user823/Sophie/internal/pkg/options"
+	"github.com/user823/Sophie/pkg/app"
+	"github.com/user823/Sophie/pkg/ds"
+	"github.com/user823/Sophie/pkg/log"
+	"github.com/user823/Sophie/pkg/log/aggregation"
+)
+
+// 允许system options
+// 实现App.option 若干接口
+type Options struct {
+	Log                *log.Options                    `json:"log" mapstructure:"log"`
+	AggregationOptions *aggregation.AnalyticsOptions   `json:"aggregation" mapstructure:"aggregation"`
+	Availability       *options.AvailabilityOptions    `json:"availability" mapstructure:"availability"`
+	// TODO
+	// 这里只配置了app运行日志相关的选项
+	// 需要其他功能在pkg/options中找到对应的选项添加进来即可
+}
+
+func NewOptions() *Options {
+	return &Options{
+		Log:                log.DefaultOptions(),
+		AggregationOptions: aggregation.NewAnalyticsOptions(),
+		Availability:       options.NewAvailabilityOptions(),
+	}
+}
+
+func (o *Options) Flags() *ds.FlagGroup {
+	fss := ds.NewFlagGroup()
+	o.Log.AddFlags(fss.FlagSet("log"))
+	o.AggregationOptions.AddFlags(fss.FlagSet("log aggregation"))
+	o.Availability.AddFlags(fss.FlagSet("availability"))
+	return fss
+}
+
+func (o *Options) Validate() error {
+	fields := []*struct {
+		field interface{}
+		name  string
+	}{
+		{o.Log, "log"},
+		{o.AggregationOptions, "aggregation"},
+		{o.Availability, "availability"},
+	}
+	for _, item := range fields {
+		field, name := item.field, item.name
+		if v, ok := field.(app.ValidatableOptions); ok {
+			if err := v.Validate(); err != nil {
+				log.Errorf("Error %s option: %s", name, err.Error())
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (o *Options) String() string {
+	data, _ := jsoniter.Marshal(o)
+	return string(data)
+}

@@ -1,0 +1,2146 @@
+info:
+  contact: {}
+paths:
+  /online/:tokenId:
+    get:
+      consumes:
+      - application/json
+      description: 权限：monitor:online:list
+      parameters:
+      - description: 访问id
+        in: query
+        name: tokenId
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出在线用户
+  /online/list:
+    get:
+      consumes:
+      - application/json
+      description: 权限：monitor:online:list
+      parameters:
+      - description: 用户名
+        in: formData
+        name: userName
+        type: string
+      - description: ip地址
+        in: formData
+        name: ipaddr
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出在线用户
+  /system/:postIds:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        删除目标岗位
+        权限：system:post:edit
+      parameters:
+      - description: 岗位ids
+        in: query
+        name: postIds
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除岗位
+  /system/avatar:
+    post:
+      consumes:
+      - application/json
+      description: 更新登录用户密码
+      parameters:
+      - description: 用户头像
+        in: formData
+        name: avatarfile
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新密码
+  /system/config:
+    post:
+      consumes:
+      - application/json
+      description: 权限：system:config:add
+      parameters:
+      - description: 参数名
+        in: formData
+        name: configName
+        required: true
+        type: string
+      - description: 参数键
+        in: formData
+        name: configKey
+        required: true
+        type: string
+      - description: 参数值
+        in: formData
+        name: configValue
+        required: true
+        type: string
+      - description: 系统内置
+        in: formData
+        name: configType
+        required: true
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加配置
+  /system/config/:configId:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 参数id
+        in: query
+        name: configId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取配置详情
+  /system/config/:configIds:
+    delete:
+      consumes:
+      - application/json
+      description: '权限: system:config:remove'
+      parameters:
+      - description: 配置id
+        in: query
+        name: configIds
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 移除配置
+  /system/config/:configKey:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 参数键名
+        in: query
+        name: configKey
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取配置键
+    put:
+      consumes:
+      - application/json
+      description: 权限：system:config:edit
+      parameters:
+      - description: 参数名
+        in: formData
+        name: configName
+        required: true
+        type: string
+      - description: 参数键
+        in: formData
+        name: configKey
+        required: true
+        type: string
+      - description: 参数值
+        in: formData
+        name: configValue
+        required: true
+        type: string
+      - description: 系统内置
+        in: formData
+        name: configType
+        required: true
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加配置
+  /system/config/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出配置列表
+        权限：system:config:export
+      parameters:
+      - description: 参数名称
+        in: formData
+        name: configName
+        type: string
+      - description: 参数键名
+        in: formData
+        name: configKey
+        type: string
+      - description: 系统内置
+        in: formData
+        name: configType
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 导出配置列表
+  /system/config/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询配置列表
+        权限：system:config:list
+      parameters:
+      - description: 参数名称
+        in: formData
+        name: configName
+        type: string
+      - description: 参数键名
+        in: formData
+        name: configKey
+        type: string
+      - description: 系统内置
+        in: formData
+        name: configType
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 配置列表
+  /system/config/refreshCache:
+    delete:
+      consumes:
+      - application/json
+      description: '权限: system:config:remove'
+      produces:
+      - application/json
+      responses: {}
+      summary: 刷新缓存
+  /system/dept:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询部门列表
+        权限：system:dept:list
+      parameters:
+      - description: 部门名称
+        in: formData
+        name: deptName
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 部门列表
+    post:
+      consumes:
+      - application/json
+      description: 权限：system:dept:add
+      parameters:
+      - description: 上级部门
+        in: formData
+        name: parentName
+        required: true
+        type: string
+      - description: 部门名称
+        in: formData
+        name: deptName
+        required: true
+        type: string
+      - description: 负责人
+        in: formData
+        name: leader
+        type: string
+      - description: 部门邮箱
+        in: formData
+        name: email
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加部门
+    put:
+      consumes:
+      - application/json
+      description: 权限：system:dept:edit
+      parameters:
+      - description: 上级部门
+        in: formData
+        name: parentName
+        required: true
+        type: string
+      - description: 部门名称
+        in: formData
+        name: deptName
+        required: true
+        type: string
+      - description: 负责人
+        in: formData
+        name: leader
+        type: string
+      - description: 部门邮箱
+        in: formData
+        name: email
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加部门
+  /system/dept/:deptId:
+    delete:
+      consumes:
+      - application/json
+      description: 权限：system:dept:remove
+      parameters:
+      - description: 部门id
+        in: query
+        name: deptId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 移除部门
+    get:
+      consumes:
+      - application/json
+      description: 权限：system:dept:query
+      parameters:
+      - description: 部门id
+        in: query
+        name: deptId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 部门详情
+  /system/dept/list/exclude/:deptId:
+    get:
+      consumes:
+      - application/json
+      description: 权限：system:dept:list
+      parameters:
+      - description: 部门id
+        in: query
+        name: deptId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 排除子部门
+  /system/dict/data:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 字典类型
+        in: formData
+        name: dictType
+        required: true
+        type: string
+      - description: 数据标签
+        in: formData
+        name: dictLabel
+        required: true
+        type: string
+      - description: 字典键值
+        in: formData
+        name: dictValue
+        required: true
+        type: string
+      - description: 样式属性
+        in: formData
+        name: cssType
+        type: string
+      - description: 显示排序
+        in: formData
+        name: sort
+        required: true
+        type: string
+      - description: 回显样式
+        in: formData
+        name: listType
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 评论
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加字典数据
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: 字典类型
+        in: formData
+        name: dictType
+        required: true
+        type: string
+      - description: 数据标签
+        in: formData
+        name: dictLabel
+        required: true
+        type: string
+      - description: 字典键值
+        in: formData
+        name: dictValue
+        required: true
+        type: string
+      - description: 样式属性
+        in: formData
+        name: cssType
+        type: string
+      - description: 显示排序
+        in: formData
+        name: sort
+        required: true
+        type: string
+      - description: 回显样式
+        in: formData
+        name: listType
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 评论
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改字典数据
+  /system/dict/data/:dictCode:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件获取字典数据详情
+        权限：system:dict:query
+      parameters:
+      - description: 字典编码
+        in: query
+        name: dictCode
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 字典数据详情
+  /system/dict/data/:dictCodes:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 字典编码
+        in: query
+        name: dictCodes
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 移除字典数据
+  /system/dict/data/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出字典数据列表
+        权限：system:dict:export
+      parameters:
+      - description: 字典名称
+        in: formData
+        name: dictName
+        type: string
+      - description: 字典标签
+        in: formData
+        name: dictLabel
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 导出字典数据列表
+  /system/dict/data/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询字典数据列表
+        权限：system:dict:list
+      parameters:
+      - description: 字典名称
+        in: formData
+        name: dictName
+        type: string
+      - description: 字典标签
+        in: formData
+        name: dictLabel
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出字典数据列表
+  /system/dict/data/type/:dictType:
+    get:
+      consumes:
+      - application/json
+      description: 根据字典类型获取字典数据列表
+      parameters:
+      - description: 字典类型
+        in: query
+        name: dictType
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取字典数据
+  /system/dict/type:
+    post:
+      consumes:
+      - application/json
+      description: 权限：system:dict:add
+      parameters:
+      - description: 字典名称
+        in: formData
+        name: dictName
+        required: true
+        type: string
+      - description: 字典类型
+        in: formData
+        name: dictType
+        required: true
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 创建字典类型
+    put:
+      consumes:
+      - application/json
+      description: 权限：system:dict:edit
+      parameters:
+      - description: 字典名称
+        in: formData
+        name: dictName
+        required: true
+        type: string
+      - description: 字典类型
+        in: formData
+        name: dictType
+        required: true
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改字典类型
+  /system/dict/type/:dictId:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        获取目标字典类型详情
+        权限：system:dict:query
+      parameters:
+      - description: 字典id
+        in: formData
+        name: dictId
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 字典类型详情
+  /system/dict/type/:dictIds:
+    delete:
+      consumes:
+      - application/json
+      description: 权限：system:dict:remove
+      parameters:
+      - description: 字典id
+        in: query
+        name: dictIds
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 移除字典类型
+  /system/dict/type/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出字典类型列表
+        权限：system:dict:export
+      parameters:
+      - description: 字典名称
+        in: formData
+        name: dictName
+        type: string
+      - description: 字典类型
+        in: formData
+        name: dictType
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 创建时间
+        in: formData
+        name: createTime
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 字典类型列表
+  /system/dict/type/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询字典类型列表
+        权限：system:dict:list
+      parameters:
+      - description: 字典名称
+        in: formData
+        name: dictName
+        type: string
+      - description: 字典类型
+        in: formData
+        name: dictType
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 创建时间
+        in: formData
+        name: createTime
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 字典类型列表
+  /system/dict/type/optionselect:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出可选字典类型
+  /system/dict/type/refreshCache:
+    delete:
+      consumes:
+      - application/json
+      description: 权限：system:dict:remove
+      produces:
+      - application/json
+      responses: {}
+      summary: 移除字典类型
+  /system/logininfor/:infoIds:
+    delete:
+      consumes:
+      - application/json
+      description: 权限：system:logininfor:remove
+      parameters:
+      - description: 记录id
+        in: query
+        name: infoIds
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除登录信息列表
+  /system/logininfor/clean:
+    delete:
+      consumes:
+      - application/json
+      description: 权限：system:logininfor:remove
+      produces:
+      - application/json
+      responses: {}
+      summary: 清空登录信息列表
+  /system/logininfor/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出公告列表
+        权限：system:logininfor:export
+      parameters:
+      - description: 登录地址
+        in: formData
+        name: ipaddr
+        type: string
+      - description: 用户名称
+        in: formData
+        name: userName
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 登录时间
+        in: formData
+        name: createTime
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 导出登录信息列表
+  /system/logininfor/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询登录信息列表
+        权限：system:logininfor:list
+      parameters:
+      - description: 登录地址
+        in: formData
+        name: ipaddr
+        type: string
+      - description: 用户名称
+        in: formData
+        name: userName
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 登录时间
+        in: formData
+        name: createTime
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出登录信息列表
+  /system/logininfor/unlock/:userName:
+    get:
+      consumes:
+      - application/json
+      description: 权限：system:logininfor:unlock
+      parameters:
+      - description: 用户名
+        in: query
+        name: userName
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 解锁用户
+  /system/menu:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改菜单
+        权限: system:menu:add
+      parameters:
+      - description: 菜单名称
+        in: formData
+        name: menuName
+        required: true
+        type: string
+      - description: 显示排序
+        in: formData
+        name: sort
+        required: true
+        type: string
+      - description: 路由地址
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: 上级菜单
+        in: formData
+        name: parentName
+        type: string
+      - description: 菜单类型
+        in: formData
+        name: menuType
+        type: string
+      - description: 菜单图标
+        in: formData
+        name: icon
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: 是否外链
+        in: formData
+        name: isFrame
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加菜单
+  /system/menu/:menuId:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        移除目标菜单
+        权限: system:menu:remove
+      parameters:
+      - description: 菜单id
+        in: formData
+        name: menuId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 移除菜单
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据目标菜单详情信息
+        权限：system:menu:query
+      parameters:
+      - description: 菜单id
+        in: query
+        name: menuId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 菜单详情
+  /system/menu/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 菜单名称
+        in: formData
+        name: menuName
+        required: true
+        type: string
+      - description: 显示排序
+        in: formData
+        name: sort
+        required: true
+        type: string
+      - description: 路由地址
+        in: formData
+        name: path
+        required: true
+        type: string
+      - description: 上级菜单
+        in: formData
+        name: parentName
+        type: string
+      - description: 菜单类型
+        in: formData
+        name: menuType
+        type: string
+      - description: 菜单图标
+        in: formData
+        name: icon
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: 是否外链
+        in: formData
+        name: isFrame
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 添加菜单
+  /system/menu/getRouters:
+    get:
+      consumes:
+      - application/json
+      description: 用户访问时获取菜单路由信息
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取路由信息
+  /system/menu/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询菜单列表
+        权限：system:menu:list
+      parameters:
+      - description: 菜单名称
+        in: formData
+        name: menuName
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出菜单列表
+  /system/menu/roleMenuTreeselect/:roleId:
+    get:
+      consumes:
+      - application/json
+      description: 根据角色查询菜单树
+      parameters:
+      - description: 角色id
+        in: formData
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 角色菜单树
+  /system/menu/treeselect:
+    get:
+      consumes:
+      - application/json
+      description: 查询目标菜单树
+      parameters:
+      - description: 菜单id
+        in: formData
+        name: menuId
+        required: true
+        type: integer
+      - description: 菜单名
+        in: formData
+        name: menuName
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 菜单树
+  /system/notice:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        创建公告
+        权限：system:notice:add
+      parameters:
+      - description: 标题
+        in: formData
+        name: noticeTitle
+        required: true
+        type: string
+      - description: 类型
+        in: formData
+        name: noticeType
+        required: true
+        type: string
+      - description: 内容
+        in: formData
+        name: noticeContent
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 创建公告
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改公告
+        权限：system:notice:edit
+      parameters:
+      - description: 标题
+        in: formData
+        name: noticeTitle
+        required: true
+        type: string
+      - description: 类型
+        in: formData
+        name: noticeType
+        required: true
+        type: string
+      - description: 内容
+        in: formData
+        name: noticeContent
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改公告
+  /system/notice/:noticeId:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        获取公告详情信息
+        权限：system:notice:query
+      parameters:
+      - description: 公告id
+        in: query
+        name: noticeId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取公告详情
+  /system/notice/:noticeIds:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        删除公告
+        权限：system:notice:remove
+      parameters:
+      - description: 公告id
+        in: query
+        name: noticeIds
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除公告
+  /system/notice/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询公告列表
+        权限：system:notice:list
+      parameters:
+      - description: 公告标题
+        in: formData
+        name: noticeTitle
+        type: string
+      - description: 操作人员
+        in: formData
+        name: createBy
+        type: string
+      - description: 公告类型
+        in: formData
+        name: noticeType
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出公告列表
+  /system/operlog/:operIds:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        删除多个操作记录
+        权限：system:operlog:remove
+      parameters:
+      - description: 操作ip
+        in: formData
+        name: operIps
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除操作列表
+  /system/operlog/clean:
+    delete:
+      consumes:
+      - application/json
+      description: 权限：system:operlog:remove
+      produces:
+      - application/json
+      responses: {}
+      summary: 清空操作记录
+  /system/operlog/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询操作日志列表
+        权限：system:operlog:export
+      parameters:
+      - description: 操作ip
+        in: formData
+        name: operIp
+        type: string
+      - description: 系统模块
+        in: formData
+        name: title
+        type: string
+      - description: 操作人员
+        in: formData
+        name: operName
+        type: string
+      - description: 操作类型
+        in: formData
+        name: businessType
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 操作时间
+        in: formData
+        name: operTime
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出操作列表
+  /system/operlog/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询操作日志列表
+        权限：system:operlog:list
+      parameters:
+      - description: 操作ip
+        in: formData
+        name: operIp
+        type: string
+      - description: 系统模块
+        in: formData
+        name: title
+        type: string
+      - description: 操作人员
+        in: formData
+        name: operName
+        type: string
+      - description: 操作类型
+        in: formData
+        name: businessType
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 操作时间
+        in: formData
+        name: operTime
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 列出操作列表
+  /system/optionselect:
+    get:
+      consumes:
+      - application/json
+      description: 列出所有岗位
+      produces:
+      - application/json
+      responses: {}
+      summary: 可选岗位
+  /system/post:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        增加岗位
+        权限：system:post:add
+      parameters:
+      - description: 岗位名称
+        in: formData
+        name: postName
+        required: true
+        type: string
+      - description: 岗位编码
+        in: formData
+        name: postCode
+        required: true
+        type: string
+      - description: 岗位顺序
+        in: formData
+        name: postSort
+        required: true
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 新增岗位
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改岗位
+        权限：system:post:edit
+      parameters:
+      - description: 岗位名称
+        in: formData
+        name: postName
+        required: true
+        type: string
+      - description: 岗位编码
+        in: formData
+        name: postCode
+        required: true
+        type: string
+      - description: 岗位顺序
+        in: formData
+        name: postSort
+        required: true
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改岗位
+  /system/post/:postId:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        查询目标岗位详情
+        权限：system:post:export
+      parameters:
+      - description: 岗位Id
+        in: query
+        name: postId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 岗位详情
+  /system/post/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出系统岗位列表
+        权限：system:post:export
+      parameters:
+      - description: 岗位编码
+        in: formData
+        name: postCode
+        type: string
+      - description: 岗位名称
+        in: formData
+        name: postName
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 岗位列表
+  /system/post/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询系统岗位列表
+        权限：system:post:list
+      parameters:
+      - description: 岗位编码
+        in: formData
+        name: postCode
+        type: string
+      - description: 岗位名称
+        in: formData
+        name: postName
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 岗位列表
+  /system/profile:
+    get:
+      consumes:
+      - application/json
+      description: 查询登录用户详情信息
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户个人详情
+    put:
+      consumes:
+      - application/json
+      description: 更新登录用户详情信息
+      parameters:
+      - description: 用户昵称
+        in: formData
+        name: nickName
+        required: true
+        type: string
+      - description: 手机号码
+        in: formData
+        name: phonenumber
+        required: true
+        type: string
+      - description: 用户邮箱
+        in: formData
+        name: email
+        required: true
+        type: string
+      - description: 性别
+        in: formData
+        name: sex
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新用户个人详情
+  /system/role/:roleId:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        查询目标角色详情信息
+        权限：system:role:query
+      parameters:
+      - description: 角色id
+        in: query
+        name: roleId
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 角色详情
+    post:
+      consumes:
+      - application/json
+      description: |-
+        创建角色
+        权限：system:role:add
+      parameters:
+      - description: 角色名称
+        in: formData
+        name: roleName
+        required: true
+        type: string
+      - description: 权限字符
+        in: formData
+        name: roleKey
+        required: true
+        type: string
+      - description: 角色顺序
+        in: formData
+        name: roleSort
+        required: true
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: 菜单权限
+        in: formData
+        items:
+          type: integer
+        name: menuIds
+        type: array
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 创建角色
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改角色
+        权限：system:role:edit
+      parameters:
+      - description: 角色名称
+        in: formData
+        name: roleName
+        required: true
+        type: string
+      - description: 权限字符
+        in: formData
+        name: roleKey
+        required: true
+        type: string
+      - description: 角色顺序
+        in: formData
+        name: roleSort
+        required: true
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      - collectionFormat: csv
+        description: 菜单权限
+        in: formData
+        items:
+          type: integer
+        name: menuIds
+        type: array
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改角色
+  /system/role/:roleIds:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        删除目标角色
+        权限：system:role:edit
+      parameters:
+      - description: 删除角色id
+        in: formData
+        name: roleIds
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除角色
+  /system/role/authUser/allocatedList:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        查询目标用户已经分配的角色
+        权限：system:role:list
+      parameters:
+      - description: 用户id
+        in: formData
+        name: userId
+        required: true
+        type: integer
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 查询用户角色
+  /system/role/authUser/cancel:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        删除目标用户的角色
+        权限：system:role:edit
+      parameters:
+      - description: 用户id
+        in: formData
+        name: userId
+        required: true
+        type: integer
+      - description: 角色id
+        in: formData
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除用户角色
+  /system/role/authUser/cancelAll:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        删除多个用户的指定角色
+        权限：system:role:edit
+      parameters:
+      - collectionFormat: csv
+        description: 用户ids
+        in: formData
+        items:
+          type: integer
+        name: userIds
+        required: true
+        type: array
+      - description: 角色id
+        in: formData
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除用户角色
+  /system/role/authUser/selectAll:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        为多个用户授权指定角色
+        权限：system:role:edit
+      parameters:
+      - collectionFormat: csv
+        description: 用户ids
+        in: formData
+        items:
+          type: integer
+        name: userIds
+        required: true
+        type: array
+      - description: 角色id
+        in: formData
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 授权角色
+  /system/role/authUser/unallocatedList:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        查询目标用户还没有分配的角色
+        权限：system:role:list
+      parameters:
+      - description: 用户id
+        in: formData
+        name: userId
+        required: true
+        type: integer
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 查询用户角色
+  /system/role/changeStatus:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改角色的状态
+        权限：system:role:edit
+      parameters:
+      - description: 角色id
+        in: formData
+        name: roleId
+        type: integer
+      - description: 角色状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改状态
+  /system/role/dataScope:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        限定本角色能操作的数据范围，比如只能操作本人数据、本部门数据等
+        权限：system:role:edit
+      parameters:
+      - description: 数据范围
+        in: formData
+        name: dataScope
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 数据范围
+  /system/role/deptTree/:roleId:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        查询指定角色的部门树
+        权限：system:role:query
+      parameters:
+      - description: 角色id
+        in: query
+        name: roleId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 角色部门树
+  /system/role/export:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出系统角色列表
+        权限：system:role:export
+      parameters:
+      - description: 角色名
+        in: formData
+        name: roleName
+        type: string
+      - description: 权限字符
+        in: formData
+        name: roleKey
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 创建时间
+        in: formData
+        name: createdTime
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 导出角色
+  /system/role/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询系统角色列表
+        权限：system:role:list
+      parameters:
+      - description: 角色名
+        in: formData
+        name: roleName
+        type: string
+      - description: 权限字符
+        in: formData
+        name: roleKey
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 创建时间
+        in: formData
+        name: createdTime
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取角色
+  /system/role/optionselect:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        列出所有角色
+        权限：system:role:query
+      produces:
+      - application/json
+      responses: {}
+      summary: 可选角色
+  /system/updatePwd:
+    put:
+      consumes:
+      - application/json
+      description: 更新登录用户密码
+      parameters:
+      - description: 旧密码
+        in: formData
+        name: oldPassword
+        required: true
+        type: string
+      - description: 新密码
+        in: formData
+        name: newPassword
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 更新密码
+  /system/user:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        创建用户
+        权限：system:user:add
+      parameters:
+      - description: 部门id
+        in: formData
+        name: deptId
+        required: true
+        type: integer
+      - description: 用户名
+        in: formData
+        name: userName
+        required: true
+        type: string
+      - description: 用户昵称
+        in: formData
+        name: nickName
+        required: true
+        type: string
+      - description: 用户邮箱
+        in: formData
+        name: email
+        type: string
+      - description: 手机号
+        in: formData
+        name: phonenumber
+        type: string
+      - description: 性别
+        in: formData
+        name: sex
+        type: string
+      - description: 密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      - description: 用户状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: 角色id
+        in: formData
+        name: roleIds
+        type: string
+      - description: 岗位id
+        in: formData
+        name: postIds
+        type: string
+      - description: 备注
+        in: formData
+        name: remark
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 创建用户
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改用户
+        权限：system:user:edit
+      parameters:
+      - description: 部门id
+        in: formData
+        name: deptId
+        required: true
+        type: integer
+      - description: 用户昵称
+        in: formData
+        name: nickName
+        required: true
+        type: string
+      - description: 用户邮箱
+        in: formData
+        name: email
+        type: string
+      - description: 手机号
+        in: formData
+        name: phonenumber
+        type: string
+      - description: 性别
+        in: formData
+        name: sex
+        type: string
+      - description: 用户状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      - description: 角色id
+        in: formData
+        name: roleIds
+        type: string
+      - description: 岗位id
+        in: formData
+        name: postIds
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改用户
+  /system/user/:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        获取目标用户（登录用户）的详情信息
+        权限：system:user:query
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户详情
+  /system/user/:userIds:
+    delete:
+      consumes:
+      - application/json
+      description: |-
+        删除用户
+        权限：system:user:remove
+      parameters:
+      - description: 需要删除的用户id
+        in: query
+        name: userIds
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 删除用户
+  /system/user/:userid:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        获取目标用户的详情信息
+        权限：system:user:query
+      parameters:
+      - description: 用户id
+        in: query
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户详情
+  /system/user/authRole:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        为目标用户分配角色
+        权限：system:user:edit
+      parameters:
+      - description: 用户id
+        in: formData
+        name: userId
+        required: true
+        type: integer
+      - collectionFormat: csv
+        description: 授权角色的id
+        in: formData
+        items:
+          type: integer
+        name: roleIds
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses: {}
+      summary: 授权角色
+  /system/user/authRole/:userId:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        查询目标用户的角色
+        权限：system:user:query
+      parameters:
+      - description: 用户id
+        in: query
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 查询角色
+  /system/user/changeStatus:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        修改目标用户状态
+        权限：system:user:edit
+      parameters:
+      - description: 用户id
+        in: formData
+        name: userId
+        required: true
+        type: integer
+      - description: 状态
+        in: formData
+        name: status
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 修改用户状态
+  /system/user/deptTree:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据当前登录用户，查询他的部门信息
+        权限：system:user:list
+      produces:
+      - application/json
+      responses: {}
+      summary: 查询部门树
+  /system/user/export:
+    post:
+      consumes:
+      - application/json
+      description: |-
+        根据条件导出系统用户列表
+        权限：system:user:export
+      parameters:
+      - description: 用户名
+        in: formData
+        name: userName
+        type: string
+      - description: 手机号码
+        in: formData
+        name: phonenumber
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 创建时间
+        in: formData
+        name: createdTime
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 导出用户列表
+  /system/user/getInfo:
+    get:
+      description: 用户登录后获取当前用户详情信息
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户详情
+  /system/user/info/:username:
+    get:
+      consumes:
+      - application/json
+      description: 获取目标用户的详情信息
+      parameters:
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 用户详情
+  /system/user/list:
+    get:
+      consumes:
+      - application/json
+      description: |-
+        根据条件查询系统用户列表
+        权限：system:user:list
+      parameters:
+      - description: 用户名
+        in: formData
+        name: userName
+        type: string
+      - description: 手机号码
+        in: formData
+        name: phonenumber
+        type: string
+      - description: 状态
+        in: formData
+        name: status
+        type: string
+      - description: 创建时间
+        in: formData
+        name: createdTime
+        type: string
+      - description: 页面序号
+        in: formData
+        name: pageNum
+        type: integer
+      - description: 页面大小
+        in: formData
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: 获取用户列表
+  /system/user/resetPwd:
+    put:
+      consumes:
+      - application/json
+      description: |-
+        重置密码
+        权限：system:user:edit
+      parameters:
+      - description: 用户id
+        in: formData
+        name: userId
+        required: true
+        type: integer
+      - description: 新密码
+        in: formData
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: 重置密码
+swagger: "2.0"

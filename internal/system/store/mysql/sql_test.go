@@ -6,7 +6,7 @@ import (
 	"github.com/user823/Sophie/api"
 	v1 "github.com/user823/Sophie/api/domain/system/v1"
 	v12 "github.com/user823/Sophie/api/thrift/system/v1"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
+	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/db/sql"
 	"testing"
 	"time"
@@ -26,6 +26,7 @@ func testInit() {
 		MaxOpenConnections:    10,
 		MaxConnectionLifeTime: 3600 * time.Second,
 		LogLevel:              2,
+		Debug:                 true,
 	}
 	_, err := GetMySQLFactoryOr(cfg)
 	if err != nil {
@@ -33,19 +34,19 @@ func testInit() {
 		panic(err)
 	}
 
-	testLogininfo := v12.LoginUser{
+	testLogininfo := &v12.LoginUser{
 		User: &v12.UserInfo{
-			UserId:      2,
+			UserId:      1,
 			DeptId:      105,
-			UserName:    "sophie",
-			NickName:    "sophie",
+			UserName:    "admin",
+			NickName:    "admin",
 			Email:       "sophie@qq.com",
 			Phonenumber: "15666666666",
 			Sex:         "1",
 			Password:    "$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2",
 			DelFlag:     "0",
 			Roles: []*v12.RoleInfo{
-				{RoleId: 2, RoleName: "普通角色", RoleKey: "common", RoleSort: 2, DataScope: "2", MenuCheckStrictly: true, DeptCheckStrictly: true},
+				{RoleId: 1, RoleName: "超级管理员", RoleKey: "admin", RoleSort: 1, DataScope: "1", MenuCheckStrictly: true, DeptCheckStrictly: true},
 			},
 		},
 		Roles:       []string{"common"},
@@ -53,15 +54,15 @@ func testInit() {
 	}
 	ctx = context.WithValue(context.Background(), api.LOGIN_INFO_KEY, testLogininfo)
 
-	connectionConfig := &redis.RedisConfig{
+	connectionConfig := &kv.RedisConfig{
 		Addrs:    []string{"127.0.0.1:6379"},
 		Password: "123456",
 		Database: 0,
 	}
 
-	go redis.KeepConnection(ctx, connectionConfig)
+	go kv.KeepConnection(ctx, connectionConfig)
 	time.Sleep(2 * time.Second)
-	if !redis.Connected() {
+	if !kv.Connected() {
 		fmt.Printf("redis 未连接成功")
 	}
 }
@@ -79,8 +80,9 @@ func TestSelectUserList(t *testing.T) {
 
 		EndTime: time.Now().Unix(),
 	}
-	sysUser := &v1.SysUser{UserId: 0}
-	result, err := sqlCli.Users().SelectUserList(ctx, sysUser, getOpt)
+	sysUser := &v1.SysUser{}
+	result, total, err := sqlCli.Users().SelectUserList(ctx, sysUser, getOpt)
+	t.Logf("总共记录数: %d", total)
 	if err != nil {
 		t.Error(err)
 	}
@@ -128,11 +130,15 @@ func TestSelectUserByUserName(t *testing.T) {
 
 func TestSelectUserById(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Users().SelectUserById(ctx, 1, &api.GetOptions{Cache: true})
+	result, err := sqlCli.Users().SelectUserById(ctx, 2, &api.GetOptions{Cache: false})
 	if err != nil {
 		t.Error(err)
 	}
 	t.Logf("%v", result)
+	for i := range result.Roles {
+		t.Logf("%v", result.Roles[i])
+	}
+
 }
 
 func TestCheckUserNameUnique(t *testing.T) {
@@ -193,7 +199,7 @@ Test SysPost
 */
 func TestSelectPostList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Posts().SelectPostList(ctx, &v1.SysPost{}, &api.GetOptions{})
+	result, _, err := sqlCli.Posts().SelectPostList(ctx, &v1.SysPost{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -241,12 +247,24 @@ func TestUpdatePost(t *testing.T) {
 	}
 }
 
+func TestCheckPostNameUnique(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	result := sqlCli.Posts().CheckPostNameUnique(ctx, "test1", &api.GetOptions{Cache: false})
+	t.Logf("%v", result)
+}
+
+func TestCheckPostCodeUnique(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	result := sqlCli.Posts().CheckPostCodeUnique(ctx, "3", &api.GetOptions{Cache: false})
+	t.Logf("%v", result)
+}
+
 /*
 Test SysRole
 */
 func TestSelectRoleList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Roles().SelectRoleList(ctx, &v1.SysRole{}, &api.GetOptions{})
+	result, _, err := sqlCli.Roles().SelectRoleList(ctx, &v1.SysRole{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -334,7 +352,7 @@ func TestSelectConfigById(t *testing.T) {
 
 func TestSelectConfigList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Configs().SelectConfigList(ctx, &v1.SysConfig{}, &api.GetOptions{})
+	result, _, err := sqlCli.Configs().SelectConfigList(ctx, &v1.SysConfig{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -355,6 +373,18 @@ func TestSelectDeptList(t *testing.T) {
 	for i := range result {
 		t.Logf("%v", result[i])
 	}
+}
+
+func TestSelectDeptById(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	result, err := sqlCli.Depts().SelectDeptById(ctx, 103, &api.GetOptions{})
+	if err != nil {
+		t.Error(err)
+	}
+	t.Logf("%v", result)
+
+	// 测试转化时间为int
+	t.Logf("%v", v12.SysDept2DeptInfo(result))
 }
 
 func TestSelectDeptListByRoleId(t *testing.T) {
@@ -412,7 +442,7 @@ func TestUpdateDeptChildren(t *testing.T) {
 
 func TestSelectDictDataList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.DictData().SelectDictDataList(ctx, &v1.SysDictData{}, &api.GetOptions{})
+	result, _, err := sqlCli.DictData().SelectDictDataList(ctx, &v1.SysDictData{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -423,7 +453,7 @@ func TestSelectDictDataList(t *testing.T) {
 
 func TestSelectDictDataByType(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.DictData().SelectDictDataByType(ctx, "sys_normal_disable", &api.GetOptions{})
+	result, _, err := sqlCli.DictData().SelectDictDataByType(ctx, "sys_normal_disable", &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -434,7 +464,7 @@ func TestSelectDictDataByType(t *testing.T) {
 
 func TestSelectDictLabel(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.DictData().SelectDictLabel(ctx, "sys_user_sex", "0", &api.GetOptions{})
+	result, err := sqlCli.DictData().SelectDictLabel(ctx, "sys_normal_disable", "0", &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -472,9 +502,23 @@ Test DictType
 */
 func TestSelectDictTypeList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.DictTypes().SelectDictTypeList(ctx, &v1.SysDictType{}, &api.GetOptions{})
+	result, _, err := sqlCli.DictTypes().SelectDictTypeList(ctx, &v1.SysDictType{}, &api.GetOptions{
+		PageNum:  1,
+		PageSize: 10,
+	})
 	if err != nil {
 		t.Error(err)
+	}
+	for i := range result {
+		t.Logf("%v", result[i])
+	}
+}
+
+func TestSelectDictTypeAll(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	result, _, err := sqlCli.DictTypes().SelectDictTypeAll(ctx, &api.GetOptions{})
+	if err != nil {
+		t.Error()
 	}
 	for i := range result {
 		t.Logf("%v", result[i])
@@ -504,7 +548,7 @@ func TestCleanLogininfor(t *testing.T) {
 
 func TestSelectLogininforList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Logininfors().SelectLogininforList(ctx, &v1.SysLogininfor{}, &api.GetOptions{})
+	result, _, err := sqlCli.Logininfors().SelectLogininforList(ctx, &v1.SysLogininfor{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -620,7 +664,7 @@ func TestSelectNoticeById(t *testing.T) {
 
 func TestSelectNoticeList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.Notices().SelectNoticeList(ctx, &v1.SysNotice{}, &api.GetOptions{})
+	result, _, err := sqlCli.Notices().SelectNoticeList(ctx, &v1.SysNotice{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -651,7 +695,7 @@ func TestInsertOperLog(t *testing.T) {
 
 func TestSelectOperLogList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, err := sqlCli.OperLogs().SelectOperLogList(ctx, &v1.SysOperLog{}, &api.GetOptions{})
+	result, _, err := sqlCli.OperLogs().SelectOperLogList(ctx, &v1.SysOperLog{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -743,6 +787,8 @@ func TestSub(t *testing.T) {
 	t.Run("test-SelectPostListByUserId", TestSelectPostListByUserId)
 	t.Run("test-SelectPostsByUserName", TestSelectPostsByUserName)
 	t.Run("test-UpdatePost", TestUpdatePost)
+	t.Run("test-CheckPostNameUnique", TestCheckPostNameUnique)
+	t.Run("test-CheckPostCodeUnique", TestCheckPostCodeUnique)
 
 	t.Run("test-SelectRoleList", TestSelectRoleList)
 	t.Run("test-SelectRoleListByUserId", TestSelectRoleListByUserId)
@@ -757,6 +803,7 @@ func TestSub(t *testing.T) {
 	t.Run("test-SelectConfigList", TestSelectConfigList)
 
 	t.Run("test-SelectDeptList", TestSelectDeptList)
+	t.Run("test-SelectDeptById", TestSelectDeptById)
 	t.Run("test-SelectDeptListByRoleId", TestSelectDeptListByRoleId)
 	t.Run("test-SelectChildrenDeptById", TestSelectChildrenDeptById)
 	t.Run("test-SelectNormalChildrenDeptById", TestSelectNormalChildrenDeptById)
@@ -771,6 +818,7 @@ func TestSub(t *testing.T) {
 	t.Run("test-DeleteDictDataByIds", TestDeleteDictDataByIds)
 
 	t.Run("test-SelectDictTypeList", TestSelectDictTypeList)
+	t.Run("test-SelectDictTypeAll", TestSelectDictTypeAll)
 	t.Run("test-SelectDictTypeByType", TestSelectDictTypeByType)
 
 	t.Run("test-SelectLogininforList", TestSelectLogininforList)

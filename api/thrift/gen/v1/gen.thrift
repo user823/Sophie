@@ -7,15 +7,15 @@ service GenService {
     ListGenTablesResponse ListGenTables(1:ListGenTablesRequest req)
     GetInfoResponse GetInfo(1:i64 tableId)
     ListGenTablesResponse DataList(1:DataListRequest req)
-    ListGenTablesResponse ColumnList(1:i64 tableId)
-    BaseResp ImportTableSave(1:string tables)
+    ListGenTableColumnsResponse ColumnList(1:i64 tableId)
+    BaseResp ImportTableSave(1:ImportTableSaveRequest req)
     BaseResp EditSave(1:EditSaveRequest req)
     BaseResp Remove(1:RemoveRequest req)
     PreviewResponse Preview(1:i64 tableId)
     DownloadResponse Download(1:string tableName)
     BaseResp GenCode(1:string tableName)
     BaseResp SynchDb(1:string tableName)
-    BatchGenCodeResponse BatchGenCode(1:string tables)
+    DownloadResponse BatchGenCode(1:string tables)
 }
 
 struct BaseResp {
@@ -35,63 +35,64 @@ struct DateRange {
     2:i64 endTime
 }
 
-struct BaseInfo {
+struct GenTable {
     1:string createBy
-    2:i64 createTime
+    2:string createTime
     3:string updateBy
-    4:i64 updateTime
+    4:string updateTime
     5:string remark
     6:map<string,string> params
-}
-
-struct GenTable {
-    1:BaseInfo baseInfo
-    2:i64 tableId
-    3:optional string tableName
-    4:optional string tableComment
-    5:optional string subTableName
-    6:optional string subTableFkName
-    7:optional string className
-    8:optional string tplCategory
-    9:optional string tplWebType
-    10:optional string packageName
-    11:optional string moduleName
-    12:optional string businessName
-    13:optional string functionName
-    14:optional string functionAuthor
-    15:optional string genType
-    16:optional string genPath
-    17:optional GenTableColumn pkColumn
-    18:optional GenTable subTable
-    19:optional list<GenTableColumn> columns
-    20:optional string options
-    21:optional string treeCode
-    22:optional string treeParentCode
-    23:optional string treeName
-    24:optional string parentMenuId
-    25:optional string parentMenuName
+    7:i64 tableId
+    8:string tableName
+    9:string tableComment
+    10:string subTableName
+    11:string subTableFkName
+    12:string className
+    13:string tplCategory
+    14:string tplWebType
+    15:string packageName
+    16:string moduleName
+    17:string businessName
+    18:string functionName
+    19:string functionAuthor
+    20:string genType
+    21:string genPath
+    22:GenTableColumn pkColumn
+    23:GenTable subTable
+    24:list<GenTableColumn> columns
+    25:string options
+    26:string treeCode
+    27:string treeParentCode
+    28:string treeName
+    29:string parentMenuId
+    30:string parentMenuName
 }
 
 struct GenTableColumn {
-    1:BaseInfo baseInfo
-    2:i64 columnId
-    3:optional i64 tableId
-    4:optional string columnName
-    5:optional string columnComment
-    6:optional string columnType
-    7:optional string GoType
-    8:optional string GoField
-    9:optional string isPk
-    10:optional string isIncrement
-    11:optional string isRequired
-    12:optional string isInsert
-    13:optional string isEdit
-    14:optional string isList
-    15:optional string isQuery
-    16:optional string queryType
-    17:optional string htmlType
-    18:optional string dictType
-    19:optional i64 sort
+    1:string createBy
+    2:string createTime
+    3:string updateBy
+    4:string updateTime
+    5:string remark
+    6:map<string,string> params
+    7:i64 columnId
+    8:i64 tableId
+    9:string columnName
+    10:string columnComment
+    11:string columnType
+    12:string goType
+    13:string goField
+    14:string isPk
+    15:string isIncrement
+    16:string isRequired
+    17:string isInsert
+    18:string isEdit
+    19:string isList
+    20:string isQuery
+    21:string queryType
+    22:string htmlType
+    23:string dictType
+    24:i64 sort
 }
 
 struct ListGenTablesRequest {
@@ -106,6 +107,11 @@ struct ListGenTablesResponse {
     3:list<GenTable> rows
 }
 
+struct ImportTableSaveRequest {
+    1:string tables
+    2:string operName
+}
+
 struct GetInfoResponse {
     1:BaseResp baseResp
     2:GenTable info
@@ -115,6 +121,14 @@ struct GetInfoResponse {
 
 struct DataListRequest {
     1:GenTable genTable
+    2:PageInfo pageInfo
+    3:DateRange dateRange
+}
+
+struct ListGenTableColumnsResponse {
+    1:BaseResp baseResp
+    2:i64 total
+    3:list<GenTableColumn> rows
 }
 
 struct EditSaveRequest {
@@ -133,9 +147,4 @@ struct PreviewResponse {
 struct DownloadResponse {
     1:BaseResp baseResp
     2:binary data
-}
-
-struct BatchGenCodeResponse {
-    1:BaseResp baseResp
-    2:list<binary> data
 }

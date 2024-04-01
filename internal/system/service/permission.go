@@ -34,7 +34,7 @@ func (s *permissionService) GetRolePermission(ctx context.Context, user *v1.SysU
 
 func (s *permissionService) GetMenuPermission(ctx context.Context, user *v1.SysUser, opts *api.GetOptions) []string {
 	if user.IsAdmin() {
-		return []string{"*.*.*"}
+		return []string{api.ALL_PERMISSIONS}
 	}
 
 	if len(user.Roles) > 0 {

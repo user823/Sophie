@@ -105,12 +105,21 @@ func GetMySQLFactoryOr(cfg *sql.MysqlConfig) (store.Factory, error) {
 		return nil, fmt.Errorf("failed to get mysql store factory")
 	}
 
-	var err error
-	var dbIns *gorm.DB
-	once.Do(func() {
-		dbIns, err = sql.NewMysqlDB(cfg)
-		mysqlFactory = &datastore{dbIns}
-	})
+	// 已经初始化过
+	if mysqlFactory != nil {
+		return mysqlFactory, nil
+	}
 
-	return mysqlFactory, err
+	// 尝试初始化
+	if cfg != nil {
+		dbIns, err := sql.NewMysqlDB(cfg)
+		if err != nil {
+			return nil, err
+		}
+		once.Do(func() {
+			mysqlFactory = &datastore{dbIns}
+		})
+	}
+
+	return mysqlFactory, nil
 }

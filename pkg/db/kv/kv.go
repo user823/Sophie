@@ -2,7 +2,7 @@ package kv
 
 import (
 	"context"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
+	clientv3 "go.etcd.io/etcd/client/v3"
 )
 
 // KeyValueStore 是所有k/v数据库存储后端的标准接口
@@ -21,27 +21,30 @@ type KeyValueStore interface {
 	GetKeysAndValues(context.Context) map[string]string
 	GetKeysAndValuesWithFilter(context.Context, string) map[string]string
 	DeleteKeys(context.Context, []string) bool
-	Decrement(context.Context, string) int64
-	IncrememntWithExpire(context.Context, string, int64) int64
-	SetRollingWindow(ctx context.Context, key string, per int64, val string, pipeline bool) (int, []interface{})
-	GetRollingWindow(ctx context.Context, key string, per int64, pipeline bool) (int, []interface{})
-	GetSet(context.Context, string) (map[string]string, error)
-	AddToSet(context.Context, string, string)
-	GetAndDeleteSet(context.Context, string) []interface{}
-	RemoveFromSet(context.Context, string, string)
-	DeleteScanMatch(context.Context, string) bool
-	AddToSortedSet(context.Context, string, string, float64)
-	GetSortedSetRange(context.Context, string, string, string) ([]string, []float64, error)
-	RemoveSortedSetRange(context.Context, string, string, string) error
-	GetListRange(context.Context, string, int64, int64) ([]string, error)
-	RemoveFromList(context.Context, string, string) error
-	AppendToSet(context.Context, string, string)
-	Exists(context.Context, string) (bool, error)
+	// 获取底层客户端
+	LowLevel() any
 }
 
 // redis 一般要结合keyprefix 和 hash一起使用
 type RedisStore interface {
 	KeyValueStore
+	Decrement(context.Context, string) int64
+	IncrementWithExpire(context.Context, string, int64) int64
+	SetRollingWindow(ctx context.Context, key string, per int64, val string, pipeline bool) (int, []string)
+	GetRollingWindow(ctx context.Context, key string, per int64, pipeline bool) (int, []string)
+	GetSet(context.Context, string) (map[string]string, error)
+	AddToSet(context.Context, string, string)
+	GetAndDeleteSet(context.Context, string) []string
+	RemoveFromSet(context.Context, string, string)
+	DeleteScanMatch(context.Context, string) bool
+	AddToSortedSet(context.Context, string, string, float64)
+	RemoveSortedSet(context.Context, string, ...any) // 删除有序集合中的元素
+	GetSortedSetRange(context.Context, string, string, string) ([]string, []float64, error)
+	RemoveSortedSetRange(context.Context, string, string, string) error
+	GetListRange(context.Context, string, int64, int64) ([]string, error)
+	RemoveFromList(context.Context, string, string) error
+	AppendToList(context.Context, string, string)
+	Exists(context.Context, string) (bool, error)
 	SetRandomExp(bool)
 	SetKeyPrefix(string)
 	SetHashKey(bool)
@@ -53,13 +56,26 @@ type RedisStore interface {
 	AppendToSetPipelined(context.Context, string, []string)
 	Publish(context.Context, string, string) error
 	StartPubSubHandler(context.Context, string, func(any)) error
+	// Hash 类型
+	AddToHash(context.Context, string, map[string]any) error
+	MGetFromHash(context.Context, []string) ([]map[string]string, error)
 }
 
-func NewKVStore(name string) KeyValueStore {
+type EtcdStore interface {
+	KeyValueStore
+	GrantLease(ctx context.Context, ttl int64) (clientv3.LeaseID, error)
+	KeepLease(ctx context.Context, leaseId clientv3.LeaseID) error
+	PutWithLease(ctx context.Context, key, val string, id clientv3.LeaseID) error
+}
+
+func NewKVStore(name string, config any) KeyValueStore {
 	switch name {
 	case "redis":
-		return redis.NewRedisClient()
+		return NewRedisClient()
+	case "etcd":
+		cli, _ := NewEtcdClient(config)
+		return cli
 	default:
-		return redis.NewRedisClient()
+		return NewRedisClient()
 	}
 }

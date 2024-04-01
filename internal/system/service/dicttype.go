@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/system/store"
 	"github.com/user823/Sophie/internal/system/utils/cacheutils"
+	"github.com/user823/Sophie/pkg/log"
 	"sync"
 )
 
@@ -53,23 +54,23 @@ func NewDictTypes(s store.Factory) DictTypeSrv {
 }
 
 func (s *dictTypeService) SelectDictTypeList(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) *v1.DictTypeList {
-	result, err := s.store.DictTypes().SelectDictTypeList(ctx, dictType, opts)
+	result, total, err := s.store.DictTypes().SelectDictTypeList(ctx, dictType, opts)
 	if err != nil {
 		return &v1.DictTypeList{ListMeta: api.ListMeta{0}}
 	}
 	return &v1.DictTypeList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
 
 func (s *dictTypeService) SelectDictTypeAll(ctx context.Context, opts *api.GetOptions) *v1.DictTypeList {
-	result, err := s.store.DictTypes().SelectDictTypeAll(ctx, opts)
+	result, total, err := s.store.DictTypes().SelectDictTypeAll(ctx, opts)
 	if err != nil {
 		return &v1.DictTypeList{ListMeta: api.ListMeta{0}}
 	}
 	return &v1.DictTypeList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
@@ -79,12 +80,12 @@ func (s *dictTypeService) SelectDictDataByType(ctx context.Context, dictType str
 	if len(dictDatas) > 0 {
 		return &v1.DictDataList{ListMeta: api.ListMeta{int64(len(dictDatas))}, Items: dictDatas}
 	}
-	dictDatas, _ = s.store.DictData().SelectDictDataByType(ctx, dictType, opts)
+	dictDatas, total, _ := s.store.DictData().SelectDictDataByType(ctx, dictType, opts)
 	if len(dictDatas) > 0 {
 		cacheutils.SetDictCache(dictType, dictDatas)
 	}
 	return &v1.DictDataList{
-		ListMeta: api.ListMeta{int64(len(dictDatas))},
+		ListMeta: api.ListMeta{total},
 		Items:    dictDatas,
 	}
 }
@@ -130,6 +131,13 @@ func (s *dictTypeService) ResetDictCache(ctx context.Context) {
 }
 
 func (s *dictTypeService) InsertDictType(ctx context.Context, dictType *v1.SysDictType, opts *api.CreateOptions) error {
+	// 首先验证格式
+	if opts.Validate {
+		if err := dictType.Validate(); err != nil {
+			return err
+		}
+	}
+
 	return s.store.DictTypes().InsertDictType(ctx, dictType, opts)
 }
 
@@ -140,10 +148,13 @@ func (s *dictTypeService) UpdateDictType(ctx context.Context, dictType *v1.SysDi
 	}
 	tx := s.store.Begin()
 	if err = tx.DictData().UpdateDictDataType(ctx, oldDict.DictType, dictType.DictType, opts); err != nil {
+		log.Infof("%v", oldDict.DictType)
+		log.Infof("%s", err.Error())
 		tx.Rollback()
 		return err
 	}
 	if err = tx.DictTypes().UpdateDictType(ctx, dictType, opts); err != nil {
+		log.Infof("%s", err.Error())
 		tx.Rollback()
 		return err
 	}
@@ -153,7 +164,7 @@ func (s *dictTypeService) UpdateDictType(ctx context.Context, dictType *v1.SysDi
 
 func (s *dictTypeService) CheckDictTypeUnique(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) bool {
 	info := s.store.DictTypes().CheckDictTypeUnique(ctx, dictType.DictType, opts)
-	if info != nil && info.DictId == dictType.DictId {
+	if info != nil && info.DictId != dictType.DictId {
 		return false
 	}
 	return true

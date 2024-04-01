@@ -1,0 +1,2988 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/online/:tokenId": {
+            "get": {
+                "description": "权限：monitor:online:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出在线用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "访问id",
+                        "name": "tokenId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/online/list": {
+            "get": {
+                "description": "权限：monitor:online:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出在线用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "userName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "ip地址",
+                        "name": "ipaddr",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/:postIds": {
+            "delete": {
+                "description": "删除目标岗位\n权限：system:post:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除岗位",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "岗位ids",
+                        "name": "postIds",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/avatar": {
+            "post": {
+                "description": "更新登录用户密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新密码",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "用户头像",
+                        "name": "avatarfile",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config": {
+            "post": {
+                "description": "权限：system:config:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数名",
+                        "name": "configName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "参数键",
+                        "name": "configKey",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "参数值",
+                        "name": "configValue",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "系统内置",
+                        "name": "configType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config/:configId": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取配置详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "参数id",
+                        "name": "configId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config/:configIds": {
+            "delete": {
+                "description": "权限: system:config:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "移除配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置id",
+                        "name": "configIds",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config/:configKey": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取配置键",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数键名",
+                        "name": "configKey",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "description": "权限：system:config:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数名",
+                        "name": "configName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "参数键",
+                        "name": "configKey",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "参数值",
+                        "name": "configValue",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "系统内置",
+                        "name": "configType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config/export": {
+            "post": {
+                "description": "根据条件导出配置列表\n权限：system:config:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "导出配置列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数名称",
+                        "name": "configName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "参数键名",
+                        "name": "configKey",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "系统内置",
+                        "name": "configType",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config/list": {
+            "get": {
+                "description": "根据条件查询配置列表\n权限：system:config:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "配置列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "参数名称",
+                        "name": "configName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "参数键名",
+                        "name": "configKey",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "系统内置",
+                        "name": "configType",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/config/refreshCache": {
+            "delete": {
+                "description": "权限: system:config:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "刷新缓存",
+                "responses": {}
+            }
+        },
+        "/system/dept": {
+            "get": {
+                "description": "根据条件查询部门列表\n权限：system:dept:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "部门列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门名称",
+                        "name": "deptName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "description": "权限：system:dept:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "上级部门",
+                        "name": "parentName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "部门名称",
+                        "name": "deptName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "负责人",
+                        "name": "leader",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "部门邮箱",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "权限：system:dept:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "上级部门",
+                        "name": "parentName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "部门名称",
+                        "name": "deptName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "负责人",
+                        "name": "leader",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "部门邮箱",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dept/:deptId": {
+            "get": {
+                "description": "权限：system:dept:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "部门详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门id",
+                        "name": "deptId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "description": "权限：system:dept:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "移除部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门id",
+                        "name": "deptId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dept/list/exclude/:deptId": {
+            "get": {
+                "description": "权限：system:dept:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "排除子部门",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "部门id",
+                        "name": "deptId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/data": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改字典数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "数据标签",
+                        "name": "dictLabel",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典键值",
+                        "name": "dictValue",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "样式属性",
+                        "name": "cssType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "显示排序",
+                        "name": "sort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "回显样式",
+                        "name": "listType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "评论",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加字典数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "数据标签",
+                        "name": "dictLabel",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典键值",
+                        "name": "dictValue",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "样式属性",
+                        "name": "cssType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "显示排序",
+                        "name": "sort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "回显样式",
+                        "name": "listType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "评论",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/data/:dictCode": {
+            "get": {
+                "description": "根据条件获取字典数据详情\n权限：system:dict:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "字典数据详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典编码",
+                        "name": "dictCode",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/data/:dictCodes": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "移除字典数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典编码",
+                        "name": "dictCodes",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/data/export": {
+            "post": {
+                "description": "根据条件导出字典数据列表\n权限：system:dict:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "导出字典数据列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典名称",
+                        "name": "dictName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典标签",
+                        "name": "dictLabel",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/data/list": {
+            "get": {
+                "description": "根据条件查询字典数据列表\n权限：system:dict:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出字典数据列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典名称",
+                        "name": "dictName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典标签",
+                        "name": "dictLabel",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/data/type/:dictType": {
+            "get": {
+                "description": "根据字典类型获取字典数据列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取字典数据",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/type": {
+            "put": {
+                "description": "权限：system:dict:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改字典类型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典名称",
+                        "name": "dictName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "权限：system:dict:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "创建字典类型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典名称",
+                        "name": "dictName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/type/:dictId": {
+            "get": {
+                "description": "获取目标字典类型详情\n权限：system:dict:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "字典类型详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "字典id",
+                        "name": "dictId",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/type/:dictIds": {
+            "delete": {
+                "description": "权限：system:dict:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "移除字典类型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典id",
+                        "name": "dictIds",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/type/export": {
+            "post": {
+                "description": "根据条件导出字典类型列表\n权限：system:dict:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "字典类型列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典名称",
+                        "name": "dictName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/type/list": {
+            "get": {
+                "description": "根据条件查询字典类型列表\n权限：system:dict:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "字典类型列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "字典名称",
+                        "name": "dictName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "字典类型",
+                        "name": "dictType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/dict/type/optionselect": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出可选字典类型",
+                "responses": {}
+            }
+        },
+        "/system/dict/type/refreshCache": {
+            "delete": {
+                "description": "权限：system:dict:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "移除字典类型",
+                "responses": {}
+            }
+        },
+        "/system/logininfor/:infoIds": {
+            "delete": {
+                "description": "权限：system:logininfor:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除登录信息列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "记录id",
+                        "name": "infoIds",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/logininfor/clean": {
+            "delete": {
+                "description": "权限：system:logininfor:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "清空登录信息列表",
+                "responses": {}
+            }
+        },
+        "/system/logininfor/export": {
+            "post": {
+                "description": "根据条件导出公告列表\n权限：system:logininfor:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "导出登录信息列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "登录地址",
+                        "name": "ipaddr",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名称",
+                        "name": "userName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "登录时间",
+                        "name": "createTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/logininfor/list": {
+            "get": {
+                "description": "根据条件查询登录信息列表\n权限：system:logininfor:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出登录信息列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "登录地址",
+                        "name": "ipaddr",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名称",
+                        "name": "userName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "登录时间",
+                        "name": "createTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/logininfor/unlock/:userName": {
+            "get": {
+                "description": "权限：system:logininfor:unlock",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "解锁用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "userName",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/menu": {
+            "put": {
+                "description": "修改菜单\n权限: system:menu:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "菜单名称",
+                        "name": "menuName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "显示排序",
+                        "name": "sort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "路由地址",
+                        "name": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "上级菜单",
+                        "name": "parentName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "菜单类型",
+                        "name": "menuType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "菜单图标",
+                        "name": "icon",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "是否外链",
+                        "name": "isFrame",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/menu/:menuId": {
+            "get": {
+                "description": "根据目标菜单详情信息\n权限：system:menu:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "菜单详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "菜单id",
+                        "name": "menuId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "description": "移除目标菜单\n权限: system:menu:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "移除菜单",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "菜单id",
+                        "name": "menuId",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/menu/add": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "添加菜单",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "菜单名称",
+                        "name": "menuName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "显示排序",
+                        "name": "sort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "路由地址",
+                        "name": "path",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "上级菜单",
+                        "name": "parentName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "菜单类型",
+                        "name": "menuType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "菜单图标",
+                        "name": "icon",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "是否外链",
+                        "name": "isFrame",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/menu/getRouters": {
+            "get": {
+                "description": "用户访问时获取菜单路由信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取路由信息",
+                "responses": {}
+            }
+        },
+        "/system/menu/list": {
+            "get": {
+                "description": "根据条件查询菜单列表\n权限：system:menu:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出菜单列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "菜单名称",
+                        "name": "menuName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/menu/roleMenuTreeselect/:roleId": {
+            "get": {
+                "description": "根据角色查询菜单树",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "角色菜单树",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/menu/treeselect": {
+            "get": {
+                "description": "查询目标菜单树",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "菜单树",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "菜单id",
+                        "name": "menuId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "菜单名",
+                        "name": "menuName",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/notice": {
+            "put": {
+                "description": "修改公告\n权限：system:notice:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改公告",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "noticeTitle",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "类型",
+                        "name": "noticeType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "内容",
+                        "name": "noticeContent",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "创建公告\n权限：system:notice:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "创建公告",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "标题",
+                        "name": "noticeTitle",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "类型",
+                        "name": "noticeType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "内容",
+                        "name": "noticeContent",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/notice/:noticeId": {
+            "get": {
+                "description": "获取公告详情信息\n权限：system:notice:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取公告详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "公告id",
+                        "name": "noticeId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/notice/:noticeIds": {
+            "delete": {
+                "description": "删除公告\n权限：system:notice:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除公告",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "公告id",
+                        "name": "noticeIds",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/notice/list": {
+            "get": {
+                "description": "根据条件查询公告列表\n权限：system:notice:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出公告列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "公告标题",
+                        "name": "noticeTitle",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作人员",
+                        "name": "createBy",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "公告类型",
+                        "name": "noticeType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/operlog/:operIds": {
+            "delete": {
+                "description": "删除多个操作记录\n权限：system:operlog:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除操作列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "操作ip",
+                        "name": "operIps",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/operlog/clean": {
+            "delete": {
+                "description": "权限：system:operlog:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "清空操作记录",
+                "responses": {}
+            }
+        },
+        "/system/operlog/export": {
+            "post": {
+                "description": "根据条件查询操作日志列表\n权限：system:operlog:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出操作列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "操作ip",
+                        "name": "operIp",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "系统模块",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作人员",
+                        "name": "operName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作类型",
+                        "name": "businessType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作时间",
+                        "name": "operTime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/operlog/list": {
+            "get": {
+                "description": "根据条件查询操作日志列表\n权限：system:operlog:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "列出操作列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "操作ip",
+                        "name": "operIp",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "系统模块",
+                        "name": "title",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作人员",
+                        "name": "operName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作类型",
+                        "name": "businessType",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "操作时间",
+                        "name": "operTime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/optionselect": {
+            "get": {
+                "description": "列出所有岗位",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "可选岗位",
+                "responses": {}
+            }
+        },
+        "/system/post": {
+            "put": {
+                "description": "修改岗位\n权限：system:post:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改岗位",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "岗位名称",
+                        "name": "postName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位编码",
+                        "name": "postCode",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位顺序",
+                        "name": "postSort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "增加岗位\n权限：system:post:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "新增岗位",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "岗位名称",
+                        "name": "postName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位编码",
+                        "name": "postCode",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位顺序",
+                        "name": "postSort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/post/:postId": {
+            "get": {
+                "description": "查询目标岗位详情\n权限：system:post:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "岗位详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "岗位Id",
+                        "name": "postId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/post/export": {
+            "post": {
+                "description": "根据条件导出系统岗位列表\n权限：system:post:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "岗位列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "岗位编码",
+                        "name": "postCode",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位名称",
+                        "name": "postName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/post/list": {
+            "get": {
+                "description": "根据条件查询系统岗位列表\n权限：system:post:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "岗位列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "岗位编码",
+                        "name": "postCode",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位名称",
+                        "name": "postName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/profile": {
+            "get": {
+                "description": "查询登录用户详情信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户个人详情",
+                "responses": {}
+            },
+            "put": {
+                "description": "更新登录用户详情信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新用户个人详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户昵称",
+                        "name": "nickName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "手机号码",
+                        "name": "phonenumber",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "name": "email",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "性别",
+                        "name": "sex",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/:roleId": {
+            "get": {
+                "description": "查询目标角色详情信息\n权限：system:role:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "角色详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "description": "修改角色\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色名称",
+                        "name": "roleName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "权限字符",
+                        "name": "roleKey",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "角色顺序",
+                        "name": "roleSort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "菜单权限",
+                        "name": "menuIds",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "创建角色\n权限：system:role:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "创建角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色名称",
+                        "name": "roleName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "权限字符",
+                        "name": "roleKey",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "角色顺序",
+                        "name": "roleSort",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "菜单权限",
+                        "name": "menuIds",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/:roleIds": {
+            "delete": {
+                "description": "删除目标角色\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "删除角色id",
+                        "name": "roleIds",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/authUser/allocatedList": {
+            "get": {
+                "description": "查询目标用户已经分配的角色\n权限：system:role:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "查询用户角色",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/authUser/cancel": {
+            "put": {
+                "description": "删除目标用户的角色\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除用户角色",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/authUser/cancelAll": {
+            "put": {
+                "description": "删除多个用户的指定角色\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除用户角色",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "用户ids",
+                        "name": "userIds",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/authUser/selectAll": {
+            "put": {
+                "description": "为多个用户授权指定角色\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "授权角色",
+                "parameters": [
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "用户ids",
+                        "name": "userIds",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/authUser/unallocatedList": {
+            "get": {
+                "description": "查询目标用户还没有分配的角色\n权限：system:role:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "查询用户角色",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/changeStatus": {
+            "put": {
+                "description": "修改角色的状态\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改状态",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "角色状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/dataScope": {
+            "put": {
+                "description": "限定本角色能操作的数据范围，比如只能操作本人数据、本部门数据等\n权限：system:role:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "数据范围",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "数据范围",
+                        "name": "dataScope",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/deptTree/:roleId": {
+            "get": {
+                "description": "查询指定角色的部门树\n权限：system:role:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "角色部门树",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "角色id",
+                        "name": "roleId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/export": {
+            "get": {
+                "description": "根据条件导出系统角色列表\n权限：system:role:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "导出角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色名",
+                        "name": "roleName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "权限字符",
+                        "name": "roleKey",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdTime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/list": {
+            "get": {
+                "description": "根据条件查询系统角色列表\n权限：system:role:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取角色",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "角色名",
+                        "name": "roleName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "权限字符",
+                        "name": "roleKey",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdTime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/role/optionselect": {
+            "get": {
+                "description": "列出所有角色\n权限：system:role:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "可选角色",
+                "responses": {}
+            }
+        },
+        "/system/updatePwd": {
+            "put": {
+                "description": "更新登录用户密码",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "更新密码",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "旧密码",
+                        "name": "oldPassword",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "新密码",
+                        "name": "newPassword",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user": {
+            "put": {
+                "description": "修改用户\n权限：system:user:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "部门id",
+                        "name": "deptId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户昵称",
+                        "name": "nickName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "手机号",
+                        "name": "phonenumber",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "性别",
+                        "name": "sex",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "角色id",
+                        "name": "roleIds",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位id",
+                        "name": "postIds",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "创建用户\n权限：system:user:add",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "创建用户",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "部门id",
+                        "name": "deptId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "userName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户昵称",
+                        "name": "nickName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户邮箱",
+                        "name": "email",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "手机号",
+                        "name": "phonenumber",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "性别",
+                        "name": "sex",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "用户状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "角色id",
+                        "name": "roleIds",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "岗位id",
+                        "name": "postIds",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "备注",
+                        "name": "remark",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/": {
+            "get": {
+                "description": "获取目标用户（登录用户）的详情信息\n权限：system:user:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户详情",
+                "responses": {}
+            }
+        },
+        "/system/user/:userIds": {
+            "delete": {
+                "description": "删除用户\n权限：system:user:remove",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "删除用户",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "需要删除的用户id",
+                        "name": "userIds",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/:userid": {
+            "get": {
+                "description": "获取目标用户的详情信息\n权限：system:user:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/authRole": {
+            "put": {
+                "description": "为目标用户分配角色\n权限：system:user:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "授权角色",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "description": "授权角色的id",
+                        "name": "roleIds",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/authRole/:userId": {
+            "get": {
+                "description": "查询目标用户的角色\n权限：system:user:query",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "查询角色",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/changeStatus": {
+            "put": {
+                "description": "修改目标用户状态\n权限：system:user:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "修改用户状态",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/deptTree": {
+            "get": {
+                "description": "根据当前登录用户，查询他的部门信息\n权限：system:user:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "查询部门树",
+                "responses": {}
+            }
+        },
+        "/system/user/export": {
+            "post": {
+                "description": "根据条件导出系统用户列表\n权限：system:user:export",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "导出用户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "userName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "手机号码",
+                        "name": "phonenumber",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdTime",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/getInfo": {
+            "get": {
+                "description": "用户登录后获取当前用户详情信息",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户详情",
+                "responses": {}
+            }
+        },
+        "/system/user/info/:username": {
+            "get": {
+                "description": "获取目标用户的详情信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "用户详情",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "username",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/list": {
+            "get": {
+                "description": "根据条件查询系统用户列表\n权限：system:user:list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "获取用户列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "用户名",
+                        "name": "userName",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "手机号码",
+                        "name": "phonenumber",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "状态",
+                        "name": "status",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "创建时间",
+                        "name": "createdTime",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面序号",
+                        "name": "pageNum",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页面大小",
+                        "name": "pageSize",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/system/user/resetPwd": {
+            "put": {
+                "description": "重置密码\n权限：system:user:edit",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "重置密码",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "用户id",
+                        "name": "userId",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "新密码",
+                        "name": "password",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    }
+}

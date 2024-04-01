@@ -2,13 +2,7 @@ package utils
 
 import (
 	"net"
-	"os"
 )
-
-func FileExists(filename string) bool {
-	_, err := os.Stat(filename)
-	return !os.IsNotExist(err)
-}
 
 func IsValidIP(ip string) bool {
 	// 使用net.ParseIP来解析IP地址

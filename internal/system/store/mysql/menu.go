@@ -143,7 +143,7 @@ func (s *mysqlMenuStore) SelectMenuById(ctx context.Context, menuid int64, opts 
 	var result v1.SysMenu
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -179,6 +179,8 @@ func (s *mysqlMenuStore) UpdateMenu(ctx context.Context, menu *v1.SysMenu, opts 
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Where("menu_id = ?", menu.MenuId).Updates(menu).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(menu.MenuId, ""))
 }
 
@@ -196,7 +198,7 @@ func (s *mysqlMenuStore) CheckMenuNameUnique(ctx context.Context, menuName strin
 	var result v1.SysMenu
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -218,7 +220,7 @@ var menuCache = struct {
 
 func (s *mysqlMenuStore) CachedDB() *cache.CachedDB {
 	menuCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-menustore-")
 		rdsCli.SetRandomExp(true)
 

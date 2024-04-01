@@ -30,9 +30,12 @@ var (
 )
 
 // 未授权时返回消息
-const (
-	ErrExpireMsg       = "登录状态已过期，请重新登录"
-	ErrUnauthorizedMsg = "账号或密码错误1"
+var (
+	ErrExpire       = errors.New("登录状态已过期，请重新登录")
+	ErrUnauthorized = errors.New("账号或密码错误")
+	ErrInternal     = errors.New("系统内部错误")
+	ErrDeleted      = errors.New("对不起，您的账号已删除")
+	ErrDisabled     = errors.New("对不起，您的账号已停用")
 )
 
 // 登陆参数绑定与校验
@@ -44,7 +47,7 @@ type loginInfo struct {
 func newBasicAuth() auth.AuthStrategy {
 	return auth.NewBasicStrategy(func(c *app.RequestContext, username, password string) (data interface{}, ok bool) {
 		var msg string
-		sysLoginInfo := auth.GetLogininfo(c, username)
+		sysLoginInfo := auth.GetLogininfo(c, &v12.UserInfo{UserName: username}, "")
 		defer func() {
 			if msg != "" {
 				sysLoginInfo.Status = api.LOGIN_FAIL
@@ -77,22 +80,21 @@ func newBasicAuth() auth.AuthStrategy {
 
 func newJWTAuth(info *JwtInfo) auth.AuthStrategy {
 	authMiddleware, err := jwt.New(&jwt.HertzJWTMiddleware{
-		Realm:                 info.Realm,
-		Key:                   utils.S2b(info.Key),
-		Timeout:               info.Timeout,
-		MaxRefresh:            info.Timeout,
-		IdentityKey:           auth.UsernameKey,
-		PayloadFunc:           payloadFunc(),
-		Authenticator:         authenticator(),
-		Authorizator:          authentizator(),
-		Unauthorized:          unauthorized(),
-		SigningAlgorithm:      "HS256",
-		LoginResponse:         loginResponse(),
-		LogoutResponse:        logoutResponse(),
-		TokenLookup:           "header: Authorization, query: token, cookie: jwt",
-		TokenHeadName:         "Bearer",
-		SendCookie:            false,
-		HTTPStatusMessageFunc: httpMessageFunc(),
+		Realm:            info.Realm,
+		Key:              utils.S2b(info.Key),
+		Timeout:          info.Timeout,
+		MaxRefresh:       info.Timeout,
+		IdentityKey:      auth.UsernameKey,
+		PayloadFunc:      payloadFunc(),
+		Authenticator:    authenticator(),
+		Authorizator:     authentizator(),
+		Unauthorized:     unauthorized(),
+		SigningAlgorithm: "HS256",
+		LoginResponse:    loginResponse(),
+		LogoutResponse:   logoutResponse(),
+		TokenLookup:      "header: Authorization, query: token, cookie: jwt",
+		TokenHeadName:    "Bearer",
+		SendCookie:       false,
 	})
 	if err != nil {
 		log.Fatalf("Service auth initial error: %s, %s", v13.ServiceName, err.Error())
@@ -106,44 +108,40 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 	return func(ctx context.Context, c *app.RequestContext) (interface{}, error) {
 		var login loginInfo
 		var err error
-		var msgErr error
 
 		// 参数验证/校验失败
 		if err = c.BindAndValidate(&login); err != nil {
 			return "", errors.New(validLoginErrMsg(err))
 		}
 
-		// 设置基本登陆信息
-		sysLoginInfo := auth.GetLogininfo(c, login.Username)
+		// 记录基本登陆信息
+		sysLoginInfo := auth.GetLogininfo(c, &v12.UserInfo{UserName: login.Username}, "")
 		defer func() {
-			if msgErr != nil {
+			if err != nil {
 				sysLoginInfo.Status = api.LOGIN_FAIL
-				sysLoginInfo.Msg = msgErr.Error()
+				sysLoginInfo.Msg = err.Error()
 			}
 			appendLogininfo(sysLoginInfo)
 		}()
 
 		resp, err := rpc.Remoting.GetUserInfoByName(context.Background(), login.Username)
-		user := resp.Data
 		if err != nil || resp.BaseResp.Code != code.SUCCESS {
-			msgErr = errors.WithCodeMessagef(err, int(resp.BaseResp.Code), "系统内部错误")
-			return nil, msgErr
+			return nil, ErrInternal
 		}
 
+		user := resp.Data
+
 		if v1.UserStatus["DELETED"].Code == user.DelFlag {
-			msgErr = fmt.Errorf("对不起，您的账号：%s 已被删除")
-			return "", msgErr
+			return "", ErrDeleted
 		}
 
 		if v1.UserStatus["DISABLE"].Code == user.Status {
-			msgErr = fmt.Errorf("对不起，您的账号：%s 已被停用")
-			return "", msgErr
+			return "", ErrDisabled
 		}
 
 		// 验证密码
 		if err = auth.Compare(user.Password, login.Password); err != nil {
-			msgErr = fmt.Errorf(ErrUnauthorizedMsg)
-			return "", msgErr
+			return "", ErrUnauthorized
 		}
 
 		// 登陆成功，设置授权上下文信息
@@ -153,16 +151,22 @@ func authenticator() func(ctx context.Context, c *app.RequestContext) (interface
 			User:        resp.Data,
 		}
 		c.Set(api.LOGIN_INFO_KEY, loginUser)
-		return *user, nil
+		c.Set(auth.TokenIdKey, sysLoginInfo.TokenId)
+		return map[string]any{
+			"user":    user.UserName,
+			"tokenId": sysLoginInfo.TokenId,
+		}, nil
 	}
 }
 
 // 登陆成功时设置jwt 载荷信息
 func payloadFunc() func(data interface{}) jwt.MapClaims {
 	return func(data interface{}) jwt.MapClaims {
-		if v, ok := data.(v12.UserInfo); ok {
+		if v, ok := data.(map[string]any); ok {
 			return jwt.MapClaims{
-				auth.UsernameKey: v.UserName,
+				auth.UsernameKey: v["user"],
+				// 每个token 绑定一个tokenId
+				auth.TokenIdKey: v["tokenId"],
 			}
 		}
 		return jwt.MapClaims{}
@@ -179,22 +183,26 @@ func authentizator() func(data interface{}, ctx context.Context, c *app.RequestC
 			return false
 		}
 
-		if username, ok := data.(string); ok {
+		// 检查用户登录状态
+		claims := jwt.ExtractClaims(ctx, c)
+		if tokenId, ok := claims[auth.TokenIdKey].(string); ok && checkLogin(tokenId) {
+			if username, ok := data.(string); ok {
 
-			// 用于后续步骤的权限校验
-			resp, err := rpc.Remoting.GetUserInfoByName(ctx, username)
-			if err != nil || resp.BaseResp.Code != code.SUCCESS {
-				log.Errorf("Get user info error, code: %d, error: %v", resp.BaseResp.Code, err)
-				return false
-			}
+				// 用于后续步骤的权限校验
+				resp, err := rpc.Remoting.GetUserInfoByName(ctx, username)
+				if err != nil || resp.BaseResp.Code != code.SUCCESS {
+					log.Errorf("Get user info error, code: %d, error: %v", resp.BaseResp.Code, err)
+					return false
+				}
 
-			loginUser := v12.LoginUser{
-				Roles:       resp.GetRoles(),
-				Permissions: resp.GetPermissions(),
-				User:        resp.Data,
+				loginUser := v12.LoginUser{
+					Roles:       resp.GetRoles(),
+					Permissions: resp.GetPermissions(),
+					User:        resp.Data,
+				}
+				c.Set(api.LOGIN_INFO_KEY, loginUser)
+				return true
 			}
-			c.Set(api.LOGIN_INFO_KEY, loginUser)
-			return true
 		}
 
 		return false
@@ -203,28 +211,19 @@ func authentizator() func(data interface{}, ctx context.Context, c *app.RequestC
 
 // message 是根据authenticator的err构造的信息
 func unauthorized() func(ctx context.Context, c *app.RequestContext, code int, message string) {
-	return func(ctx context.Context, c *app.RequestContext, cod int, message string) {
-		switch message {
-		case ErrExpireMsg:
-			cod = code.UNAUTHRIZED
-		case ErrUnauthorizedMsg:
-			cod = code.ERROR
+	return func(ctx context.Context, c *app.RequestContext, code int, message string) {
+		if strutil.ContainsAny(message, ErrUnauthorized.Error(), ErrDisabled.Error(), ErrDeleted.Error(), ErrInternal.Error()) {
+			core.WriteResponse(c, core.ErrResponse{
+				Code:    500,
+				Message: message,
+			})
+			return
 		}
-		core.WriteResponse(c, core.ErrResponse{
-			Code:    cod,
-			Message: message,
-		})
-	}
-}
 
-func httpMessageFunc() func(e error, ctx context.Context, c *app.RequestContext) string {
-	return func(e error, ctx context.Context, c *app.RequestContext) string {
-		switch e {
-		case jwt.ErrExpiredToken:
-			return ErrExpireMsg
-		default:
-			return ErrUnauthorizedMsg
-		}
+		core.WriteResponse(c, core.ErrResponse{
+			Code:    401,
+			Message: ErrExpire.Error(),
+		})
 	}
 }
 
@@ -236,15 +235,17 @@ func loginResponse() func(ctx context.Context, c *app.RequestContext, code int, 
 			"expires_in":   time,
 		}
 
-		// 设置登录状态
-		carry, _ := c.Get(api.LOGIN_INFO_KEY)
-		v := carry.(v12.LoginUser)
-		sysLoginInfo := auth.GetLogininfo(c, v.User.UserName)
-		record := fmt.Sprintf("%s:%s:%s:%d", v.User.UserName, message, sysLoginInfo.Ipaddr, sysLoginInfo.AccessTime)
-		redisLoginStatus(message, record, utils.Time2Second(time)*1e9)
+		if token, ok := c.Get(auth.TokenIdKey); ok {
+			tokenId := token.(string)
+			carry, _ := c.Get(api.LOGIN_INFO_KEY)
+			v := carry.(v12.LoginUser)
+			sysLoginInfo := auth.GetLogininfo(c, v.User, tokenId)
+			redisLoginStatus(sysLoginInfo)
+		} else {
+			log.Warn(errors.New("Set user login status failed"))
+		}
 
 		core.OK(c, "", data)
-		//c.String(200, system.FakeLogin)
 	}
 }
 
@@ -252,15 +253,19 @@ func logoutResponse() func(ctx context.Context, c *app.RequestContext, code int)
 	return func(ctx context.Context, c *app.RequestContext, cod int) {
 		claims := jwt.ExtractClaims(ctx, c)
 		user := claims[auth.UsernameKey]
+		tokenid := claims[auth.TokenIdKey]
 		if v, ok := user.(v1.SysUser); ok {
-			// 设置登出状态
-			tokenId := jwt.GetToken(ctx, c)
-			redisLogoutStatus(tokenId)
-
-			logininfo := auth.GetLogininfo(c, v.Username)
+			// 设置登录日志
+			logininfo := auth.GetLogininfo(c, &v12.UserInfo{UserName: v.Username}, "xxx")
 			logininfo.Status = api.LOGOUT
 			logininfo.Msg = "登出成功"
 			appendLogininfo(logininfo)
+		}
+
+		if v, ok := tokenid.(string); ok {
+			// 设置登出状态
+			log.Infof("设置登出状态， 登出成功")
+			redisLogoutStatus(v)
 		}
 
 		c.JSON(code.SUCCESS, map[string]interface{}{
@@ -290,16 +295,35 @@ func appendLogininfo(logininfo *v12.Logininfo) {
 	}
 }
 
-// 设置用户登录状态
-func redisLoginStatus(tokenid string, token_ip_accesstime string, expireTime int64) {
-	redisCli := kv.NewKVStore("redis").(kv.RedisStore)
+// 检查用户登录状态
+func checkLogin(tokenId string) bool {
+	redisCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 	redisCli.SetKeyPrefix(kv.SYS_LOGIN_USER)
-	redisCli.SetKey(context.Background(), tokenid, token_ip_accesstime, expireTime)
+	ok, err := redisCli.Exists(context.Background(), tokenId)
+	if err != nil {
+		return false
+	}
+	return ok
+}
+
+// 设置用户登录状态
+func redisLoginStatus(logininfo *v12.Logininfo) {
+	redisCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
+	redisCli.SetKeyPrefix(kv.SYS_LOGIN_USER)
+	expireTime := api.LOGIN_TIMEOUT * time.Second
+	// 设置登录状态
+	_, result := redisCli.SetRollingWindow(context.Background(), kv.SYS_LOGIN_USER_IDS, expireTime.Milliseconds(), logininfo.TokenId, true)
+	// 清理过期token
+	for i := range result {
+		redisCli.DeleteKey(context.Background(), result[i])
+	}
+	// 设置登录信息
+	redisCli.AddToHash(context.Background(), logininfo.TokenId, logininfo.Marshal())
 }
 
 // 设置用户登出状态
 func redisLogoutStatus(tokenId string) {
-	redisCli := kv.NewKVStore("redis").(kv.RedisStore)
+	redisCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 	redisCli.SetKeyPrefix(kv.SYS_LOGIN_USER)
 	redisCli.DeleteKey(context.Background(), tokenId)
 }

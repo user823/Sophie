@@ -19,7 +19,7 @@ func (s *SysNotice) TableName() string {
 	return "sys_notice"
 }
 
-func (s *SysNotice) String() string {
+func (s *SysNotice) Marshal() string {
 	data, _ := jsoniter.Marshal(s)
 	return utils.B2s(data)
 }

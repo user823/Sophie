@@ -8,9 +8,9 @@ import (
 
 type DictTypeStore interface {
 	// 根据条件分页查询字典类型
-	SelectDictTypeList(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) ([]*v1.SysDictType, error)
+	SelectDictTypeList(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) ([]*v1.SysDictType, int64, error)
 	// 查询所有字典类型
-	SelectDictTypeAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysDictType, error)
+	SelectDictTypeAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysDictType, int64, error)
 	// 根据字典类型id查询信息
 	SelectDictTypeById(ctx context.Context, dictid int64, opts *api.GetOptions) (*v1.SysDictType, error)
 	// 根据字典类型查询信息

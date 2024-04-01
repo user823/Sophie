@@ -1,0 +1,22 @@
+{{/* sub-store.template 定义的是某个业务存储层接口 */ -}}
+package store
+
+import (
+	"context"
+	"github.com/user823/Sophie/api"
+	"github.com/user823/Sophie/api/domain/{{.moduleName}}/v1"
+)
+
+{{$BusinessName := removePrefix .BusinessName}}
+struct {{$BusinessName}}Store {
+    // 根据条件分页查询用户列表
+    Select{{$BusinessName}}List(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.GetOptions) ([]*v1.{{.ClassName}}, int64, error)
+    // 获取详情信息
+    Select{{$BusinessName}}By{{.pkColumn.GoField}}(ctx context.Context, {{CamelCaseToSnakeCase .pkColumn.GoField}} {{.pkColumn.GoField}}, opts *api.GetOptions) (*v1.{{.ClassName}} ,error)
+    // 创建
+    Insert{{$BusinessName}}(ctx context.Context, {{CamelCaseToSnakeCase .pkColumn.GoField}} {{.pkColumn.GoField}}, opts *api.CreateOptions) error
+    // 更新
+    Update{{$BusinessName}}(ctx context.Context, {{CamelCaseToSnakeCase .pkColumn.GoField}} {{.pkColumn.GoField}}, opts *api.UpdateOptions) error
+    // 删除
+    Delete{{$BusinessName}}(ctx context.Context, {{CamelCaseToSnakeCase .pkColumn.GoField}} {{.pkColumn.GoField}}, opts *api.DeleteOptions) error
+}

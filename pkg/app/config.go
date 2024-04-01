@@ -34,6 +34,7 @@ func addConfigFlag(name string) *flag.Flag {
 		if cfgFile != "" {
 			viper.SetConfigFile(cfgFile)
 		} else {
+			viper.AddConfigPath(".")
 			viper.AddConfigPath("./configs")
 			viper.AddConfigPath("../configs")
 			viper.AddConfigPath("../../configs")
@@ -44,14 +45,14 @@ func addConfigFlag(name string) *flag.Flag {
 			log.Warnf("failed to read configuration with configuration file (%s): %s", cfgFile, err.Error())
 		}
 
-		// 从配置中心中加载 (仅支持json）
-		if err := viper.AddRemoteProvider("etcd3", viper.GetString("etcd3"), "config/"+name+".json"); err != nil {
-			log.Warnf("failed to add viper remoting config: %s", err.Error())
-		}
-		viper.SetConfigType("json")
-		if err := viper.ReadRemoteConfig(); err != nil {
-			log.Warnf("failed to read configuration from remoting: %s", err.Error())
-		}
+		//// 从配置中心中加载 (仅支持json）
+		//if err := viper.AddRemoteProvider("etcd3", viper.GetString("etcd3"), "/sophie-config/"+name+".json"); err != nil {
+		//	log.Warnf("failed to add viper remoting config: %s", err.Error())
+		//}
+		//viper.SetConfigType("json")
+		//if err := viper.ReadRemoteConfig(); err != nil {
+		//	log.Warnf("failed to read configuration from remoting: %s", err.Error())
+		//}
 	})
 	return flag.Lookup(configName)
 }

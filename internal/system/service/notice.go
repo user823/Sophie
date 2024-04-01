@@ -41,14 +41,14 @@ func (s *noticeService) SelectNoticeById(ctx context.Context, noticeId int64, op
 }
 
 func (s *noticeService) SelectNoticeList(ctx context.Context, notice *v1.SysNotice, opts *api.GetOptions) *v1.NoticeList {
-	result, err := s.store.Notices().SelectNoticeList(ctx, notice, opts)
+	result, total, err := s.store.Notices().SelectNoticeList(ctx, notice, opts)
 	if err != nil {
 		return &v1.NoticeList{
 			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.NoticeList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }

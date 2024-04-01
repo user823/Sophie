@@ -1,0 +1,28 @@
+package store
+
+var client Factory
+
+type Factory interface {
+	Transaction
+	// TODO
+	// 存储层使用工厂方法模式
+	// 需要什么业务表，就声明对应的接口, 比如
+	// Users() UserStore
+	Close() error
+}
+
+
+// 支持事务特性的存储层
+type Transaction interface {
+	Begin() Factory
+	Commit() error
+	Rollback() error
+}
+
+func Client() Factory {
+	return client
+}
+
+func SetClient(factory Factory) {
+	client = factory
+}

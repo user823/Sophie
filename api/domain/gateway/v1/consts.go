@@ -1,5 +1,5 @@
 package v1
 
 const (
-	ServiceName = "Sophie Gateway "
+	ServiceName = "Sophie Gateway"
 )

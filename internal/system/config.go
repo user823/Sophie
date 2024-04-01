@@ -10,7 +10,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/options"
 	"github.com/user823/Sophie/pkg/db/doc"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
+	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/db/sql"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
@@ -25,7 +25,7 @@ type Config struct {
 	ServerRunConfig *options.RPCServerOptions
 	Register        *RegisterInfo
 	Aggregation     *aggregation.AnalyticsOptions
-	Redis           *redis.RedisConfig
+	Redis           *kv.RedisConfig
 	MySQL           *sql.MysqlConfig
 	ES              *doc.ESConfig
 	Availability    *options.AvailabilityOptions
@@ -43,19 +43,7 @@ func CreateConfigFromOptions(opts *Options) (*Config, error) {
 	}
 
 	// redis
-	redisConfig := &redis.RedisConfig{
-		Addrs:                 opts.RedisOptions.Addrs,
-		MasterName:            opts.RedisOptions.MasterName,
-		Username:              opts.RedisOptions.Username,
-		Password:              opts.RedisOptions.Password,
-		Database:              opts.RedisOptions.Database,
-		MaxIdle:               opts.RedisOptions.MaxIdle,
-		MaxActive:             opts.RedisOptions.MaxActive,
-		Timeout:               opts.RedisOptions.Timeout,
-		EnableCluster:         opts.RedisOptions.EnableCluster,
-		UseSSL:                opts.RedisOptions.UseSSL,
-		SSLInsecureSkipVerify: opts.RedisOptions.SSLInsecureSkipVerify,
-	}
+	redisConfig := opts.RedisOptions.BuildRdsConfig()
 
 	// mysql config
 	mysqlConfig := &sql.MysqlConfig{
@@ -72,15 +60,16 @@ func CreateConfigFromOptions(opts *Options) (*Config, error) {
 
 	// es config
 	esConfig := &doc.ESConfig{
-		Addrs:    opts.ESOptions.Addrs,
-		Username: opts.ESOptions.Username,
-		Password: opts.ESOptions.Password,
-		APIKey:   opts.ESOptions.APIKey,
-		CloudID:  opts.ESOptions.CloudId,
-		MaxIdle:  opts.ESOptions.MaxIdle,
-		UseSSL:   opts.ESOptions.UseSSL,
-		CA:       opts.ESOptions.CA,
-		Timeout:  opts.ESOptions.Timeout,
+		Addrs:         opts.ESOptions.Addrs,
+		Username:      opts.ESOptions.Username,
+		Password:      opts.ESOptions.Password,
+		APIKey:        opts.ESOptions.APIKey,
+		CloudID:       opts.ESOptions.CloudId,
+		MaxIdle:       opts.ESOptions.MaxIdle,
+		MaxRetryTimes: opts.ESOptions.MaxRetryTimes,
+		UseSSL:        opts.ESOptions.UseSSL,
+		CA:            opts.ESOptions.CA,
+		Timeout:       opts.ESOptions.Timeout,
 	}
 
 	return &Config{
@@ -125,7 +114,7 @@ func (cfg *Config) CreateKitexOptions() (result []server.Option) {
 		result = append(result, server.WithMuxTransport())
 	}
 
-	// 服务发现
+	// 服务注册
 	retryConfig := retry.NewRetryConfig(
 		retry.WithMaxAttemptTimes(uint(cfg.Register.MaxAttemptTimes)),
 		retry.WithRetryDelay(cfg.Register.RetryDelay),

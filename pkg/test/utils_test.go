@@ -9,9 +9,9 @@ import (
 
 func TestHash(t *testing.T) {
 	hasher := hash.NewHasher(hash.DefaultHashAlgorithm)
-	fmt.Println(hasher.HashKey("123"))
-	fmt.Println(hasher.HashKey("123"))
-	fmt.Println(hasher.HashKey("12"))
+	fmt.Println(hasher.HashKey([]byte("123")))
+	fmt.Println(hasher.HashKey([]byte("123")))
+	fmt.Println(hasher.HashKey([]byte("12")))
 }
 
 func TestSimpleMatch(t *testing.T) {

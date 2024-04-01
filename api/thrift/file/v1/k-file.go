@@ -761,6 +761,20 @@ func (p *UploadRequest) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
+		case 3:
+			if fieldTypeId == thrift.I64 {
+				l, err = p.FastReadField3(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
 		default:
 			l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
 			offset += l
@@ -824,6 +838,20 @@ func (p *UploadRequest) FastReadField2(buf []byte) (int, error) {
 	return offset, nil
 }
 
+func (p *UploadRequest) FastReadField3(buf []byte) (int, error) {
+	offset := 0
+
+	if v, l, err := bthrift.Binary.ReadI64(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.UserId = v
+
+	}
+	return offset, nil
+}
+
 // for compatibility
 func (p *UploadRequest) FastWrite(buf []byte) int {
 	return 0
@@ -833,6 +861,7 @@ func (p *UploadRequest) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryW
 	offset := 0
 	offset += bthrift.Binary.WriteStructBegin(buf[offset:], "UploadRequest")
 	if p != nil {
+		offset += p.fastWriteField3(buf[offset:], binaryWriter)
 		offset += p.fastWriteField1(buf[offset:], binaryWriter)
 		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 	}
@@ -847,6 +876,7 @@ func (p *UploadRequest) BLength() int {
 	if p != nil {
 		l += p.field1Length()
 		l += p.field2Length()
+		l += p.field3Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -871,6 +901,15 @@ func (p *UploadRequest) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryW
 	return offset
 }
 
+func (p *UploadRequest) fastWriteField3(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "userId", thrift.I64, 3)
+	offset += bthrift.Binary.WriteI64(buf[offset:], p.UserId)
+
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
 func (p *UploadRequest) field1Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("data", thrift.STRING, 1)
@@ -884,6 +923,15 @@ func (p *UploadRequest) field2Length() int {
 	l := 0
 	l += bthrift.Binary.FieldBeginLength("path", thrift.STRING, 2)
 	l += bthrift.Binary.StringLengthNocopy(p.Path)
+
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *UploadRequest) field3Length() int {
+	l := 0
+	l += bthrift.Binary.FieldBeginLength("userId", thrift.I64, 3)
+	l += bthrift.Binary.I64Length(p.UserId)
 
 	l += bthrift.Binary.FieldEndLength()
 	return l

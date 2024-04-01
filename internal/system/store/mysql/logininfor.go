@@ -5,6 +5,7 @@ import (
 	"github.com/user823/Sophie/api"
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +20,7 @@ func (s *mysqlLogininforStore) InsertLogininfor(ctx context.Context, logininfor 
 	return create.Error
 }
 
-func (s *mysqlLogininforStore) SelectLogininforList(ctx context.Context, logininfor *v1.SysLogininfor, opts *api.GetOptions) ([]*v1.SysLogininfor, error) {
+func (s *mysqlLogininforStore) SelectLogininforList(ctx context.Context, logininfor *v1.SysLogininfor, opts *api.GetOptions) ([]*v1.SysLogininfor, int64, error) {
 	query := s.db.Table("sys_logininfor")
 	if logininfor.Ipaddr != "" {
 		query = query.Where("ipaddr like ?", "%"+logininfor.Ipaddr+"%")
@@ -35,7 +36,7 @@ func (s *mysqlLogininforStore) SelectLogininforList(ctx context.Context, loginin
 
 	var result []*v1.SysLogininfor
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, "create_time"), err
 }
 
 func (s *mysqlLogininforStore) DeleteLogininforByIds(ctx context.Context, ids []int64, opts *api.DeleteOptions) error {

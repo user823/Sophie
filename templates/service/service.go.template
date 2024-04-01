@@ -1,0 +1,57 @@
+package service
+
+import (
+	"context"
+	"github.com/user823/Sophie/api"
+	"github.com/user823/Sophie/api/domain/{{.moduleName}}/v1"
+	"github.com/user823/Sophie/internal/{{.moduleName}}/store"
+)
+
+{{$BusinessName := removePrefix .BusinessName}}
+{{$businessName := Uncapitalize $BusinessName}}
+type {{$BusinessName}}Srv interface {
+	// 获取详情信息
+	Select{{$BusinessName}}By{{.pkColumn.GoField}}(ctx context.Context, {{CamelCaseToSnakeCase .pkColumn.GoField}} {{.pkColumn.GoField}}, opts *api.GetOptions) *v1.{{.ClassName}}
+	// 查询列表
+	Select{{$BusinessName}}List(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.GetOptions) *v1.{{$BusinessName}}List
+	// 新增
+	Insert{{$BusinessName}}(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.CreateOptions) error
+	// 修改
+	Update{{$BusinessName}}(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.UpdateOptions) error
+	// 批量删除
+	Delete{{$BusinessName}}ByIds(ctx context.Context, {{$businessName}}Ids []int64, opts *api.DeleteOptions) error
+	// 校验参数键名是否唯一
+	Check{{$BusinessName}}KeyUnique(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.GetOptions) bool
+}
+
+type {{$businessName}}Service struct {
+	store store.Factory
+}
+
+func New{{$BusinessName}}s(s store.Factory) {{$BusinessName}}Srv {
+	return &{{$businessName}}Service{store: s}
+}
+
+func (s *{{$businessName}}Service) Select{{$BusinessName}}By{{.pkColumn.GoField}}(ctx context.Context, {{CamelCaseToSnakeCase .pkColumn.GoField}} {{.pkColumn.GoField}}, opts *api.GetOptions) *v1.{{.ClassName}} {
+    return nil
+}
+
+func (s *{{$businessName}}Service) Select{{$BusinessName}}List(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.GetOptions) *v1.{{$BusinessName}}List {
+    return nil
+}
+
+func (s *{{$businessName}}Service) Insert{{$BusinessName}}(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.CreateOptions) error {
+    return nil
+}
+
+func (s *{{$businessName}}Service) Update{{$BusinessName}}(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.UpdateOptions) error {
+    return nil
+}
+
+func (s *{{$businessName}}Service) Delete{{$BusinessName}}ByIds(ctx context.Context, {{$businessName}}Ids []int64, opts *api.DeleteOptions) error {
+    return nil
+}
+
+func (s *{{$businessName}}Service) Check{{$BusinessName}}KeyUnique(ctx context.Context, {{.className}} *v1.{{.ClassName}}, opts *api.GetOptions) bool {
+    return false
+}

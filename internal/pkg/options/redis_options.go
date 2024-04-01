@@ -2,6 +2,7 @@ package options
 
 import (
 	flag "github.com/spf13/pflag"
+	"github.com/user823/Sophie/pkg/db/kv"
 )
 
 type RedisOptions struct {
@@ -67,4 +68,20 @@ func (o *RedisOptions) AddFlags(fs *flag.FlagSet) {
 
 	fs.BoolVar(&o.SSLInsecureSkipVerify, "redis.ssl_insecure_skip_verify", o.SSLInsecureSkipVerify, ""+
 		"Allows usage of self-signed certificates when connecting to an encrypted Redis database.")
+}
+
+func (o *RedisOptions) BuildRdsConfig() *kv.RedisConfig {
+	return &kv.RedisConfig{
+		Addrs:                 o.Addrs,
+		MasterName:            o.MasterName,
+		Username:              o.Username,
+		Password:              o.Password,
+		Database:              o.Database,
+		MaxIdle:               o.MaxIdle,
+		MaxActive:             o.MaxActive,
+		Timeout:               o.Timeout,
+		EnableCluster:         o.EnableCluster,
+		UseSSL:                o.UseSSL,
+		SSLInsecureSkipVerify: o.SSLInsecureSkipVerify,
+	}
 }

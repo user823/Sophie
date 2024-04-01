@@ -5,35 +5,35 @@ use
 -- 初始化-部门表数据
 -- ----------------------------
 insert into sys_dept
-values (100, 0, '0', '若依科技', 0, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '', null,
-        null);
+values (100, 0, '0', 'sophie', 0, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '', null,
+        null, '');
 insert into sys_dept
 values (101, 100, '0,100', '深圳总公司', 1, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (102, 100, '0,100', '长沙分公司', 2, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (103, 101, '0,100,101', '研发部门', 1, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (104, 101, '0,100,101', '市场部门', 2, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (105, 101, '0,100,101', '测试部门', 3, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (106, 101, '0,100,101', '财务部门', 4, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (107, 101, '0,100,101', '运维部门', 5, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (108, 102, '0,100,102', '市场部门', 1, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 insert into sys_dept
 values (109, 102, '0,100,102', '财务部门', 2, '雪菲', '15888888888', 'sophie@qq.com', '0', '0', 'admin', sysdate(), '',
-        null, null);
+        null, null, '');
 
 -- ----------------------------
 -- 初始化-用户信息表数据
@@ -662,13 +662,10 @@ values (5, '用户登录-黑名单列表', 'sys.login.blackIPList', '', 'Y', 'ad
 -- ----------------------------
 
 insert into sys_job
-values (1, '系统默认（无参）', 'DEFAULT', 'ryTask.ryNoParams', '0/10 * * * * ?', '3', '1', '1', 'admin', sysdate(), '',
+values (1, '系统默认（无参）', 'DEFAULT', 'TestFunc()', '0/1 * * * * ?', '3', '1', '1', 'admin', sysdate(), '',
         null, '', null);
 insert into sys_job
-values (2, '系统默认（有参）', 'DEFAULT', 'ryTask.ryParams(\'sophie\')', '0/15 * * * * ?', '3', '1', '1', 'admin',
-        sysdate(), '', null, '', null);
-insert into sys_job
-values (3, '系统默认（多参）', 'DEFAULT', 'ryTask.ryMultipleParams(\'sophie\', true, 2000L, 316.50D, 100)',
+values (2, '系统默认（多参）', 'DEFAULT', 'TestFuncWithParams(\'sophie\', true, 2000L, 316.50D, 100)',
         '0/20 * * * * ?', '3', '1', '1', 'admin', sysdate(), '', null, '', null);
 
 

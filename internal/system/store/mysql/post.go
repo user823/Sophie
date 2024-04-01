@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -22,7 +23,7 @@ func selectPostVo(db *gorm.DB) *gorm.DB {
 	return db.Table("sys_post")
 }
 
-func (s *mysqlPostStore) SelectPostList(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) ([]*v1.SysPost, error) {
+func (s *mysqlPostStore) SelectPostList(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) ([]*v1.SysPost, int64, error) {
 	query := selectPostVo(s.db)
 	if post.PostCode != "" {
 		query = query.Where("post_code like ?", "%"+post.PostCode+"%")
@@ -37,10 +38,10 @@ func (s *mysqlPostStore) SelectPostList(ctx context.Context, post *v1.SysPost, o
 
 	var result []*v1.SysPost
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, ""), err
 }
 
-func (s *mysqlPostStore) SelectPostAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysPost, error) {
+func (s *mysqlPostStore) SelectPostAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysPost, int64, error) {
 	return s.SelectPostList(ctx, &v1.SysPost{}, opts)
 }
 
@@ -113,6 +114,8 @@ func (s *mysqlPostStore) UpdatePost(ctx context.Context, post *v1.SysPost, opts 
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(post).Where("post_id = ?", post.PostId).Updates(post).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(post.PostId, "", ""))
 }
 
@@ -128,7 +131,7 @@ func (s *mysqlPostStore) CheckPostNameUnique(ctx context.Context, name string, o
 	var result v1.SysPost
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -150,7 +153,7 @@ func (s *mysqlPostStore) CheckPostCodeUnique(ctx context.Context, postCode strin
 	var result v1.SysPost
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -172,7 +175,7 @@ var postCache = struct {
 
 func (s *mysqlPostStore) CachedDB() *cache.CachedDB {
 	postCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-poststore-")
 		rdsCli.SetRandomExp(true)
 

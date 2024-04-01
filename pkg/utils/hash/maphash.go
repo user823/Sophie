@@ -14,8 +14,8 @@ func newMapHasher() Hasher {
 	return &mapHasher{h: &maphash.Hash{}}
 }
 
-func (m *mapHasher) HashKey(keyname string) string {
+func (m *mapHasher) HashKey(key []byte) string {
 	m.h.Reset()
-	m.h.Write([]byte(keyname))
+	m.h.Write(key)
 	return hex.EncodeToString(m.h.Sum(nil))
 }

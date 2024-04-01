@@ -34,11 +34,11 @@ func NewDictDatas(s store.Factory) DictDataSrv {
 }
 
 func (s *dictDataService) SelectDictDataList(ctx context.Context, dictData *v1.SysDictData, opts *api.GetOptions) *v1.DictDataList {
-	result, err := s.store.DictData().SelectDictDataList(ctx, dictData, opts)
+	result, total, err := s.store.DictData().SelectDictDataList(ctx, dictData, opts)
 	if err != nil {
 		return &v1.DictDataList{ListMeta: api.ListMeta{0}}
 	}
-	return &v1.DictDataList{ListMeta: api.ListMeta{int64(len(result))}, Items: result}
+	return &v1.DictDataList{ListMeta: api.ListMeta{total}, Items: result}
 }
 
 func (s *dictDataService) SelectDictLabel(ctx context.Context, dictType string, dictValue string, opts *api.GetOptions) string {
@@ -61,6 +61,13 @@ func (s *dictDataService) DeleteDictDataByIds(ctx context.Context, dictCodes []i
 }
 
 func (s *dictDataService) InsertDictData(ctx context.Context, dictData *v1.SysDictData, opts *api.CreateOptions) error {
+	// 首先验证格式
+	if opts.Validate {
+		if err := dictData.Validate(); err != nil {
+			return err
+		}
+	}
+
 	return s.store.DictData().InsertDictData(ctx, dictData, opts)
 }
 

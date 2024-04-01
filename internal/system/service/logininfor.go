@@ -33,11 +33,11 @@ func (s *logininforService) InsertLogininfor(ctx context.Context, logininfor *v1
 }
 
 func (s *logininforService) SelectLogininforList(ctx context.Context, logininfor *v1.SysLogininfor, opts *api.GetOptions) *v1.LogininforList {
-	result, err := s.store.Logininfors().SelectLogininforList(ctx, logininfor, opts)
+	result, total, err := s.store.Logininfors().SelectLogininforList(ctx, logininfor, opts)
 	if err != nil {
 		return &v1.LogininforList{ListMeta: api.ListMeta{0}}
 	}
-	return &v1.LogininforList{ListMeta: api.ListMeta{int64(len(result))}, Items: result}
+	return &v1.LogininforList{ListMeta: api.ListMeta{total}, Items: result}
 }
 
 func (s *logininforService) DeleteLogininforByIds(ctx context.Context, inforIds []int64, opts *api.DeleteOptions) error {

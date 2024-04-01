@@ -108,6 +108,7 @@ func NewServiceInfo() *kitex.ServiceInfo {
 		"UpdateSysUser":           kitex.NewMethodInfo(updateSysUserHandler, newSystemServiceUpdateSysUserArgs, newSystemServiceUpdateSysUserResult, false),
 		"DeleteSysUser":           kitex.NewMethodInfo(deleteSysUserHandler, newSystemServiceDeleteSysUserArgs, newSystemServiceDeleteSysUserResult, false),
 		"ResetPassword":           kitex.NewMethodInfo(resetPasswordHandler, newSystemServiceResetPasswordArgs, newSystemServiceResetPasswordResult, false),
+		"UpdateUserAvatar":        kitex.NewMethodInfo(updateUserAvatarHandler, newSystemServiceUpdateUserAvatarArgs, newSystemServiceUpdateUserAvatarResult, false),
 		"ChangeSysUserStatus":     kitex.NewMethodInfo(changeSysUserStatusHandler, newSystemServiceChangeSysUserStatusArgs, newSystemServiceChangeSysUserStatusResult, false),
 		"GetAuthRoleById":         kitex.NewMethodInfo(getAuthRoleByIdHandler, newSystemServiceGetAuthRoleByIdArgs, newSystemServiceGetAuthRoleByIdResult, false),
 		"AuthRole":                kitex.NewMethodInfo(authRoleHandler, newSystemServiceAuthRoleArgs, newSystemServiceAuthRoleResult, false),
@@ -1519,7 +1520,7 @@ func newSystemServiceSelectAuthUserAllResult() interface{} {
 func deptTreeByRoleIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceDeptTreeByRoleIdArgs)
 	realResult := result.(*v1.SystemServiceDeptTreeByRoleIdResult)
-	success, err := handler.(v1.SystemService).DeptTreeByRoleId(ctx, realArg.Id)
+	success, err := handler.(v1.SystemService).DeptTreeByRoleId(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -1732,6 +1733,24 @@ func newSystemServiceResetPasswordResult() interface{} {
 	return v1.NewSystemServiceResetPasswordResult()
 }
 
+func updateUserAvatarHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
+	realArg := arg.(*v1.SystemServiceUpdateUserAvatarArgs)
+	realResult := result.(*v1.SystemServiceUpdateUserAvatarResult)
+	success, err := handler.(v1.SystemService).UpdateUserAvatar(ctx, realArg.Req)
+	if err != nil {
+		return err
+	}
+	realResult.Success = success
+	return nil
+}
+func newSystemServiceUpdateUserAvatarArgs() interface{} {
+	return v1.NewSystemServiceUpdateUserAvatarArgs()
+}
+
+func newSystemServiceUpdateUserAvatarResult() interface{} {
+	return v1.NewSystemServiceUpdateUserAvatarResult()
+}
+
 func changeSysUserStatusHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceChangeSysUserStatusArgs)
 	realResult := result.(*v1.SystemServiceChangeSysUserStatusResult)
@@ -1753,7 +1772,7 @@ func newSystemServiceChangeSysUserStatusResult() interface{} {
 func getAuthRoleByIdHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceGetAuthRoleByIdArgs)
 	realResult := result.(*v1.SystemServiceGetAuthRoleByIdResult)
-	success, err := handler.(v1.SystemService).GetAuthRoleById(ctx, realArg.Id)
+	success, err := handler.(v1.SystemService).GetAuthRoleById(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -2216,7 +2235,7 @@ func (p *kClient) GetSysMenuById(ctx context.Context, id int64) (r *v1.SysMenuRe
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest) (r *v1.ListSysMenusResponse, err error) {
+func (p *kClient) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest) (r *v1.ListTreeMenuResponse, err error) {
 	var _args v1.SystemServiceListTreeMenuArgs
 	_args.Req = req
 	var _result v1.SystemServiceListTreeMenuResult
@@ -2613,9 +2632,9 @@ func (p *kClient) SelectAuthUserAll(ctx context.Context, req *v1.SelectAuthUserA
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) DeptTreeByRoleId(ctx context.Context, id int64) (r *v1.DeptTreeByRoleIdResponse, err error) {
+func (p *kClient) DeptTreeByRoleId(ctx context.Context, req *v1.DeptTreeByRoleIdRequest) (r *v1.DeptTreeByRoleIdResponse, err error) {
 	var _args v1.SystemServiceDeptTreeByRoleIdArgs
-	_args.Id = id
+	_args.Req = req
 	var _result v1.SystemServiceDeptTreeByRoleIdResult
 	if err = p.c.Call(ctx, "DeptTreeByRoleId", &_args, &_result); err != nil {
 		return
@@ -2733,6 +2752,16 @@ func (p *kClient) ResetPassword(ctx context.Context, req *v1.ResetPasswordReques
 	return _result.GetSuccess(), nil
 }
 
+func (p *kClient) UpdateUserAvatar(ctx context.Context, req *v1.UpdateUserAvatarRequest) (r *v1.BaseResp, err error) {
+	var _args v1.SystemServiceUpdateUserAvatarArgs
+	_args.Req = req
+	var _result v1.SystemServiceUpdateUserAvatarResult
+	if err = p.c.Call(ctx, "UpdateUserAvatar", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
+
 func (p *kClient) ChangeSysUserStatus(ctx context.Context, req *v1.ChangeSysUserStatus) (r *v1.BaseResp, err error) {
 	var _args v1.SystemServiceChangeSysUserStatusArgs
 	_args.Req = req
@@ -2743,9 +2772,9 @@ func (p *kClient) ChangeSysUserStatus(ctx context.Context, req *v1.ChangeSysUser
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) GetAuthRoleById(ctx context.Context, id int64) (r *v1.AuthRoleInfoResponse, err error) {
+func (p *kClient) GetAuthRoleById(ctx context.Context, req *v1.GetAuthRoleByIdRequest) (r *v1.AuthRoleInfoResponse, err error) {
 	var _args v1.SystemServiceGetAuthRoleByIdArgs
-	_args.Id = id
+	_args.Req = req
 	var _result v1.SystemServiceGetAuthRoleByIdResult
 	if err = p.c.Call(ctx, "GetAuthRoleById", &_args, &_result); err != nil {
 		return

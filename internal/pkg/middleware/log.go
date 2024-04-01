@@ -5,7 +5,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/user823/Sophie/api"
-	v13 "github.com/user823/Sophie/api/domain/gateway/v1"
 	v12 "github.com/user823/Sophie/api/domain/system/v1"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/pkg/code"
@@ -70,15 +69,15 @@ func Log(logSaver LogSaver, keysAndValues map[string]any) app.HandlerFunc {
 
 	return func(ctx context.Context, c *app.RequestContext) {
 		operLog := &v1.OperLog{
-			CreateTime: utils.Time2Second(time.Now()),
+			CreateTime: utils.Time2Str(time.Now()),
 		}
 		operLog.Status = v12.BUSINESS_SUCCESS
 		operLog.OperIp = utils.GetClientIP(c)
 		operLog.OperUrl = c.Request.URI().String()
 		data, ok := c.Get(api.LOGIN_INFO_KEY)
 		if ok {
-			if loggininfor, ok := data.(v13.LoginUser); ok {
-				operLog.OperName = loggininfor.User.Username
+			if loggininfor, ok := data.(v1.LoginUser); ok {
+				operLog.OperName = loggininfor.User.UserName
 				operLog.DeptName = loggininfor.User.Dept.DeptName
 			}
 		}
@@ -88,24 +87,29 @@ func Log(logSaver LogSaver, keysAndValues map[string]any) app.HandlerFunc {
 		operLog.RequestMethod = utils.B2s(c.Method())
 		var start, stop time.Time
 		start = time.Now()
-		operTime := utils.Time2Second(start)
+		operTime := utils.Time2Str(start)
 
 		c.Next(ctx)
 
 		stop = time.Now()
 		// 设置消耗时间
-		costTime := int64(stop.Sub(start).Seconds())
+		costTime := stop.Sub(start).Milliseconds()
 		// 设置额外信息
 		buildExtraInfo(c, extraInfo, operLog)
-		var response core.ErrResponse
-		if err := jsoniter.Unmarshal(c.Response.Body(), &response); err != nil {
-			log.Errorf("异常信息: %s", err.Error())
-		}
 
-		// 响应解析失败
-		if response.Code == code.ERROR {
-			operLog.Status = v12.BUSINESS_FAIL
-			operLog.ErrorMsg = response.Message
+		var response core.ErrResponse
+
+		// 解析响应
+		if c.Response.Header.Get("Content-Type") == "application/json" {
+			if err := jsoniter.Unmarshal(c.Response.Body(), &response); err == nil {
+				if response.BaseResp != nil && response.BaseResp.Code == code.ERROR {
+					operLog.Status = v12.BUSINESS_FAIL
+					operLog.ErrorMsg = response.Message
+				} else if response.Code == code.ERROR {
+					operLog.Status = v12.BUSINESS_FAIL
+					operLog.ErrorMsg = response.Message
+				}
+			}
 		}
 
 		operLog.OperTime = operTime

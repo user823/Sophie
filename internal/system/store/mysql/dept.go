@@ -24,18 +24,18 @@ func selectDeptVo(db *gorm.DB) *gorm.DB {
 }
 
 func (s *mysqlDeptStore) SelectDeptList(ctx context.Context, dept *v1.SysDept, opts *api.GetOptions) ([]*v1.SysDept, error) {
-	query := selectDeptVo(s.db).Where("del_flag = 0")
+	query := selectDeptVo(s.db).Where("d.del_flag = 0")
 	if dept.DeptId != 0 {
-		query = query.Where("dept_id = ?", dept.DeptId)
+		query = query.Where("d.dept_id = ?", dept.DeptId)
 	}
 	if dept.ParentId != 0 {
-		query = query.Where("parent_id = ?", dept.ParentId)
+		query = query.Where("d.parent_id = ?", dept.ParentId)
 	}
 	if dept.DeptName != "" {
-		query = query.Where("dept_name like ?", "%"+dept.DeptName+"%")
+		query = query.Where("d.dept_name like ?", "%"+dept.DeptName+"%")
 	}
 	if dept.Status != "" {
-		query = query.Where("status = ?", dept.Status)
+		query = query.Where("d.status = ?", dept.Status)
 	}
 	query = opts.SQLCondition(query, "")
 	query, err := dateScopeFromCtx(ctx, query, "", "d")
@@ -63,13 +63,13 @@ func (s *mysqlDeptStore) SelectDeptListByRoleId(ctx context.Context, roleid int6
 }
 
 func (s *mysqlDeptStore) SelectDeptById(ctx context.Context, deptId int64, opts *api.GetOptions) (*v1.SysDept, error) {
-	query := selectDeptVo(s.db).Where("dept_id = ?", deptId)
+	query := selectDeptVo(s.db).Where("d.dept_id = ?", deptId)
 	query = opts.SQLCondition(query, "")
 
 	var result v1.SysDept
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -119,7 +119,7 @@ func (s *mysqlDeptStore) CheckDeptExistUser(ctx context.Context, deptid int64, o
 }
 
 func (s *mysqlDeptStore) CheckDeptNameUnique(ctx context.Context, name string, deptid int64, opts *api.GetOptions) *v1.SysDept {
-	query := selectDeptVo(s.db).Where("dept_name = ? and parent_id = ? and del_flag = 0", name, deptid)
+	query := selectDeptVo(s.db).Where("d.dept_name = ? and d.parent_id = ? and d.del_flag = 0", name, deptid)
 	query = opts.SQLCondition(query, "")
 
 	var result v1.SysDept
@@ -152,26 +152,20 @@ func (s *mysqlDeptStore) UpdateDept(ctx context.Context, dept *v1.SysDept, opts 
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(dept).Where("dept_id = ?", dept.DeptId).Updates(dept).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(dept.DeptId, ""))
 }
 
 func (s *mysqlDeptStore) UpdateDeptStatusNormal(ctx context.Context, deptids []int64, opts *api.UpdateOptions) error {
 	update := opts.SQLCondition(s.db).Model(&v1.SysDept{}).Where("dept_id in ?", deptids).Update("status", "0")
 
-	cacheKeys := make([]string, 0, len(deptids))
-	for i := range deptids {
-		cacheKeys = append(cacheKeys, s.CacheKey(deptids[i], ""))
-	}
-	s.CachedDB().DelCache(ctx, cacheKeys...)
+	s.CachedDB().CleanCache(ctx)
 	return update.Error
 }
 
 func (s *mysqlDeptStore) UpdateDeptChildren(ctx context.Context, depts []*v1.SysDept, opts *api.UpdateOptions) error {
-	cacheKeys := make([]string, 0, len(depts))
-	for i := range depts {
-		cacheKeys = append(cacheKeys, s.CacheKey(depts[i].DeptId, ""))
-	}
-	s.CachedDB().DelCache(ctx, cacheKeys...)
+	s.CachedDB().CleanCache(ctx)
 
 	var builder strings.Builder
 	ids := make([]int64, len(depts))
@@ -201,7 +195,7 @@ var deptCache = struct {
 
 func (s *mysqlDeptStore) CachedDB() *cache.CachedDB {
 	deptCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-deptstore-")
 		rdsCli.SetRandomExp(true)
 

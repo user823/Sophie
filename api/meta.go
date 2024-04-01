@@ -119,7 +119,32 @@ func (g *GetOptions) SQLCondition(db *gorm.DB, timeRangeColumn string) *gorm.DB 
 	return db
 }
 
-type CreateOptions struct{}
+func (g *GetOptions) SQLConditionWithoutPage(db *gorm.DB, timeRangeColumn string) *gorm.DB {
+
+	if timeRangeColumn != "" {
+		if g.BeginTime != 0 {
+			db = db.Where(timeRangeColumn+" >= ?", utils.Second2Time(g.BeginTime))
+		}
+		if g.EndTime != 0 {
+			db = db.Where(timeRangeColumn+" <= ?", utils.Second2Time(g.EndTime))
+		}
+	}
+
+	if g.OrderByColumn != "" {
+		direction := "ASC"
+		if !g.IsAsc {
+			direction = "DESC"
+		}
+		db = db.Order(g.OrderByColumn + " " + direction)
+	}
+
+	return db
+}
+
+type CreateOptions struct {
+	// 创建时是否需要验证
+	Validate bool `json:"validate"`
+}
 
 func (c *CreateOptions) SQLCondition(db *gorm.DB) *gorm.DB {
 	return db
@@ -134,7 +159,10 @@ func (d *DeleteOptions) SQLCondition(db *gorm.DB) *gorm.DB {
 	return db
 }
 
-type UpdateOptions struct{}
+type UpdateOptions struct {
+	// 更新时是否需要验证
+	Validate bool `json:"validate"`
+}
 
 func (d *UpdateOptions) SQLCondition(db *gorm.DB) *gorm.DB {
 	return db

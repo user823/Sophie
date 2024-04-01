@@ -16,8 +16,8 @@ func newFnvHasher() Hasher {
 	}
 }
 
-func (f *fnvHasher) HashKey(keyname string) string {
+func (f *fnvHasher) HashKey(key []byte) string {
 	f.f.Reset()
-	f.f.Write([]byte(keyname))
+	f.f.Write([]byte(key))
 	return hex.EncodeToString(f.f.Sum(nil))
 }

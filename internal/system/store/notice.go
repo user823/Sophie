@@ -10,7 +10,7 @@ type NoticeStore interface {
 	// 查询公告信息
 	SelectNoticeById(ctx context.Context, noticeid int64, opts *api.GetOptions) (*v1.SysNotice, error)
 	// 查询公告列表
-	SelectNoticeList(ctx context.Context, notice *v1.SysNotice, opts *api.GetOptions) ([]*v1.SysNotice, error)
+	SelectNoticeList(ctx context.Context, notice *v1.SysNotice, opts *api.GetOptions) ([]*v1.SysNotice, int64, error)
 	// 新增公告
 	InsertNotice(ctx context.Context, notice *v1.SysNotice, opts *api.CreateOptions) error
 	// 修改公告

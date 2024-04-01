@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -44,7 +45,7 @@ func (s *mysqlConfigStore) SelectConfigById(ctx context.Context, configid int64,
 	var result v1.SysConfig
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -59,7 +60,7 @@ func (s *mysqlConfigStore) SelectConfigById(ctx context.Context, configid int64,
 	return &result, nil
 }
 
-func (s *mysqlConfigStore) SelectConfigList(ctx context.Context, config *v1.SysConfig, opts *api.GetOptions) ([]*v1.SysConfig, error) {
+func (s *mysqlConfigStore) SelectConfigList(ctx context.Context, config *v1.SysConfig, opts *api.GetOptions) ([]*v1.SysConfig, int64, error) {
 	query := selectConfigVo(s.db)
 	if config.ConfigName != "" {
 		query = query.Where("config_name like ?", "%"+config.ConfigName+"%")
@@ -74,7 +75,7 @@ func (s *mysqlConfigStore) SelectConfigList(ctx context.Context, config *v1.SysC
 
 	var result []*v1.SysConfig
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, "sys_config.create_time"), err
 }
 
 func (s *mysqlConfigStore) CheckConfigKeyUnique(ctx context.Context, configKey string, opts *api.GetOptions) *v1.SysConfig {
@@ -84,7 +85,7 @@ func (s *mysqlConfigStore) CheckConfigKeyUnique(ctx context.Context, configKey s
 	var result v1.SysConfig
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -111,6 +112,8 @@ func (s *mysqlConfigStore) UpdateConfig(ctx context.Context, config *v1.SysConfi
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(config).Where("config_id = ?", config.ConfigId).Updates(config).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(config.ConfigId, ""))
 }
 
@@ -139,7 +142,7 @@ var configCache = struct {
 
 func (s *mysqlConfigStore) CachedDB() *cache.CachedDB {
 	configCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-configstore-")
 		rdsCli.SetRandomExp(true)
 

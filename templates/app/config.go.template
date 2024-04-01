@@ -1,0 +1,143 @@
+package {{.moduleName}}
+
+import (
+	"github.com/cloudwego/kitex/pkg/limit"
+	"github.com/cloudwego/kitex/pkg/rpcinfo"
+	"github.com/cloudwego/kitex/server"
+	hserver "github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/user823/Sophie/api/domain/{{.moduleName}}/v1"
+	"github.com/user823/Sophie/internal/pkg/options"
+	"github.com/user823/Sophie/pkg/db/doc"
+	"github.com/user823/Sophie/pkg/db/kv/redis"
+	"github.com/user823/Sophie/pkg/db/sql"
+	"github.com/user823/Sophie/pkg/log"
+	"github.com/user823/Sophie/pkg/log/aggregation"
+	"strconv"
+	"time"
+)
+
+// 运行、创建服务必要配置
+type Config struct {
+	Log             *log.Options
+	ServerRunOptions *options.GenericRunOptions
+	ServerRunConfig *options.RPCServerOptions
+	Register        *RegisterInfo
+	Availability    *options.AvailabilityOptions
+	// TODO
+	// 这里只给出了基本配置示例，其他配置根据options添加即可
+}
+
+// 根据options创建config
+func CreateConfigFromOptions(opts *Options) (*Config, error) {
+    // TODO
+    // 根据options创建config
+    // 这里可以将options的参数进一步修正
+
+	// 服务发现
+	register := &RegisterInfo{
+		Addrs:           opts.ServiceRegister.Addrs,
+		Username:        opts.ServiceRegister.Username,
+		Password:        opts.ServiceRegister.Password,
+		MaxAttemptTimes: opts.ServiceRegister.MaxAttemtTimes,
+		ObserverDelay:   opts.ServiceRegister.ObserverDelay,
+		RetryDelay:      opts.ServiceRegister.RetryDelay,
+	}
+
+	return &Config{
+		Log:             opts.Log,
+		ServerRunConfig: opts.RPCServer,
+		Register:        register,
+		Aggregation:     opts.AggregationOptions,
+		Availability:    opts.Availability,
+	}, nil
+}
+
+// 创建kitex服务通用配置
+func (cfg *Config) CreateKitexOptions() (result []server.Option) {
+	// 配置服务地址
+	addrStr := net.JoinHostPort(cfg.ServerRunConfig.BindAddress, strconv.Itoa(cfg.ServerRunConfig.BindPort))
+	addr, err := net.ResolveTCPAddr("tcp", addrStr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	result = append(result, server.WithServiceAddr(addr))
+
+	// 服务基本信息
+	result = append(result, server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{ServiceName: v1.ServiceName}))
+
+	// 限流
+	result = append(result, server.WithLimit(&limit.Option{
+		MaxConnections: cfg.ServerRunConfig.ConnectionLimit,
+		MaxQPS:         cfg.ServerRunConfig.QPSLimit,
+	}))
+
+	// 设置优雅关停等待时间
+	result = append(result, server.WithExitWaitTime(cfg.ServerRunConfig.ExitWaitTime))
+
+	// 设置最大空闲时间
+	result = append(result, server.WithMaxConnIdleTime(cfg.ServerRunConfig.MaxConnIdleTime))
+
+	// 多路复用
+	if cfg.ServerRunConfig.EnableMuxConnection {
+		result = append(result, server.WithMuxTransport())
+	}
+
+	// 服务发现
+	retryConfig := retry.NewRetryConfig(
+		retry.WithMaxAttemptTimes(uint(cfg.Register.MaxAttemptTimes)),
+		retry.WithRetryDelay(cfg.Register.RetryDelay),
+		retry.WithObserveDelay(cfg.Register.ObserverDelay),
+	)
+	r, err := etcd.NewEtcdRegistryWithRetry(cfg.Register.Addrs, retryConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	result = append(result, server.WithRegistry(r))
+
+	// 链路追踪
+	result = append(result, server.WithSuite(tracing.NewServerSuite()))
+	return result
+}
+
+// 创建hertz服务通用配置
+// 服务地址、链路跟踪、SSL选项需要单独开
+func (cfg *Config) CreateHertzOptions() (result []config.Option) {
+	// 自动裁剪路由末尾 '/'
+	result = append(result, hserver.WithRedirectTrailingSlash(true))
+	result = append(result, hserver.WithRemoveExtraSlash(true))
+
+	// 优雅关停等待时间
+	result = append(result, hserver.WithExitWaitTime(cfg.ServerRunOptions.ExitWaitTime))
+
+	// 不允许使用h2c
+	result = append(result, hserver.WithH2C(false))
+
+	// 设置空闲连接时间
+	result = append(result, hserver.WithIdleTimeout(cfg.ServerRunOptions.MaxIdleTimeout))
+
+	// 设置最大请求体(5 MB)
+	result = append(result, hserver.WithMaxKeepBodySize(5*1024))
+
+	// 自定义json 绑定器、验证器
+	bindConfig := binding.NewBindConfig()
+	bindConfig.UseThirdPartyJSONUnmarshaler(func(data []byte, v interface{}) error {
+		return jsoniter.Unmarshal(data, v)
+	})
+	vd := go_playground.NewValidator()
+	vd.SetValidateTag("vd")
+	bindConfig.Validator = vd
+	result = append(result, hserver.WithBindConfig(bindConfig))
+
+	return
+}
+
+type RegisterInfo struct {
+	Addrs           []string
+	Username        string
+	Password        string
+	MaxAttemptTimes int
+	// 服务发现正常时延
+	ObserverDelay time.Duration
+	// 服务发现重试时延
+	RetryDelay time.Duration
+}

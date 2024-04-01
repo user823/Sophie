@@ -4,10 +4,11 @@ import (
 	"testing"
 )
 
-func TestEzap(t *testing.T) {
-	logger := &ezapLogger{
-		logger: std,
-		env:    []any{"test-key", "test-value"},
-	}
-	logger.Info("something")
+func TestStructLog(t *testing.T) {
+	Infof("something")
+}
+
+func TestWithValues(t *testing.T) {
+	logger := WithValues("test-key", "test-value")
+	logger.Infof("something")
 }

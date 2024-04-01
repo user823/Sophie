@@ -6,6 +6,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/user823/Sophie/internal/pkg/cache/evict"
 	"github.com/user823/Sophie/pkg/db/kv"
+	"github.com/user823/Sophie/pkg/errors"
 	"sync"
 	"time"
 )
@@ -22,7 +23,7 @@ type redisCache struct {
 }
 
 type StringMarshaler interface {
-	String() string
+	Marshal() string
 }
 
 type StringUnmarshaler interface {
@@ -120,6 +121,7 @@ func (r *redisCache) setTimer(key string, expire time.Duration) {
 		r.tmu.RUnlock()
 		t.Stop()
 		t.Reset(expire)
+		return
 	}
 	r.tmu.RUnlock()
 
@@ -146,7 +148,7 @@ func (r *redisCache) SetWithExp(ctx context.Context, key string, val any, expire
 	if m, ok := val.(StringMarshaler); !ok {
 		return fmt.Errorf("val must implement func [String() string]")
 	} else {
-		err := r.rds.SetKey(ctx, key, m.String(), expire.Nanoseconds())
+		err := r.rds.SetKey(ctx, key, m.Marshal(), expire.Nanoseconds())
 		if err != nil {
 			return err
 		}
@@ -200,7 +202,7 @@ func (r *redisCache) Take(ctx context.Context, key string, expire time.Duration,
 
 	//	从数据库中获取值成功，则设置缓存
 	if m, ok := val.(StringMarshaler); ok {
-		r.rds.SetKey(ctx, key, m.String(), expire.Nanoseconds())
+		r.rds.SetKey(ctx, key, m.Marshal(), expire.Nanoseconds())
 		r.setTimer(key, expire)
 	}
 	return nil
@@ -215,8 +217,10 @@ func (r *redisCache) Clean(ctx context.Context) error {
 	r.timers = map[string]*time.Timer{}
 	r.tmu.Unlock()
 
-	if !r.rds.DeleteAllKeys(ctx) {
-		return fmt.Errorf("缓存删除失败")
+	// 不能简单调用cleanAll
+	keys := r.rds.GetKeys(ctx, "")
+	if !r.rds.DeleteKeys(ctx, keys) {
+		return errors.New("删除缓存失败")
 	}
 	return nil
 }

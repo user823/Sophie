@@ -29,6 +29,16 @@ type deleteConfigParam struct {
 	ConfigIds []int64 `json:"configIds"`
 }
 
+// ConfigList godoc
+// @Summary 配置列表
+// @Description 根据条件查询配置列表
+// @Description 权限：system:config:list
+// @Param configName formData string false "参数名称"
+// @Param configKey formData string false "参数键名"
+// @Param configType formData string false "系统内置"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/list [GET]
 func (f *ConfigController) List(ctx context.Context, c *app.RequestContext) {
 	var req configRequestParam
 	if err := c.BindAndValidate(&req); err != nil {
@@ -38,7 +48,7 @@ func (f *ConfigController) List(ctx context.Context, c *app.RequestContext) {
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -57,7 +67,7 @@ func (f *ConfigController) List(ctx context.Context, c *app.RequestContext) {
 		LoginUser: &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.BaseResp.Code != code.SUCCESS {
@@ -74,17 +84,57 @@ func (f *ConfigController) List(ctx context.Context, c *app.RequestContext) {
 	core.JSON(c, result)
 }
 
+// ConfigExport godoc
+// @Summary 导出配置列表
+// @Description 根据条件导出配置列表
+// @Description 权限：system:config:export
+// @Param configName formData string false "参数名称"
+// @Param configKey formData string false "参数键名"
+// @Param configType formData string false "系统内置"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/export [POST]
 func (f *ConfigController) Export(ctx context.Context, c *app.RequestContext) {
-	// TODO
+	var req configRequestParam
+	if err := c.BindAndValidate(&req); err != nil {
+		core.Fail(c, "请求参数错误", nil)
+		return
+	}
+
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.Fail(c, err.Error(), nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.ExportConfig(ctx, &v1.ExportConfigRequest{
+		LoginUser:  &info,
+		ConfigInfo: v1.SysConfig2ConfigInfo(&req.SysConfig),
+	})
+	if err != nil {
+		core.Fail(c, err.Error(), nil)
+		return
+	}
+	if resp.BaseResp.Code != code.SUCCESS {
+		core.Fail(c, resp.BaseResp.Msg, nil)
+		return
+	}
+	utils.ExportExcel(c, resp.SheetName, resp.List)
 }
 
+// ConfigInfo godoc
+// @Summary 获取配置详情
+// @Param configId query int true "参数id"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/:configId [GET]
 func (f *ConfigController) GetInfo(ctx context.Context, c *app.RequestContext) {
 	configIdStr := c.Param("configId")
 	configId, _ := strconv.ParseInt(configIdStr, 10, 64)
 
 	resp, err := rpc.Remoting.GetConfigById(ctx, configId)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.BaseResp.Code != code.SUCCESS {
@@ -95,12 +145,18 @@ func (f *ConfigController) GetInfo(ctx context.Context, c *app.RequestContext) {
 	core.OK(c, resp.BaseResp.Msg, resp.Data)
 }
 
+// ConfigKey godoc
+// @Summary 获取配置键
+// @Param configKey query string true "参数键名"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/:configKey [GET]
 func (f *ConfigController) GetConfigKey(ctx context.Context, c *app.RequestContext) {
 	configKey := c.Param("configKey")
 
 	resp, err := rpc.Remoting.GetConfigByKey(ctx, configKey)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {
@@ -111,6 +167,17 @@ func (f *ConfigController) GetConfigKey(ctx context.Context, c *app.RequestConte
 	core.OK(c, resp.Msg, nil)
 }
 
+// ConfigAdd godoc
+// @Summary 添加配置
+// @Description 权限：system:config:add
+// @Param configName formData string true "参数名"
+// @Param configKey formData string true "参数键"
+// @Param configValue formData string true "参数值"
+// @Param configType formData string true "系统内置"
+// @Param remark formData string false "备注"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config [POST]
 func (f *ConfigController) Add(ctx context.Context, c *app.RequestContext) {
 	var req configRequestParam
 	if err := c.BindAndValidate(&req); err != nil {
@@ -120,7 +187,7 @@ func (f *ConfigController) Add(ctx context.Context, c *app.RequestContext) {
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -129,7 +196,7 @@ func (f *ConfigController) Add(ctx context.Context, c *app.RequestContext) {
 		User:       &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {
@@ -140,6 +207,17 @@ func (f *ConfigController) Add(ctx context.Context, c *app.RequestContext) {
 	core.OK(c, resp.Msg, nil)
 }
 
+// ConfigEdit godoc
+// @Summary 添加配置
+// @Description 权限：system:config:edit
+// @Param configName formData string true "参数名"
+// @Param configKey formData string true "参数键"
+// @Param configValue formData string true "参数值"
+// @Param configType formData string true "系统内置"
+// @Param remark formData string false "备注"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/:configKey [PUT]
 func (f *ConfigController) Edit(ctx context.Context, c *app.RequestContext) {
 	var req configRequestParam
 	if err := c.BindAndValidate(&req); err != nil {
@@ -149,7 +227,7 @@ func (f *ConfigController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -158,7 +236,7 @@ func (f *ConfigController) Edit(ctx context.Context, c *app.RequestContext) {
 		User:       &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {
@@ -169,13 +247,20 @@ func (f *ConfigController) Edit(ctx context.Context, c *app.RequestContext) {
 	core.OK(c, resp.Msg, nil)
 }
 
+// ConfigRemove godoc
+// @Summary 移除配置
+// @Description 权限: system:config:remove
+// @Param configIds query string true "配置id"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/:configIds [DELETE]
 func (f *ConfigController) Remove(ctx context.Context, c *app.RequestContext) {
 	configIdsStr := c.Param("configIds")
 	configIds := strutil.Strs2Int64(configIdsStr)
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -184,7 +269,7 @@ func (f *ConfigController) Remove(ctx context.Context, c *app.RequestContext) {
 		User:      &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {
@@ -195,10 +280,16 @@ func (f *ConfigController) Remove(ctx context.Context, c *app.RequestContext) {
 	core.OK(c, resp.Msg, nil)
 }
 
+// RefreshCache godoc
+// @Summary 刷新缓存
+// @Description 权限: system:config:remove
+// @Accept application/json
+// @Produce application/json
+// @Router /system/config/refreshCache [DELETE]
 func (f *ConfigController) RefreshCache(ctx context.Context, c *app.RequestContext) {
 	resp, err := rpc.Remoting.RefreshConfig(ctx)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {

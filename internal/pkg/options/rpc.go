@@ -21,6 +21,10 @@ type RPCClientOptions struct {
 	// 重试控制（异常重试、复用熔断器）
 	MaxRetryTimes int    `json:"max_retry_times" mapstructure:"max_retry_times"`
 	MaxDurationMS uint32 `json:"max_duration_ms" mapstructure:"max_duration_ms"`
+
+	// 熔断率
+	Circuitbreak float64 `json:"circuitbreak" mapstructure:"circuitbreak"`
+	Minsample    int64   `json:"minsample" mapstructure:"minsample"`
 }
 
 type RPCServerOptions struct {
@@ -53,6 +57,8 @@ func NewRPCClientOptions() *RPCClientOptions {
 		RPCTimeout:        3 * time.Second,
 		MaxRetryTimes:     2,
 		MaxDurationMS:     0,
+		Circuitbreak:      0.8,
+		Minsample:         200,
 	}
 }
 
@@ -73,6 +79,10 @@ func (o *RPCClientOptions) AddFlags(fs *flag.FlagSet) {
 		"Remoting invoke max retry times (exclude first try)")
 	fs.Uint32Var(&o.MaxDurationMS, "rpc_client.maxDurationMS", o.MaxDurationMS, ""+
 		"Remoting invoke max retry accumulated time")
+	fs.Float64Var(&o.Circuitbreak, "rpc_client.circuitbreak", o.Circuitbreak, ""+
+		"Remoting invoke circuitbreak percent")
+	fs.Int64Var(&o.Minsample, "rpc_client.minsample", o.Minsample, ""+
+		"Remoting invoke circuitbreak recover sample num")
 }
 
 func NewRPCServerOptions() *RPCServerOptions {

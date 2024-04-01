@@ -10,8 +10,6 @@ const (
 	PASSWORD_MAX_RETRY_COUNT = 5
 	// 密码锁定时间，默认10（分钟）
 	PASSWORD_LOCK_TIME = 10
-	// 日志聚合系统 key
-	LogKeyPrefix = "sophie-log-"
 	// 权限缓存前缀
 	LOGIN_TOKEN_KEY = "sophie-login_tokens-"
 	// 验证码 redis key
@@ -28,4 +26,6 @@ const (
 	SYS_LOGIN_BLACKIPLIST = SYS_CONFIG_KEY + "loginIP_blacklist-"
 	// 登录用户cache key
 	SYS_LOGIN_USER = "sophie-loginuser-"
+	// 登录用户cache_id_key
+	SYS_LOGIN_USER_IDS = "ids"
 )

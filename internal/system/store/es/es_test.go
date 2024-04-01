@@ -6,8 +6,8 @@ import (
 	"github.com/user823/Sophie/api"
 	"github.com/user823/Sophie/api/domain/gateway/v1"
 	v12 "github.com/user823/Sophie/api/domain/system/v1"
-	"github.com/user823/Sophie/internal/pkg/options"
 	"github.com/user823/Sophie/internal/system/store/mysql"
+	"github.com/user823/Sophie/pkg/db/doc"
 	"github.com/user823/Sophie/pkg/db/sql"
 	"testing"
 	"time"
@@ -18,7 +18,7 @@ var (
 )
 
 func Init() {
-	esOptions := &options.ESOptions{
+	esOptions := &doc.ESConfig{
 		Addrs:    []string{"https://localhost:9200"},
 		Username: "sophie",
 		Password: "123456",
@@ -71,7 +71,7 @@ func Init() {
 
 func TestESSelectLogininforList(t *testing.T) {
 	esCli, _ := GetESFactoryOr(nil)
-	result, err := esCli.Logininfors().SelectLogininforList(ctx, &v12.SysLogininfor{}, &api.GetOptions{})
+	result, _, err := esCli.Logininfors().SelectLogininforList(ctx, &v12.SysLogininfor{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -90,7 +90,7 @@ func TestESCleanLogininfor(t *testing.T) {
 
 func TestESSelectOperLogList(t *testing.T) {
 	esCli, _ := GetESFactoryOr(nil)
-	result, err := esCli.OperLogs().SelectOperLogList(ctx, &v12.SysOperLog{}, &api.GetOptions{})
+	result, _, err := esCli.OperLogs().SelectOperLogList(ctx, &v12.SysOperLog{}, &api.GetOptions{})
 	if err != nil {
 		t.Error(err)
 	}

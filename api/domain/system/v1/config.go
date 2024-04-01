@@ -20,7 +20,7 @@ func (s *SysConfig) TableName() string {
 	return "sys_config"
 }
 
-func (s *SysConfig) String() string {
+func (s *SysConfig) Marshal() string {
 	data, _ := jsoniter.Marshal(s)
 	return utils.B2s(data)
 }

@@ -70,14 +70,14 @@ func NewRoles(s store.Factory) RoleSrv {
 }
 
 func (s *roleService) SelectRoleList(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) *v1.RoleList {
-	result, err := s.store.Roles().SelectRoleList(ctx, role, opts)
+	result, total, err := s.store.Roles().SelectRoleList(ctx, role, opts)
 	if err != nil {
 		return &v1.RoleList{
 			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.RoleList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
@@ -117,14 +117,14 @@ func (s *roleService) SelectRolePermissionByUserId(ctx context.Context, userId i
 }
 
 func (s *roleService) SelectRoleAll(ctx context.Context, opts *api.GetOptions) *v1.RoleList {
-	result, err := s.store.Roles().SelectRoleList(ctx, &v1.SysRole{}, opts)
+	result, total, err := s.store.Roles().SelectRoleList(ctx, &v1.SysRole{}, opts)
 	if err != nil {
 		return &v1.RoleList{
 			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.RoleList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
@@ -141,7 +141,7 @@ func (s *roleService) SelectRoleById(ctx context.Context, roleId int64, opts *ap
 
 func (s *roleService) CheckRoleNameUnique(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) bool {
 	result := s.store.Roles().CheckRoleNameUnique(ctx, role.RoleName, opts)
-	if result != nil && result.RoleId == role.RoleId {
+	if result != nil && result.RoleId != role.RoleId {
 		return false
 	}
 	return true
@@ -149,7 +149,7 @@ func (s *roleService) CheckRoleNameUnique(ctx context.Context, role *v1.SysRole,
 
 func (s *roleService) CheckRoleKeyUnique(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) bool {
 	result := s.store.Roles().CheckRoleKeyUnique(ctx, role.RoleKey, opts)
-	if result != nil && result.RoleId == role.RoleId {
+	if result != nil && result.RoleId != role.RoleId {
 		return false
 	}
 	return true
@@ -165,8 +165,8 @@ func (s *roleService) CheckRoleAllowed(ctx context.Context, role *v1.SysRole, op
 func (s *roleService) CheckRoleDataScope(ctx context.Context, roleId int64, opts *api.GetOptions) bool {
 	logininfor := utils.GetLogininfoFromCtx(ctx)
 	if !v1.IsUserAdmin(logininfor.User.GetUserId()) {
-		roles, err := s.store.Roles().SelectRoleList(ctx, &v1.SysRole{RoleId: roleId}, opts)
-		if err != nil || len(roles) == 0 {
+		_, total, err := s.store.Roles().SelectRoleList(ctx, &v1.SysRole{RoleId: roleId}, opts)
+		if err != nil || total == 0 {
 			return false
 		}
 	}

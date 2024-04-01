@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -26,7 +27,7 @@ func selectRoleVo(db *gorm.DB) *gorm.DB {
 		"r.menu_check_strictly, r.dept_check_strictly, r.status, r.del_flag, r.create_time, r.create_by, r.remark")
 }
 
-func (s *mysqlRoleStore) SelectRoleList(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) ([]*v1.SysRole, error) {
+func (s *mysqlRoleStore) SelectRoleList(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) ([]*v1.SysRole, int64, error) {
 	query := selectRoleVo(s.db).Where("r.del_flag = 0")
 	if role.RoleId != 0 {
 		query = query.Where("r.role_id = ?", role.RoleId)
@@ -43,12 +44,12 @@ func (s *mysqlRoleStore) SelectRoleList(ctx context.Context, role *v1.SysRole, o
 	query = opts.SQLCondition(query, "r.create_time")
 	query, err := dateScopeFromCtx(ctx, query, "", "d")
 	if err != nil {
-		return []*v1.SysRole{}, err
+		return []*v1.SysRole{}, 0, err
 	}
 
 	var result []*v1.SysRole
 	err = query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, "r.create_time"), err
 }
 
 func (s *mysqlRoleStore) SelectRolePermissionByUserId(ctx context.Context, userid int64, opts *api.GetOptions) ([]*v1.SysRole, error) {
@@ -162,6 +163,8 @@ func (s *mysqlRoleStore) UpdateRole(ctx context.Context, role *v1.SysRole, opts 
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(role).Where("role_id = ?", role.RoleId).Updates(role).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(role.RoleId, "", ""))
 }
 
@@ -197,7 +200,7 @@ var roleCache = struct {
 
 func (s *mysqlRoleStore) CachedDB() *cache.CachedDB {
 	roleCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-rolestore-")
 		rdsCli.SetRandomExp(true)
 
@@ -207,6 +210,7 @@ func (s *mysqlRoleStore) CachedDB() *cache.CachedDB {
 	return cache.NewCachedDB(s.db, roleCache.rdsCache)
 }
 
+// 任何更新操作直接删除整个缓存
 func (s *mysqlRoleStore) CacheKey(roleId int64, name string, key string) string {
 	// roleid:rolename:roleKey
 	return fmt.Sprintf("%d:%s:%s", roleId, name, key)

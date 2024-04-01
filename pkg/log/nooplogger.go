@@ -1,5 +1,7 @@
 package log
 
+import "go.uber.org/zap"
+
 type noopLogger struct{}
 
 func (l *noopLogger) Fatal(v ...any)                          {}
@@ -31,9 +33,9 @@ func (l *noopLogger) Errorf(format string, v ...any)          {}
 func (l *noopLogger) Errorln(v ...any)                        {}
 func (l *noopLogger) Errorw(msg string, keysAndValues ...any) {}
 func (l *noopLogger) Write(p []byte) (n int, err error)       { return 0, nil }
-func (l *noopLogger) SetAggregation(bool)                     {}
 func (l *noopLogger) SetLevel(lvl Level)                      {}
 func (l *noopLogger) WithValues(keysAndValues ...any) Logger  { return nil }
 func (l *noopLogger) WithName(name string) Logger             { return nil }
 func (l *noopLogger) Name() string                            { return "" }
 func (l *noopLogger) Flush()                                  {}
+func (l *noopLogger) ZapLogger() *zap.Logger                  { return nil }

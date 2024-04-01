@@ -8,9 +8,9 @@ import (
 
 type DictDataStore interface {
 	// 根据条件分页查询字典数据
-	SelectDictDataList(ctx context.Context, dictData *v1.SysDictData, opts *api.GetOptions) ([]*v1.SysDictData, error)
+	SelectDictDataList(ctx context.Context, dictData *v1.SysDictData, opts *api.GetOptions) ([]*v1.SysDictData, int64, error)
 	// 根据字典类型查询字典数据
-	SelectDictDataByType(ctx context.Context, dictType string, opts *api.GetOptions) ([]*v1.SysDictData, error)
+	SelectDictDataByType(ctx context.Context, dictType string, opts *api.GetOptions) ([]*v1.SysDictData, int64, error)
 	// 根据字典类型和字典键值查询字典数据信息
 	SelectDictLabel(ctx context.Context, dictType, dictValue string, opts *api.GetOptions) (string, error)
 	// 根据字典数据id查询信息

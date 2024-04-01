@@ -35,14 +35,14 @@ func (s *operLogService) InsertOperLog(ctx context.Context, operLog *v1.SysOperL
 }
 
 func (s *operLogService) SelectOperLogList(ctx context.Context, operLog *v1.SysOperLog, opts *api.GetOptions) *v1.OperLogList {
-	result, err := s.store.OperLogs().SelectOperLogList(ctx, operLog, opts)
+	result, total, err := s.store.OperLogs().SelectOperLogList(ctx, operLog, opts)
 	if err != nil {
 		return &v1.OperLogList{
 			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.OperLogList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }

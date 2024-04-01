@@ -781,515 +781,37 @@ func (p *DateRange) Field2DeepEqual(src int64) bool {
 	return true
 }
 
-type BaseInfo struct {
-	CreateBy   string            `thrift:"createBy,1" frugal:"1,default,string" json:"createBy"`
-	CreateTime int64             `thrift:"createTime,2" frugal:"2,default,i64" json:"createTime"`
-	UpdateBy   string            `thrift:"updateBy,3" frugal:"3,default,string" json:"updateBy"`
-	UpdateTime int64             `thrift:"updateTime,4" frugal:"4,default,i64" json:"updateTime"`
-	Remark     string            `thrift:"remark,5" frugal:"5,default,string" json:"remark"`
-	Params     map[string]string `thrift:"params,6" frugal:"6,default,map<string:string>" json:"params"`
-}
-
-func NewBaseInfo() *BaseInfo {
-	return &BaseInfo{}
-}
-
-func (p *BaseInfo) InitDefault() {
-	*p = BaseInfo{}
-}
-
-func (p *BaseInfo) GetCreateBy() (v string) {
-	return p.CreateBy
-}
-
-func (p *BaseInfo) GetCreateTime() (v int64) {
-	return p.CreateTime
-}
-
-func (p *BaseInfo) GetUpdateBy() (v string) {
-	return p.UpdateBy
-}
-
-func (p *BaseInfo) GetUpdateTime() (v int64) {
-	return p.UpdateTime
-}
-
-func (p *BaseInfo) GetRemark() (v string) {
-	return p.Remark
-}
-
-func (p *BaseInfo) GetParams() (v map[string]string) {
-	return p.Params
-}
-func (p *BaseInfo) SetCreateBy(val string) {
-	p.CreateBy = val
-}
-func (p *BaseInfo) SetCreateTime(val int64) {
-	p.CreateTime = val
-}
-func (p *BaseInfo) SetUpdateBy(val string) {
-	p.UpdateBy = val
-}
-func (p *BaseInfo) SetUpdateTime(val int64) {
-	p.UpdateTime = val
-}
-func (p *BaseInfo) SetRemark(val string) {
-	p.Remark = val
-}
-func (p *BaseInfo) SetParams(val map[string]string) {
-	p.Params = val
-}
-
-var fieldIDToName_BaseInfo = map[int16]string{
-	1: "createBy",
-	2: "createTime",
-	3: "updateBy",
-	4: "updateTime",
-	5: "remark",
-	6: "params",
-}
-
-func (p *BaseInfo) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 3:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField3(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 4:
-			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField4(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 5:
-			if fieldTypeId == thrift.STRING {
-				if err = p.ReadField5(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 6:
-			if fieldTypeId == thrift.MAP {
-				if err = p.ReadField6(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_BaseInfo[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *BaseInfo) ReadField1(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.CreateBy = v
-	}
-	return nil
-}
-func (p *BaseInfo) ReadField2(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.CreateTime = v
-	}
-	return nil
-}
-func (p *BaseInfo) ReadField3(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.UpdateBy = v
-	}
-	return nil
-}
-func (p *BaseInfo) ReadField4(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
-		return err
-	} else {
-		p.UpdateTime = v
-	}
-	return nil
-}
-func (p *BaseInfo) ReadField5(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.Remark = v
-	}
-	return nil
-}
-func (p *BaseInfo) ReadField6(iprot thrift.TProtocol) error {
-	_, _, size, err := iprot.ReadMapBegin()
-	if err != nil {
-		return err
-	}
-	p.Params = make(map[string]string, size)
-	for i := 0; i < size; i++ {
-		var _key string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_key = v
-		}
-
-		var _val string
-		if v, err := iprot.ReadString(); err != nil {
-			return err
-		} else {
-			_val = v
-		}
-
-		p.Params[_key] = _val
-	}
-	if err := iprot.ReadMapEnd(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *BaseInfo) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("BaseInfo"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-		if err = p.writeField3(oprot); err != nil {
-			fieldId = 3
-			goto WriteFieldError
-		}
-		if err = p.writeField4(oprot); err != nil {
-			fieldId = 4
-			goto WriteFieldError
-		}
-		if err = p.writeField5(oprot); err != nil {
-			fieldId = 5
-			goto WriteFieldError
-		}
-		if err = p.writeField6(oprot); err != nil {
-			fieldId = 6
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *BaseInfo) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("createBy", thrift.STRING, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.CreateBy); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *BaseInfo) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("createTime", thrift.I64, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.CreateTime); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *BaseInfo) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("updateBy", thrift.STRING, 3); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.UpdateBy); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
-}
-
-func (p *BaseInfo) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("updateTime", thrift.I64, 4); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteI64(p.UpdateTime); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
-}
-
-func (p *BaseInfo) writeField5(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("remark", thrift.STRING, 5); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.Remark); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
-}
-
-func (p *BaseInfo) writeField6(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("params", thrift.MAP, 6); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteMapBegin(thrift.STRING, thrift.STRING, len(p.Params)); err != nil {
-		return err
-	}
-	for k, v := range p.Params {
-		if err := oprot.WriteString(k); err != nil {
-			return err
-		}
-		if err := oprot.WriteString(v); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteMapEnd(); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
-}
-
-func (p *BaseInfo) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("BaseInfo(%+v)", *p)
-
-}
-
-func (p *BaseInfo) DeepEqual(ano *BaseInfo) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.CreateBy) {
-		return false
-	}
-	if !p.Field2DeepEqual(ano.CreateTime) {
-		return false
-	}
-	if !p.Field3DeepEqual(ano.UpdateBy) {
-		return false
-	}
-	if !p.Field4DeepEqual(ano.UpdateTime) {
-		return false
-	}
-	if !p.Field5DeepEqual(ano.Remark) {
-		return false
-	}
-	if !p.Field6DeepEqual(ano.Params) {
-		return false
-	}
-	return true
-}
-
-func (p *BaseInfo) Field1DeepEqual(src string) bool {
-
-	if strings.Compare(p.CreateBy, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *BaseInfo) Field2DeepEqual(src int64) bool {
-
-	if p.CreateTime != src {
-		return false
-	}
-	return true
-}
-func (p *BaseInfo) Field3DeepEqual(src string) bool {
-
-	if strings.Compare(p.UpdateBy, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *BaseInfo) Field4DeepEqual(src int64) bool {
-
-	if p.UpdateTime != src {
-		return false
-	}
-	return true
-}
-func (p *BaseInfo) Field5DeepEqual(src string) bool {
-
-	if strings.Compare(p.Remark, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *BaseInfo) Field6DeepEqual(src map[string]string) bool {
-
-	if len(p.Params) != len(src) {
-		return false
-	}
-	for k, v := range p.Params {
-		_src := src[k]
-		if strings.Compare(v, _src) != 0 {
-			return false
-		}
-	}
-	return true
-}
-
 type GenTable struct {
-	BaseInfo       *BaseInfo         `thrift:"baseInfo,1" frugal:"1,default,BaseInfo" json:"baseInfo"`
-	TableId        int64             `thrift:"tableId,2" frugal:"2,default,i64" json:"tableId"`
-	TableName      *string           `thrift:"tableName,3,optional" frugal:"3,optional,string" json:"tableName,omitempty"`
-	TableComment   *string           `thrift:"tableComment,4,optional" frugal:"4,optional,string" json:"tableComment,omitempty"`
-	SubTableName   *string           `thrift:"subTableName,5,optional" frugal:"5,optional,string" json:"subTableName,omitempty"`
-	SubTableFkName *string           `thrift:"subTableFkName,6,optional" frugal:"6,optional,string" json:"subTableFkName,omitempty"`
-	ClassName      *string           `thrift:"className,7,optional" frugal:"7,optional,string" json:"className,omitempty"`
-	TplCategory    *string           `thrift:"tplCategory,8,optional" frugal:"8,optional,string" json:"tplCategory,omitempty"`
-	TplWebType     *string           `thrift:"tplWebType,9,optional" frugal:"9,optional,string" json:"tplWebType,omitempty"`
-	PackageName    *string           `thrift:"packageName,10,optional" frugal:"10,optional,string" json:"packageName,omitempty"`
-	ModuleName     *string           `thrift:"moduleName,11,optional" frugal:"11,optional,string" json:"moduleName,omitempty"`
-	BusinessName   *string           `thrift:"businessName,12,optional" frugal:"12,optional,string" json:"businessName,omitempty"`
-	FunctionName   *string           `thrift:"functionName,13,optional" frugal:"13,optional,string" json:"functionName,omitempty"`
-	FunctionAuthor *string           `thrift:"functionAuthor,14,optional" frugal:"14,optional,string" json:"functionAuthor,omitempty"`
-	GenType        *string           `thrift:"genType,15,optional" frugal:"15,optional,string" json:"genType,omitempty"`
-	GenPath        *string           `thrift:"genPath,16,optional" frugal:"16,optional,string" json:"genPath,omitempty"`
-	PkColumn       *GenTableColumn   `thrift:"pkColumn,17,optional" frugal:"17,optional,GenTableColumn" json:"pkColumn,omitempty"`
-	SubTable       *GenTable         `thrift:"subTable,18,optional" frugal:"18,optional,GenTable" json:"subTable,omitempty"`
-	Columns        []*GenTableColumn `thrift:"columns,19,optional" frugal:"19,optional,list<GenTableColumn>" json:"columns,omitempty"`
-	Options        *string           `thrift:"options,20,optional" frugal:"20,optional,string" json:"options,omitempty"`
-	TreeCode       *string           `thrift:"treeCode,21,optional" frugal:"21,optional,string" json:"treeCode,omitempty"`
-	TreeParentCode *string           `thrift:"treeParentCode,22,optional" frugal:"22,optional,string" json:"treeParentCode,omitempty"`
-	TreeName       *string           `thrift:"treeName,23,optional" frugal:"23,optional,string" json:"treeName,omitempty"`
-	ParentMenuId   *string           `thrift:"parentMenuId,24,optional" frugal:"24,optional,string" json:"parentMenuId,omitempty"`
-	ParentMenuName *string           `thrift:"parentMenuName,25,optional" frugal:"25,optional,string" json:"parentMenuName,omitempty"`
+	CreateBy       string            `thrift:"createBy,1" frugal:"1,default,string" json:"createBy"`
+	CreateTime     string            `thrift:"createTime,2" frugal:"2,default,string" json:"createTime"`
+	UpdateBy       string            `thrift:"updateBy,3" frugal:"3,default,string" json:"updateBy"`
+	UpdateTime     string            `thrift:"updateTime,4" frugal:"4,default,string" json:"updateTime"`
+	Remark         string            `thrift:"remark,5" frugal:"5,default,string" json:"remark"`
+	Params         map[string]string `thrift:"params,6" frugal:"6,default,map<string:string>" json:"params"`
+	TableId        int64             `thrift:"tableId,7" frugal:"7,default,i64" json:"tableId"`
+	TableName      string            `thrift:"tableName,8" frugal:"8,default,string" json:"tableName"`
+	TableComment   string            `thrift:"tableComment,9" frugal:"9,default,string" json:"tableComment"`
+	SubTableName   string            `thrift:"subTableName,10" frugal:"10,default,string" json:"subTableName"`
+	SubTableFkName string            `thrift:"subTableFkName,11" frugal:"11,default,string" json:"subTableFkName"`
+	ClassName      string            `thrift:"className,12" frugal:"12,default,string" json:"className"`
+	TplCategory    string            `thrift:"tplCategory,13" frugal:"13,default,string" json:"tplCategory"`
+	TplWebType     string            `thrift:"tplWebType,14" frugal:"14,default,string" json:"tplWebType"`
+	PackageName    string            `thrift:"packageName,15" frugal:"15,default,string" json:"packageName"`
+	ModuleName     string            `thrift:"moduleName,16" frugal:"16,default,string" json:"moduleName"`
+	BusinessName   string            `thrift:"businessName,17" frugal:"17,default,string" json:"businessName"`
+	FunctionName   string            `thrift:"functionName,18" frugal:"18,default,string" json:"functionName"`
+	FunctionAuthor string            `thrift:"functionAuthor,19" frugal:"19,default,string" json:"functionAuthor"`
+	GenType        string            `thrift:"genType,20" frugal:"20,default,string" json:"genType"`
+	GenPath        string            `thrift:"genPath,21" frugal:"21,default,string" json:"genPath"`
+	PkColumn       *GenTableColumn   `thrift:"pkColumn,22" frugal:"22,default,GenTableColumn" json:"pkColumn"`
+	SubTable       *GenTable         `thrift:"subTable,23" frugal:"23,default,GenTable" json:"subTable"`
+	Columns        []*GenTableColumn `thrift:"columns,24" frugal:"24,default,list<GenTableColumn>" json:"columns"`
+	Options        string            `thrift:"options,25" frugal:"25,default,string" json:"options"`
+	TreeCode       string            `thrift:"treeCode,26" frugal:"26,default,string" json:"treeCode"`
+	TreeParentCode string            `thrift:"treeParentCode,27" frugal:"27,default,string" json:"treeParentCode"`
+	TreeName       string            `thrift:"treeName,28" frugal:"28,default,string" json:"treeName"`
+	ParentMenuId   string            `thrift:"parentMenuId,29" frugal:"29,default,string" json:"parentMenuId"`
+	ParentMenuName string            `thrift:"parentMenuName,30" frugal:"30,default,string" json:"parentMenuName"`
 }
 
 func NewGenTable() *GenTable {
@@ -1300,143 +822,88 @@ func (p *GenTable) InitDefault() {
 	*p = GenTable{}
 }
 
-var GenTable_BaseInfo_DEFAULT *BaseInfo
+func (p *GenTable) GetCreateBy() (v string) {
+	return p.CreateBy
+}
 
-func (p *GenTable) GetBaseInfo() (v *BaseInfo) {
-	if !p.IsSetBaseInfo() {
-		return GenTable_BaseInfo_DEFAULT
-	}
-	return p.BaseInfo
+func (p *GenTable) GetCreateTime() (v string) {
+	return p.CreateTime
+}
+
+func (p *GenTable) GetUpdateBy() (v string) {
+	return p.UpdateBy
+}
+
+func (p *GenTable) GetUpdateTime() (v string) {
+	return p.UpdateTime
+}
+
+func (p *GenTable) GetRemark() (v string) {
+	return p.Remark
+}
+
+func (p *GenTable) GetParams() (v map[string]string) {
+	return p.Params
 }
 
 func (p *GenTable) GetTableId() (v int64) {
 	return p.TableId
 }
 
-var GenTable_TableName_DEFAULT string
-
 func (p *GenTable) GetTableName() (v string) {
-	if !p.IsSetTableName() {
-		return GenTable_TableName_DEFAULT
-	}
-	return *p.TableName
+	return p.TableName
 }
-
-var GenTable_TableComment_DEFAULT string
 
 func (p *GenTable) GetTableComment() (v string) {
-	if !p.IsSetTableComment() {
-		return GenTable_TableComment_DEFAULT
-	}
-	return *p.TableComment
+	return p.TableComment
 }
-
-var GenTable_SubTableName_DEFAULT string
 
 func (p *GenTable) GetSubTableName() (v string) {
-	if !p.IsSetSubTableName() {
-		return GenTable_SubTableName_DEFAULT
-	}
-	return *p.SubTableName
+	return p.SubTableName
 }
-
-var GenTable_SubTableFkName_DEFAULT string
 
 func (p *GenTable) GetSubTableFkName() (v string) {
-	if !p.IsSetSubTableFkName() {
-		return GenTable_SubTableFkName_DEFAULT
-	}
-	return *p.SubTableFkName
+	return p.SubTableFkName
 }
-
-var GenTable_ClassName_DEFAULT string
 
 func (p *GenTable) GetClassName() (v string) {
-	if !p.IsSetClassName() {
-		return GenTable_ClassName_DEFAULT
-	}
-	return *p.ClassName
+	return p.ClassName
 }
-
-var GenTable_TplCategory_DEFAULT string
 
 func (p *GenTable) GetTplCategory() (v string) {
-	if !p.IsSetTplCategory() {
-		return GenTable_TplCategory_DEFAULT
-	}
-	return *p.TplCategory
+	return p.TplCategory
 }
-
-var GenTable_TplWebType_DEFAULT string
 
 func (p *GenTable) GetTplWebType() (v string) {
-	if !p.IsSetTplWebType() {
-		return GenTable_TplWebType_DEFAULT
-	}
-	return *p.TplWebType
+	return p.TplWebType
 }
-
-var GenTable_PackageName_DEFAULT string
 
 func (p *GenTable) GetPackageName() (v string) {
-	if !p.IsSetPackageName() {
-		return GenTable_PackageName_DEFAULT
-	}
-	return *p.PackageName
+	return p.PackageName
 }
-
-var GenTable_ModuleName_DEFAULT string
 
 func (p *GenTable) GetModuleName() (v string) {
-	if !p.IsSetModuleName() {
-		return GenTable_ModuleName_DEFAULT
-	}
-	return *p.ModuleName
+	return p.ModuleName
 }
-
-var GenTable_BusinessName_DEFAULT string
 
 func (p *GenTable) GetBusinessName() (v string) {
-	if !p.IsSetBusinessName() {
-		return GenTable_BusinessName_DEFAULT
-	}
-	return *p.BusinessName
+	return p.BusinessName
 }
-
-var GenTable_FunctionName_DEFAULT string
 
 func (p *GenTable) GetFunctionName() (v string) {
-	if !p.IsSetFunctionName() {
-		return GenTable_FunctionName_DEFAULT
-	}
-	return *p.FunctionName
+	return p.FunctionName
 }
-
-var GenTable_FunctionAuthor_DEFAULT string
 
 func (p *GenTable) GetFunctionAuthor() (v string) {
-	if !p.IsSetFunctionAuthor() {
-		return GenTable_FunctionAuthor_DEFAULT
-	}
-	return *p.FunctionAuthor
+	return p.FunctionAuthor
 }
-
-var GenTable_GenType_DEFAULT string
 
 func (p *GenTable) GetGenType() (v string) {
-	if !p.IsSetGenType() {
-		return GenTable_GenType_DEFAULT
-	}
-	return *p.GenType
+	return p.GenType
 }
 
-var GenTable_GenPath_DEFAULT string
-
 func (p *GenTable) GetGenPath() (v string) {
-	if !p.IsSetGenPath() {
-		return GenTable_GenPath_DEFAULT
-	}
-	return *p.GenPath
+	return p.GenPath
 }
 
 var GenTable_PkColumn_DEFAULT *GenTableColumn
@@ -1457,114 +924,94 @@ func (p *GenTable) GetSubTable() (v *GenTable) {
 	return p.SubTable
 }
 
-var GenTable_Columns_DEFAULT []*GenTableColumn
-
 func (p *GenTable) GetColumns() (v []*GenTableColumn) {
-	if !p.IsSetColumns() {
-		return GenTable_Columns_DEFAULT
-	}
 	return p.Columns
 }
 
-var GenTable_Options_DEFAULT string
-
 func (p *GenTable) GetOptions() (v string) {
-	if !p.IsSetOptions() {
-		return GenTable_Options_DEFAULT
-	}
-	return *p.Options
+	return p.Options
 }
-
-var GenTable_TreeCode_DEFAULT string
 
 func (p *GenTable) GetTreeCode() (v string) {
-	if !p.IsSetTreeCode() {
-		return GenTable_TreeCode_DEFAULT
-	}
-	return *p.TreeCode
+	return p.TreeCode
 }
-
-var GenTable_TreeParentCode_DEFAULT string
 
 func (p *GenTable) GetTreeParentCode() (v string) {
-	if !p.IsSetTreeParentCode() {
-		return GenTable_TreeParentCode_DEFAULT
-	}
-	return *p.TreeParentCode
+	return p.TreeParentCode
 }
-
-var GenTable_TreeName_DEFAULT string
 
 func (p *GenTable) GetTreeName() (v string) {
-	if !p.IsSetTreeName() {
-		return GenTable_TreeName_DEFAULT
-	}
-	return *p.TreeName
+	return p.TreeName
 }
-
-var GenTable_ParentMenuId_DEFAULT string
 
 func (p *GenTable) GetParentMenuId() (v string) {
-	if !p.IsSetParentMenuId() {
-		return GenTable_ParentMenuId_DEFAULT
-	}
-	return *p.ParentMenuId
+	return p.ParentMenuId
 }
-
-var GenTable_ParentMenuName_DEFAULT string
 
 func (p *GenTable) GetParentMenuName() (v string) {
-	if !p.IsSetParentMenuName() {
-		return GenTable_ParentMenuName_DEFAULT
-	}
-	return *p.ParentMenuName
+	return p.ParentMenuName
 }
-func (p *GenTable) SetBaseInfo(val *BaseInfo) {
-	p.BaseInfo = val
+func (p *GenTable) SetCreateBy(val string) {
+	p.CreateBy = val
+}
+func (p *GenTable) SetCreateTime(val string) {
+	p.CreateTime = val
+}
+func (p *GenTable) SetUpdateBy(val string) {
+	p.UpdateBy = val
+}
+func (p *GenTable) SetUpdateTime(val string) {
+	p.UpdateTime = val
+}
+func (p *GenTable) SetRemark(val string) {
+	p.Remark = val
+}
+func (p *GenTable) SetParams(val map[string]string) {
+	p.Params = val
 }
 func (p *GenTable) SetTableId(val int64) {
 	p.TableId = val
 }
-func (p *GenTable) SetTableName(val *string) {
+func (p *GenTable) SetTableName(val string) {
 	p.TableName = val
 }
-func (p *GenTable) SetTableComment(val *string) {
+func (p *GenTable) SetTableComment(val string) {
 	p.TableComment = val
 }
-func (p *GenTable) SetSubTableName(val *string) {
+func (p *GenTable) SetSubTableName(val string) {
 	p.SubTableName = val
 }
-func (p *GenTable) SetSubTableFkName(val *string) {
+func (p *GenTable) SetSubTableFkName(val string) {
 	p.SubTableFkName = val
 }
-func (p *GenTable) SetClassName(val *string) {
+func (p *GenTable) SetClassName(val string) {
 	p.ClassName = val
 }
-func (p *GenTable) SetTplCategory(val *string) {
+func (p *GenTable) SetTplCategory(val string) {
 	p.TplCategory = val
 }
-func (p *GenTable) SetTplWebType(val *string) {
+func (p *GenTable) SetTplWebType(val string) {
 	p.TplWebType = val
 }
-func (p *GenTable) SetPackageName(val *string) {
+func (p *GenTable) SetPackageName(val string) {
 	p.PackageName = val
 }
-func (p *GenTable) SetModuleName(val *string) {
+func (p *GenTable) SetModuleName(val string) {
 	p.ModuleName = val
 }
-func (p *GenTable) SetBusinessName(val *string) {
+func (p *GenTable) SetBusinessName(val string) {
 	p.BusinessName = val
 }
-func (p *GenTable) SetFunctionName(val *string) {
+func (p *GenTable) SetFunctionName(val string) {
 	p.FunctionName = val
 }
-func (p *GenTable) SetFunctionAuthor(val *string) {
+func (p *GenTable) SetFunctionAuthor(val string) {
 	p.FunctionAuthor = val
 }
-func (p *GenTable) SetGenType(val *string) {
+func (p *GenTable) SetGenType(val string) {
 	p.GenType = val
 }
-func (p *GenTable) SetGenPath(val *string) {
+func (p *GenTable) SetGenPath(val string) {
 	p.GenPath = val
 }
 func (p *GenTable) SetPkColumn(val *GenTableColumn) {
@@ -1576,111 +1023,56 @@ func (p *GenTable) SetSubTable(val *GenTable) {
 func (p *GenTable) SetColumns(val []*GenTableColumn) {
 	p.Columns = val
 }
-func (p *GenTable) SetOptions(val *string) {
+func (p *GenTable) SetOptions(val string) {
 	p.Options = val
 }
-func (p *GenTable) SetTreeCode(val *string) {
+func (p *GenTable) SetTreeCode(val string) {
 	p.TreeCode = val
 }
-func (p *GenTable) SetTreeParentCode(val *string) {
+func (p *GenTable) SetTreeParentCode(val string) {
 	p.TreeParentCode = val
 }
-func (p *GenTable) SetTreeName(val *string) {
+func (p *GenTable) SetTreeName(val string) {
 	p.TreeName = val
 }
-func (p *GenTable) SetParentMenuId(val *string) {
+func (p *GenTable) SetParentMenuId(val string) {
 	p.ParentMenuId = val
 }
-func (p *GenTable) SetParentMenuName(val *string) {
+func (p *GenTable) SetParentMenuName(val string) {
 	p.ParentMenuName = val
 }
 
 var fieldIDToName_GenTable = map[int16]string{
-	1:  "baseInfo",
-	2:  "tableId",
-	3:  "tableName",
-	4:  "tableComment",
-	5:  "subTableName",
-	6:  "subTableFkName",
-	7:  "className",
-	8:  "tplCategory",
-	9:  "tplWebType",
-	10: "packageName",
-	11: "moduleName",
-	12: "businessName",
-	13: "functionName",
-	14: "functionAuthor",
-	15: "genType",
-	16: "genPath",
-	17: "pkColumn",
-	18: "subTable",
-	19: "columns",
-	20: "options",
-	21: "treeCode",
-	22: "treeParentCode",
-	23: "treeName",
-	24: "parentMenuId",
-	25: "parentMenuName",
-}
-
-func (p *GenTable) IsSetBaseInfo() bool {
-	return p.BaseInfo != nil
-}
-
-func (p *GenTable) IsSetTableName() bool {
-	return p.TableName != nil
-}
-
-func (p *GenTable) IsSetTableComment() bool {
-	return p.TableComment != nil
-}
-
-func (p *GenTable) IsSetSubTableName() bool {
-	return p.SubTableName != nil
-}
-
-func (p *GenTable) IsSetSubTableFkName() bool {
-	return p.SubTableFkName != nil
-}
-
-func (p *GenTable) IsSetClassName() bool {
-	return p.ClassName != nil
-}
-
-func (p *GenTable) IsSetTplCategory() bool {
-	return p.TplCategory != nil
-}
-
-func (p *GenTable) IsSetTplWebType() bool {
-	return p.TplWebType != nil
-}
-
-func (p *GenTable) IsSetPackageName() bool {
-	return p.PackageName != nil
-}
-
-func (p *GenTable) IsSetModuleName() bool {
-	return p.ModuleName != nil
-}
-
-func (p *GenTable) IsSetBusinessName() bool {
-	return p.BusinessName != nil
-}
-
-func (p *GenTable) IsSetFunctionName() bool {
-	return p.FunctionName != nil
-}
-
-func (p *GenTable) IsSetFunctionAuthor() bool {
-	return p.FunctionAuthor != nil
-}
-
-func (p *GenTable) IsSetGenType() bool {
-	return p.GenType != nil
-}
-
-func (p *GenTable) IsSetGenPath() bool {
-	return p.GenPath != nil
+	1:  "createBy",
+	2:  "createTime",
+	3:  "updateBy",
+	4:  "updateTime",
+	5:  "remark",
+	6:  "params",
+	7:  "tableId",
+	8:  "tableName",
+	9:  "tableComment",
+	10: "subTableName",
+	11: "subTableFkName",
+	12: "className",
+	13: "tplCategory",
+	14: "tplWebType",
+	15: "packageName",
+	16: "moduleName",
+	17: "businessName",
+	18: "functionName",
+	19: "functionAuthor",
+	20: "genType",
+	21: "genPath",
+	22: "pkColumn",
+	23: "subTable",
+	24: "columns",
+	25: "options",
+	26: "treeCode",
+	27: "treeParentCode",
+	28: "treeName",
+	29: "parentMenuId",
+	30: "parentMenuName",
 }
 
 func (p *GenTable) IsSetPkColumn() bool {
@@ -1689,34 +1081,6 @@ func (p *GenTable) IsSetPkColumn() bool {
 
 func (p *GenTable) IsSetSubTable() bool {
 	return p.SubTable != nil
-}
-
-func (p *GenTable) IsSetColumns() bool {
-	return p.Columns != nil
-}
-
-func (p *GenTable) IsSetOptions() bool {
-	return p.Options != nil
-}
-
-func (p *GenTable) IsSetTreeCode() bool {
-	return p.TreeCode != nil
-}
-
-func (p *GenTable) IsSetTreeParentCode() bool {
-	return p.TreeParentCode != nil
-}
-
-func (p *GenTable) IsSetTreeName() bool {
-	return p.TreeName != nil
-}
-
-func (p *GenTable) IsSetParentMenuId() bool {
-	return p.ParentMenuId != nil
-}
-
-func (p *GenTable) IsSetParentMenuName() bool {
-	return p.ParentMenuName != nil
 }
 
 func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
@@ -1739,7 +1103,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1747,7 +1111,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1779,7 +1143,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 6:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.MAP {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1787,7 +1151,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 7:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField7(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1867,7 +1231,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 17:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField17(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1875,7 +1239,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 18:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField18(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1883,7 +1247,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 19:
-			if fieldTypeId == thrift.LIST {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField19(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1907,7 +1271,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 22:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField22(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1915,7 +1279,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 23:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField23(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1923,7 +1287,7 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 24:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField24(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -1933,6 +1297,46 @@ func (p *GenTable) Read(iprot thrift.TProtocol) (err error) {
 		case 25:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField25(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 26:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField26(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 27:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField27(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 28:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField28(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 29:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField29(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 30:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField30(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -1968,18 +1372,20 @@ ReadStructEndError:
 }
 
 func (p *GenTable) ReadField1(iprot thrift.TProtocol) error {
-	p.BaseInfo = NewBaseInfo()
-	if err := p.BaseInfo.Read(iprot); err != nil {
+
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		p.CreateBy = v
 	}
 	return nil
 }
 func (p *GenTable) ReadField2(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadI64(); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.TableId = v
+		p.CreateTime = v
 	}
 	return nil
 }
@@ -1988,7 +1394,7 @@ func (p *GenTable) ReadField3(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.TableName = &v
+		p.UpdateBy = v
 	}
 	return nil
 }
@@ -1997,7 +1403,7 @@ func (p *GenTable) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.TableComment = &v
+		p.UpdateTime = v
 	}
 	return nil
 }
@@ -2006,25 +1412,44 @@ func (p *GenTable) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.SubTableName = &v
+		p.Remark = v
 	}
 	return nil
 }
 func (p *GenTable) ReadField6(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
+	_, _, size, err := iprot.ReadMapBegin()
+	if err != nil {
 		return err
-	} else {
-		p.SubTableFkName = &v
+	}
+	p.Params = make(map[string]string, size)
+	for i := 0; i < size; i++ {
+		var _key string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_key = v
+		}
+
+		var _val string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_val = v
+		}
+
+		p.Params[_key] = _val
+	}
+	if err := iprot.ReadMapEnd(); err != nil {
+		return err
 	}
 	return nil
 }
 func (p *GenTable) ReadField7(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.ClassName = &v
+		p.TableId = v
 	}
 	return nil
 }
@@ -2033,7 +1458,7 @@ func (p *GenTable) ReadField8(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.TplCategory = &v
+		p.TableName = v
 	}
 	return nil
 }
@@ -2042,7 +1467,7 @@ func (p *GenTable) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.TplWebType = &v
+		p.TableComment = v
 	}
 	return nil
 }
@@ -2051,7 +1476,7 @@ func (p *GenTable) ReadField10(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.PackageName = &v
+		p.SubTableName = v
 	}
 	return nil
 }
@@ -2060,7 +1485,7 @@ func (p *GenTable) ReadField11(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ModuleName = &v
+		p.SubTableFkName = v
 	}
 	return nil
 }
@@ -2069,7 +1494,7 @@ func (p *GenTable) ReadField12(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.BusinessName = &v
+		p.ClassName = v
 	}
 	return nil
 }
@@ -2078,7 +1503,7 @@ func (p *GenTable) ReadField13(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.FunctionName = &v
+		p.TplCategory = v
 	}
 	return nil
 }
@@ -2087,7 +1512,7 @@ func (p *GenTable) ReadField14(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.FunctionAuthor = &v
+		p.TplWebType = v
 	}
 	return nil
 }
@@ -2096,7 +1521,7 @@ func (p *GenTable) ReadField15(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.GenType = &v
+		p.PackageName = v
 	}
 	return nil
 }
@@ -2105,25 +1530,70 @@ func (p *GenTable) ReadField16(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.GenPath = &v
+		p.ModuleName = v
 	}
 	return nil
 }
 func (p *GenTable) ReadField17(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.BusinessName = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField18(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.FunctionName = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField19(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.FunctionAuthor = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField20(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.GenType = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField21(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.GenPath = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField22(iprot thrift.TProtocol) error {
 	p.PkColumn = NewGenTableColumn()
 	if err := p.PkColumn.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *GenTable) ReadField18(iprot thrift.TProtocol) error {
+func (p *GenTable) ReadField23(iprot thrift.TProtocol) error {
 	p.SubTable = NewGenTable()
 	if err := p.SubTable.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *GenTable) ReadField19(iprot thrift.TProtocol) error {
+func (p *GenTable) ReadField24(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -2142,57 +1612,57 @@ func (p *GenTable) ReadField19(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *GenTable) ReadField20(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.Options = &v
-	}
-	return nil
-}
-func (p *GenTable) ReadField21(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.TreeCode = &v
-	}
-	return nil
-}
-func (p *GenTable) ReadField22(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.TreeParentCode = &v
-	}
-	return nil
-}
-func (p *GenTable) ReadField23(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.TreeName = &v
-	}
-	return nil
-}
-func (p *GenTable) ReadField24(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.ParentMenuId = &v
-	}
-	return nil
-}
 func (p *GenTable) ReadField25(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ParentMenuName = &v
+		p.Options = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField26(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.TreeCode = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField27(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.TreeParentCode = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField28(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.TreeName = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField29(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ParentMenuId = v
+	}
+	return nil
+}
+func (p *GenTable) ReadField30(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.ParentMenuName = v
 	}
 	return nil
 }
@@ -2303,6 +1773,26 @@ func (p *GenTable) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 25
 			goto WriteFieldError
 		}
+		if err = p.writeField26(oprot); err != nil {
+			fieldId = 26
+			goto WriteFieldError
+		}
+		if err = p.writeField27(oprot); err != nil {
+			fieldId = 27
+			goto WriteFieldError
+		}
+		if err = p.writeField28(oprot); err != nil {
+			fieldId = 28
+			goto WriteFieldError
+		}
+		if err = p.writeField29(oprot); err != nil {
+			fieldId = 29
+			goto WriteFieldError
+		}
+		if err = p.writeField30(oprot); err != nil {
+			fieldId = 30
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -2322,10 +1812,10 @@ WriteStructEndError:
 }
 
 func (p *GenTable) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("baseInfo", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("createBy", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.BaseInfo.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.CreateBy); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2339,10 +1829,10 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("tableId", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("createTime", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.TableId); err != nil {
+	if err := oprot.WriteString(p.CreateTime); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -2356,16 +1846,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTableName() {
-		if err = oprot.WriteFieldBegin("tableName", thrift.STRING, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TableName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("updateBy", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.UpdateBy); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2375,16 +1863,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTableComment() {
-		if err = oprot.WriteFieldBegin("tableComment", thrift.STRING, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TableComment); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("updateTime", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.UpdateTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2394,16 +1880,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSubTableName() {
-		if err = oprot.WriteFieldBegin("subTableName", thrift.STRING, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.SubTableName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("remark", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Remark); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2413,16 +1897,25 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSubTableFkName() {
-		if err = oprot.WriteFieldBegin("subTableFkName", thrift.STRING, 6); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.SubTableFkName); err != nil {
+	if err = oprot.WriteFieldBegin("params", thrift.MAP, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteMapBegin(thrift.STRING, thrift.STRING, len(p.Params)); err != nil {
+		return err
+	}
+	for k, v := range p.Params {
+		if err := oprot.WriteString(k); err != nil {
 			return err
 		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
+		if err := oprot.WriteString(v); err != nil {
+			return err
 		}
+	}
+	if err := oprot.WriteMapEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2432,16 +1925,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField7(oprot thrift.TProtocol) (err error) {
-	if p.IsSetClassName() {
-		if err = oprot.WriteFieldBegin("className", thrift.STRING, 7); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ClassName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("tableId", thrift.I64, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.TableId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2451,16 +1942,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField8(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTplCategory() {
-		if err = oprot.WriteFieldBegin("tplCategory", thrift.STRING, 8); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TplCategory); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("tableName", thrift.STRING, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TableName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2470,16 +1959,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField9(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTplWebType() {
-		if err = oprot.WriteFieldBegin("tplWebType", thrift.STRING, 9); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TplWebType); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("tableComment", thrift.STRING, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TableComment); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2489,16 +1976,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField10(oprot thrift.TProtocol) (err error) {
-	if p.IsSetPackageName() {
-		if err = oprot.WriteFieldBegin("packageName", thrift.STRING, 10); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.PackageName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("subTableName", thrift.STRING, 10); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.SubTableName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2508,16 +1993,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField11(oprot thrift.TProtocol) (err error) {
-	if p.IsSetModuleName() {
-		if err = oprot.WriteFieldBegin("moduleName", thrift.STRING, 11); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ModuleName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("subTableFkName", thrift.STRING, 11); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.SubTableFkName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2527,16 +2010,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField12(oprot thrift.TProtocol) (err error) {
-	if p.IsSetBusinessName() {
-		if err = oprot.WriteFieldBegin("businessName", thrift.STRING, 12); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.BusinessName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("className", thrift.STRING, 12); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ClassName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2546,16 +2027,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField13(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFunctionName() {
-		if err = oprot.WriteFieldBegin("functionName", thrift.STRING, 13); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.FunctionName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("tplCategory", thrift.STRING, 13); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TplCategory); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2565,16 +2044,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField14(oprot thrift.TProtocol) (err error) {
-	if p.IsSetFunctionAuthor() {
-		if err = oprot.WriteFieldBegin("functionAuthor", thrift.STRING, 14); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.FunctionAuthor); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("tplWebType", thrift.STRING, 14); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TplWebType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2584,16 +2061,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField15(oprot thrift.TProtocol) (err error) {
-	if p.IsSetGenType() {
-		if err = oprot.WriteFieldBegin("genType", thrift.STRING, 15); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.GenType); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("packageName", thrift.STRING, 15); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.PackageName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2603,16 +2078,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField16(oprot thrift.TProtocol) (err error) {
-	if p.IsSetGenPath() {
-		if err = oprot.WriteFieldBegin("genPath", thrift.STRING, 16); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.GenPath); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("moduleName", thrift.STRING, 16); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ModuleName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2622,16 +2095,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField17(oprot thrift.TProtocol) (err error) {
-	if p.IsSetPkColumn() {
-		if err = oprot.WriteFieldBegin("pkColumn", thrift.STRUCT, 17); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.PkColumn.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("businessName", thrift.STRING, 17); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.BusinessName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2641,16 +2112,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField18(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSubTable() {
-		if err = oprot.WriteFieldBegin("subTable", thrift.STRUCT, 18); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := p.SubTable.Write(oprot); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("functionName", thrift.STRING, 18); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.FunctionName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2660,24 +2129,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField19(oprot thrift.TProtocol) (err error) {
-	if p.IsSetColumns() {
-		if err = oprot.WriteFieldBegin("columns", thrift.LIST, 19); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Columns)); err != nil {
-			return err
-		}
-		for _, v := range p.Columns {
-			if err := v.Write(oprot); err != nil {
-				return err
-			}
-		}
-		if err := oprot.WriteListEnd(); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("functionAuthor", thrift.STRING, 19); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.FunctionAuthor); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2687,16 +2146,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField20(oprot thrift.TProtocol) (err error) {
-	if p.IsSetOptions() {
-		if err = oprot.WriteFieldBegin("options", thrift.STRING, 20); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.Options); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("genType", thrift.STRING, 20); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.GenType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2706,16 +2163,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField21(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTreeCode() {
-		if err = oprot.WriteFieldBegin("treeCode", thrift.STRING, 21); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TreeCode); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("genPath", thrift.STRING, 21); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.GenPath); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2725,16 +2180,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField22(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTreeParentCode() {
-		if err = oprot.WriteFieldBegin("treeParentCode", thrift.STRING, 22); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TreeParentCode); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("pkColumn", thrift.STRUCT, 22); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.PkColumn.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2744,16 +2197,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField23(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTreeName() {
-		if err = oprot.WriteFieldBegin("treeName", thrift.STRING, 23); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.TreeName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("subTable", thrift.STRUCT, 23); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.SubTable.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2763,16 +2214,22 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField24(oprot thrift.TProtocol) (err error) {
-	if p.IsSetParentMenuId() {
-		if err = oprot.WriteFieldBegin("parentMenuId", thrift.STRING, 24); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ParentMenuId); err != nil {
+	if err = oprot.WriteFieldBegin("columns", thrift.LIST, 24); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Columns)); err != nil {
+		return err
+	}
+	for _, v := range p.Columns {
+		if err := v.Write(oprot); err != nil {
 			return err
 		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -2782,22 +2239,105 @@ WriteFieldEndError:
 }
 
 func (p *GenTable) writeField25(oprot thrift.TProtocol) (err error) {
-	if p.IsSetParentMenuName() {
-		if err = oprot.WriteFieldBegin("parentMenuName", thrift.STRING, 25); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ParentMenuName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("options", thrift.STRING, 25); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Options); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 25 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 25 end error: ", p), err)
+}
+
+func (p *GenTable) writeField26(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("treeCode", thrift.STRING, 26); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TreeCode); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 26 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 26 end error: ", p), err)
+}
+
+func (p *GenTable) writeField27(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("treeParentCode", thrift.STRING, 27); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TreeParentCode); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 27 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 27 end error: ", p), err)
+}
+
+func (p *GenTable) writeField28(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("treeName", thrift.STRING, 28); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.TreeName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 28 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 28 end error: ", p), err)
+}
+
+func (p *GenTable) writeField29(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("parentMenuId", thrift.STRING, 29); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ParentMenuId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 29 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 29 end error: ", p), err)
+}
+
+func (p *GenTable) writeField30(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("parentMenuName", thrift.STRING, 30); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ParentMenuName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 30 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 30 end error: ", p), err)
 }
 
 func (p *GenTable) String() string {
@@ -2814,281 +2354,267 @@ func (p *GenTable) DeepEqual(ano *GenTable) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.BaseInfo) {
+	if !p.Field1DeepEqual(ano.CreateBy) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.TableId) {
+	if !p.Field2DeepEqual(ano.CreateTime) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.TableName) {
+	if !p.Field3DeepEqual(ano.UpdateBy) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.TableComment) {
+	if !p.Field4DeepEqual(ano.UpdateTime) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.SubTableName) {
+	if !p.Field5DeepEqual(ano.Remark) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.SubTableFkName) {
+	if !p.Field6DeepEqual(ano.Params) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.ClassName) {
+	if !p.Field7DeepEqual(ano.TableId) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.TplCategory) {
+	if !p.Field8DeepEqual(ano.TableName) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.TplWebType) {
+	if !p.Field9DeepEqual(ano.TableComment) {
 		return false
 	}
-	if !p.Field10DeepEqual(ano.PackageName) {
+	if !p.Field10DeepEqual(ano.SubTableName) {
 		return false
 	}
-	if !p.Field11DeepEqual(ano.ModuleName) {
+	if !p.Field11DeepEqual(ano.SubTableFkName) {
 		return false
 	}
-	if !p.Field12DeepEqual(ano.BusinessName) {
+	if !p.Field12DeepEqual(ano.ClassName) {
 		return false
 	}
-	if !p.Field13DeepEqual(ano.FunctionName) {
+	if !p.Field13DeepEqual(ano.TplCategory) {
 		return false
 	}
-	if !p.Field14DeepEqual(ano.FunctionAuthor) {
+	if !p.Field14DeepEqual(ano.TplWebType) {
 		return false
 	}
-	if !p.Field15DeepEqual(ano.GenType) {
+	if !p.Field15DeepEqual(ano.PackageName) {
 		return false
 	}
-	if !p.Field16DeepEqual(ano.GenPath) {
+	if !p.Field16DeepEqual(ano.ModuleName) {
 		return false
 	}
-	if !p.Field17DeepEqual(ano.PkColumn) {
+	if !p.Field17DeepEqual(ano.BusinessName) {
 		return false
 	}
-	if !p.Field18DeepEqual(ano.SubTable) {
+	if !p.Field18DeepEqual(ano.FunctionName) {
 		return false
 	}
-	if !p.Field19DeepEqual(ano.Columns) {
+	if !p.Field19DeepEqual(ano.FunctionAuthor) {
 		return false
 	}
-	if !p.Field20DeepEqual(ano.Options) {
+	if !p.Field20DeepEqual(ano.GenType) {
 		return false
 	}
-	if !p.Field21DeepEqual(ano.TreeCode) {
+	if !p.Field21DeepEqual(ano.GenPath) {
 		return false
 	}
-	if !p.Field22DeepEqual(ano.TreeParentCode) {
+	if !p.Field22DeepEqual(ano.PkColumn) {
 		return false
 	}
-	if !p.Field23DeepEqual(ano.TreeName) {
+	if !p.Field23DeepEqual(ano.SubTable) {
 		return false
 	}
-	if !p.Field24DeepEqual(ano.ParentMenuId) {
+	if !p.Field24DeepEqual(ano.Columns) {
 		return false
 	}
-	if !p.Field25DeepEqual(ano.ParentMenuName) {
+	if !p.Field25DeepEqual(ano.Options) {
+		return false
+	}
+	if !p.Field26DeepEqual(ano.TreeCode) {
+		return false
+	}
+	if !p.Field27DeepEqual(ano.TreeParentCode) {
+		return false
+	}
+	if !p.Field28DeepEqual(ano.TreeName) {
+		return false
+	}
+	if !p.Field29DeepEqual(ano.ParentMenuId) {
+		return false
+	}
+	if !p.Field30DeepEqual(ano.ParentMenuName) {
 		return false
 	}
 	return true
 }
 
-func (p *GenTable) Field1DeepEqual(src *BaseInfo) bool {
+func (p *GenTable) Field1DeepEqual(src string) bool {
 
-	if !p.BaseInfo.DeepEqual(src) {
+	if strings.Compare(p.CreateBy, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field2DeepEqual(src int64) bool {
+func (p *GenTable) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.CreateTime, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTable) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.UpdateBy, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTable) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.UpdateTime, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTable) Field5DeepEqual(src string) bool {
+
+	if strings.Compare(p.Remark, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTable) Field6DeepEqual(src map[string]string) bool {
+
+	if len(p.Params) != len(src) {
+		return false
+	}
+	for k, v := range p.Params {
+		_src := src[k]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *GenTable) Field7DeepEqual(src int64) bool {
 
 	if p.TableId != src {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field3DeepEqual(src *string) bool {
+func (p *GenTable) Field8DeepEqual(src string) bool {
 
-	if p.TableName == src {
-		return true
-	} else if p.TableName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TableName, *src) != 0 {
+	if strings.Compare(p.TableName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field4DeepEqual(src *string) bool {
+func (p *GenTable) Field9DeepEqual(src string) bool {
 
-	if p.TableComment == src {
-		return true
-	} else if p.TableComment == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TableComment, *src) != 0 {
+	if strings.Compare(p.TableComment, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field5DeepEqual(src *string) bool {
+func (p *GenTable) Field10DeepEqual(src string) bool {
 
-	if p.SubTableName == src {
-		return true
-	} else if p.SubTableName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.SubTableName, *src) != 0 {
+	if strings.Compare(p.SubTableName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field6DeepEqual(src *string) bool {
+func (p *GenTable) Field11DeepEqual(src string) bool {
 
-	if p.SubTableFkName == src {
-		return true
-	} else if p.SubTableFkName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.SubTableFkName, *src) != 0 {
+	if strings.Compare(p.SubTableFkName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field7DeepEqual(src *string) bool {
+func (p *GenTable) Field12DeepEqual(src string) bool {
 
-	if p.ClassName == src {
-		return true
-	} else if p.ClassName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ClassName, *src) != 0 {
+	if strings.Compare(p.ClassName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field8DeepEqual(src *string) bool {
+func (p *GenTable) Field13DeepEqual(src string) bool {
 
-	if p.TplCategory == src {
-		return true
-	} else if p.TplCategory == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TplCategory, *src) != 0 {
+	if strings.Compare(p.TplCategory, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field9DeepEqual(src *string) bool {
+func (p *GenTable) Field14DeepEqual(src string) bool {
 
-	if p.TplWebType == src {
-		return true
-	} else if p.TplWebType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TplWebType, *src) != 0 {
+	if strings.Compare(p.TplWebType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field10DeepEqual(src *string) bool {
+func (p *GenTable) Field15DeepEqual(src string) bool {
 
-	if p.PackageName == src {
-		return true
-	} else if p.PackageName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.PackageName, *src) != 0 {
+	if strings.Compare(p.PackageName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field11DeepEqual(src *string) bool {
+func (p *GenTable) Field16DeepEqual(src string) bool {
 
-	if p.ModuleName == src {
-		return true
-	} else if p.ModuleName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ModuleName, *src) != 0 {
+	if strings.Compare(p.ModuleName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field12DeepEqual(src *string) bool {
+func (p *GenTable) Field17DeepEqual(src string) bool {
 
-	if p.BusinessName == src {
-		return true
-	} else if p.BusinessName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.BusinessName, *src) != 0 {
+	if strings.Compare(p.BusinessName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field13DeepEqual(src *string) bool {
+func (p *GenTable) Field18DeepEqual(src string) bool {
 
-	if p.FunctionName == src {
-		return true
-	} else if p.FunctionName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.FunctionName, *src) != 0 {
+	if strings.Compare(p.FunctionName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field14DeepEqual(src *string) bool {
+func (p *GenTable) Field19DeepEqual(src string) bool {
 
-	if p.FunctionAuthor == src {
-		return true
-	} else if p.FunctionAuthor == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.FunctionAuthor, *src) != 0 {
+	if strings.Compare(p.FunctionAuthor, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field15DeepEqual(src *string) bool {
+func (p *GenTable) Field20DeepEqual(src string) bool {
 
-	if p.GenType == src {
-		return true
-	} else if p.GenType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.GenType, *src) != 0 {
+	if strings.Compare(p.GenType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field16DeepEqual(src *string) bool {
+func (p *GenTable) Field21DeepEqual(src string) bool {
 
-	if p.GenPath == src {
-		return true
-	} else if p.GenPath == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.GenPath, *src) != 0 {
+	if strings.Compare(p.GenPath, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field17DeepEqual(src *GenTableColumn) bool {
+func (p *GenTable) Field22DeepEqual(src *GenTableColumn) bool {
 
 	if !p.PkColumn.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field18DeepEqual(src *GenTable) bool {
+func (p *GenTable) Field23DeepEqual(src *GenTable) bool {
 
 	if !p.SubTable.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field19DeepEqual(src []*GenTableColumn) bool {
+func (p *GenTable) Field24DeepEqual(src []*GenTableColumn) bool {
 
 	if len(p.Columns) != len(src) {
 		return false
@@ -3101,99 +2627,74 @@ func (p *GenTable) Field19DeepEqual(src []*GenTableColumn) bool {
 	}
 	return true
 }
-func (p *GenTable) Field20DeepEqual(src *string) bool {
+func (p *GenTable) Field25DeepEqual(src string) bool {
 
-	if p.Options == src {
-		return true
-	} else if p.Options == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.Options, *src) != 0 {
+	if strings.Compare(p.Options, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field21DeepEqual(src *string) bool {
+func (p *GenTable) Field26DeepEqual(src string) bool {
 
-	if p.TreeCode == src {
-		return true
-	} else if p.TreeCode == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TreeCode, *src) != 0 {
+	if strings.Compare(p.TreeCode, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field22DeepEqual(src *string) bool {
+func (p *GenTable) Field27DeepEqual(src string) bool {
 
-	if p.TreeParentCode == src {
-		return true
-	} else if p.TreeParentCode == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TreeParentCode, *src) != 0 {
+	if strings.Compare(p.TreeParentCode, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field23DeepEqual(src *string) bool {
+func (p *GenTable) Field28DeepEqual(src string) bool {
 
-	if p.TreeName == src {
-		return true
-	} else if p.TreeName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.TreeName, *src) != 0 {
+	if strings.Compare(p.TreeName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field24DeepEqual(src *string) bool {
+func (p *GenTable) Field29DeepEqual(src string) bool {
 
-	if p.ParentMenuId == src {
-		return true
-	} else if p.ParentMenuId == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ParentMenuId, *src) != 0 {
+	if strings.Compare(p.ParentMenuId, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTable) Field25DeepEqual(src *string) bool {
+func (p *GenTable) Field30DeepEqual(src string) bool {
 
-	if p.ParentMenuName == src {
-		return true
-	} else if p.ParentMenuName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ParentMenuName, *src) != 0 {
+	if strings.Compare(p.ParentMenuName, src) != 0 {
 		return false
 	}
 	return true
 }
 
 type GenTableColumn struct {
-	BaseInfo      *BaseInfo `thrift:"baseInfo,1" frugal:"1,default,BaseInfo" json:"baseInfo"`
-	ColumnId      int64     `thrift:"columnId,2" frugal:"2,default,i64" json:"columnId"`
-	TableId       *int64    `thrift:"tableId,3,optional" frugal:"3,optional,i64" json:"tableId,omitempty"`
-	ColumnName    *string   `thrift:"columnName,4,optional" frugal:"4,optional,string" json:"columnName,omitempty"`
-	ColumnComment *string   `thrift:"columnComment,5,optional" frugal:"5,optional,string" json:"columnComment,omitempty"`
-	ColumnType    *string   `thrift:"columnType,6,optional" frugal:"6,optional,string" json:"columnType,omitempty"`
-	GoType        *string   `thrift:"GoType,7,optional" frugal:"7,optional,string" json:"GoType,omitempty"`
-	GoField       *string   `thrift:"GoField,8,optional" frugal:"8,optional,string" json:"GoField,omitempty"`
-	IsPk          *string   `thrift:"isPk,9,optional" frugal:"9,optional,string" json:"isPk,omitempty"`
-	IsIncrement   *string   `thrift:"isIncrement,10,optional" frugal:"10,optional,string" json:"isIncrement,omitempty"`
-	IsRequired    *string   `thrift:"isRequired,11,optional" frugal:"11,optional,string" json:"isRequired,omitempty"`
-	IsInsert      *string   `thrift:"isInsert,12,optional" frugal:"12,optional,string" json:"isInsert,omitempty"`
-	IsEdit        *string   `thrift:"isEdit,13,optional" frugal:"13,optional,string" json:"isEdit,omitempty"`
-	IsList        *string   `thrift:"isList,14,optional" frugal:"14,optional,string" json:"isList,omitempty"`
-	IsQuery       *string   `thrift:"isQuery,15,optional" frugal:"15,optional,string" json:"isQuery,omitempty"`
-	QueryType     *string   `thrift:"queryType,16,optional" frugal:"16,optional,string" json:"queryType,omitempty"`
-	HtmlType      *string   `thrift:"htmlType,17,optional" frugal:"17,optional,string" json:"htmlType,omitempty"`
-	DictType      *string   `thrift:"dictType,18,optional" frugal:"18,optional,string" json:"dictType,omitempty"`
-	Sort          *int64    `thrift:"sort,19,optional" frugal:"19,optional,i64" json:"sort,omitempty"`
+	CreateBy      string            `thrift:"createBy,1" frugal:"1,default,string" json:"createBy"`
+	CreateTime    string            `thrift:"createTime,2" frugal:"2,default,string" json:"createTime"`
+	UpdateBy      string            `thrift:"updateBy,3" frugal:"3,default,string" json:"updateBy"`
+	UpdateTime    string            `thrift:"updateTime,4" frugal:"4,default,string" json:"updateTime"`
+	Remark        string            `thrift:"remark,5" frugal:"5,default,string" json:"remark"`
+	Params        map[string]string `thrift:"params,6" frugal:"6,default,map<string:string>" json:"params"`
+	ColumnId      int64             `thrift:"columnId,7" frugal:"7,default,i64" json:"columnId"`
+	TableId       int64             `thrift:"tableId,8" frugal:"8,default,i64" json:"tableId"`
+	ColumnName    string            `thrift:"columnName,9" frugal:"9,default,string" json:"columnName"`
+	ColumnComment string            `thrift:"columnComment,10" frugal:"10,default,string" json:"columnComment"`
+	ColumnType    string            `thrift:"columnType,11" frugal:"11,default,string" json:"columnType"`
+	GoType        string            `thrift:"goType,12" frugal:"12,default,string" json:"goType"`
+	GoField       string            `thrift:"goField,13" frugal:"13,default,string" json:"goField"`
+	IsPk          string            `thrift:"isPk,14" frugal:"14,default,string" json:"isPk"`
+	IsIncrement   string            `thrift:"isIncrement,15" frugal:"15,default,string" json:"isIncrement"`
+	IsRequired    string            `thrift:"isRequired,16" frugal:"16,default,string" json:"isRequired"`
+	IsInsert      string            `thrift:"isInsert,17" frugal:"17,default,string" json:"isInsert"`
+	IsEdit        string            `thrift:"isEdit,18" frugal:"18,default,string" json:"isEdit"`
+	IsList        string            `thrift:"isList,19" frugal:"19,default,string" json:"isList"`
+	IsQuery       string            `thrift:"isQuery,20" frugal:"20,default,string" json:"isQuery"`
+	QueryType     string            `thrift:"queryType,21" frugal:"21,default,string" json:"queryType"`
+	HtmlType      string            `thrift:"htmlType,22" frugal:"22,default,string" json:"htmlType"`
+	DictType      string            `thrift:"dictType,23" frugal:"23,default,string" json:"dictType"`
+	Sort          int64             `thrift:"sort,24" frugal:"24,default,i64" json:"sort"`
 }
 
 func NewGenTableColumn() *GenTableColumn {
@@ -3204,321 +2705,199 @@ func (p *GenTableColumn) InitDefault() {
 	*p = GenTableColumn{}
 }
 
-var GenTableColumn_BaseInfo_DEFAULT *BaseInfo
+func (p *GenTableColumn) GetCreateBy() (v string) {
+	return p.CreateBy
+}
 
-func (p *GenTableColumn) GetBaseInfo() (v *BaseInfo) {
-	if !p.IsSetBaseInfo() {
-		return GenTableColumn_BaseInfo_DEFAULT
-	}
-	return p.BaseInfo
+func (p *GenTableColumn) GetCreateTime() (v string) {
+	return p.CreateTime
+}
+
+func (p *GenTableColumn) GetUpdateBy() (v string) {
+	return p.UpdateBy
+}
+
+func (p *GenTableColumn) GetUpdateTime() (v string) {
+	return p.UpdateTime
+}
+
+func (p *GenTableColumn) GetRemark() (v string) {
+	return p.Remark
+}
+
+func (p *GenTableColumn) GetParams() (v map[string]string) {
+	return p.Params
 }
 
 func (p *GenTableColumn) GetColumnId() (v int64) {
 	return p.ColumnId
 }
 
-var GenTableColumn_TableId_DEFAULT int64
-
 func (p *GenTableColumn) GetTableId() (v int64) {
-	if !p.IsSetTableId() {
-		return GenTableColumn_TableId_DEFAULT
-	}
-	return *p.TableId
+	return p.TableId
 }
-
-var GenTableColumn_ColumnName_DEFAULT string
 
 func (p *GenTableColumn) GetColumnName() (v string) {
-	if !p.IsSetColumnName() {
-		return GenTableColumn_ColumnName_DEFAULT
-	}
-	return *p.ColumnName
+	return p.ColumnName
 }
-
-var GenTableColumn_ColumnComment_DEFAULT string
 
 func (p *GenTableColumn) GetColumnComment() (v string) {
-	if !p.IsSetColumnComment() {
-		return GenTableColumn_ColumnComment_DEFAULT
-	}
-	return *p.ColumnComment
+	return p.ColumnComment
 }
-
-var GenTableColumn_ColumnType_DEFAULT string
 
 func (p *GenTableColumn) GetColumnType() (v string) {
-	if !p.IsSetColumnType() {
-		return GenTableColumn_ColumnType_DEFAULT
-	}
-	return *p.ColumnType
+	return p.ColumnType
 }
-
-var GenTableColumn_GoType_DEFAULT string
 
 func (p *GenTableColumn) GetGoType() (v string) {
-	if !p.IsSetGoType() {
-		return GenTableColumn_GoType_DEFAULT
-	}
-	return *p.GoType
+	return p.GoType
 }
-
-var GenTableColumn_GoField_DEFAULT string
 
 func (p *GenTableColumn) GetGoField() (v string) {
-	if !p.IsSetGoField() {
-		return GenTableColumn_GoField_DEFAULT
-	}
-	return *p.GoField
+	return p.GoField
 }
-
-var GenTableColumn_IsPk_DEFAULT string
 
 func (p *GenTableColumn) GetIsPk() (v string) {
-	if !p.IsSetIsPk() {
-		return GenTableColumn_IsPk_DEFAULT
-	}
-	return *p.IsPk
+	return p.IsPk
 }
-
-var GenTableColumn_IsIncrement_DEFAULT string
 
 func (p *GenTableColumn) GetIsIncrement() (v string) {
-	if !p.IsSetIsIncrement() {
-		return GenTableColumn_IsIncrement_DEFAULT
-	}
-	return *p.IsIncrement
+	return p.IsIncrement
 }
-
-var GenTableColumn_IsRequired_DEFAULT string
 
 func (p *GenTableColumn) GetIsRequired() (v string) {
-	if !p.IsSetIsRequired() {
-		return GenTableColumn_IsRequired_DEFAULT
-	}
-	return *p.IsRequired
+	return p.IsRequired
 }
-
-var GenTableColumn_IsInsert_DEFAULT string
 
 func (p *GenTableColumn) GetIsInsert() (v string) {
-	if !p.IsSetIsInsert() {
-		return GenTableColumn_IsInsert_DEFAULT
-	}
-	return *p.IsInsert
+	return p.IsInsert
 }
-
-var GenTableColumn_IsEdit_DEFAULT string
 
 func (p *GenTableColumn) GetIsEdit() (v string) {
-	if !p.IsSetIsEdit() {
-		return GenTableColumn_IsEdit_DEFAULT
-	}
-	return *p.IsEdit
+	return p.IsEdit
 }
-
-var GenTableColumn_IsList_DEFAULT string
 
 func (p *GenTableColumn) GetIsList() (v string) {
-	if !p.IsSetIsList() {
-		return GenTableColumn_IsList_DEFAULT
-	}
-	return *p.IsList
+	return p.IsList
 }
-
-var GenTableColumn_IsQuery_DEFAULT string
 
 func (p *GenTableColumn) GetIsQuery() (v string) {
-	if !p.IsSetIsQuery() {
-		return GenTableColumn_IsQuery_DEFAULT
-	}
-	return *p.IsQuery
+	return p.IsQuery
 }
-
-var GenTableColumn_QueryType_DEFAULT string
 
 func (p *GenTableColumn) GetQueryType() (v string) {
-	if !p.IsSetQueryType() {
-		return GenTableColumn_QueryType_DEFAULT
-	}
-	return *p.QueryType
+	return p.QueryType
 }
-
-var GenTableColumn_HtmlType_DEFAULT string
 
 func (p *GenTableColumn) GetHtmlType() (v string) {
-	if !p.IsSetHtmlType() {
-		return GenTableColumn_HtmlType_DEFAULT
-	}
-	return *p.HtmlType
+	return p.HtmlType
 }
-
-var GenTableColumn_DictType_DEFAULT string
 
 func (p *GenTableColumn) GetDictType() (v string) {
-	if !p.IsSetDictType() {
-		return GenTableColumn_DictType_DEFAULT
-	}
-	return *p.DictType
+	return p.DictType
 }
-
-var GenTableColumn_Sort_DEFAULT int64
 
 func (p *GenTableColumn) GetSort() (v int64) {
-	if !p.IsSetSort() {
-		return GenTableColumn_Sort_DEFAULT
-	}
-	return *p.Sort
+	return p.Sort
 }
-func (p *GenTableColumn) SetBaseInfo(val *BaseInfo) {
-	p.BaseInfo = val
+func (p *GenTableColumn) SetCreateBy(val string) {
+	p.CreateBy = val
+}
+func (p *GenTableColumn) SetCreateTime(val string) {
+	p.CreateTime = val
+}
+func (p *GenTableColumn) SetUpdateBy(val string) {
+	p.UpdateBy = val
+}
+func (p *GenTableColumn) SetUpdateTime(val string) {
+	p.UpdateTime = val
+}
+func (p *GenTableColumn) SetRemark(val string) {
+	p.Remark = val
+}
+func (p *GenTableColumn) SetParams(val map[string]string) {
+	p.Params = val
 }
 func (p *GenTableColumn) SetColumnId(val int64) {
 	p.ColumnId = val
 }
-func (p *GenTableColumn) SetTableId(val *int64) {
+func (p *GenTableColumn) SetTableId(val int64) {
 	p.TableId = val
 }
-func (p *GenTableColumn) SetColumnName(val *string) {
+func (p *GenTableColumn) SetColumnName(val string) {
 	p.ColumnName = val
 }
-func (p *GenTableColumn) SetColumnComment(val *string) {
+func (p *GenTableColumn) SetColumnComment(val string) {
 	p.ColumnComment = val
 }
-func (p *GenTableColumn) SetColumnType(val *string) {
+func (p *GenTableColumn) SetColumnType(val string) {
 	p.ColumnType = val
 }
-func (p *GenTableColumn) SetGoType(val *string) {
+func (p *GenTableColumn) SetGoType(val string) {
 	p.GoType = val
 }
-func (p *GenTableColumn) SetGoField(val *string) {
+func (p *GenTableColumn) SetGoField(val string) {
 	p.GoField = val
 }
-func (p *GenTableColumn) SetIsPk(val *string) {
+func (p *GenTableColumn) SetIsPk(val string) {
 	p.IsPk = val
 }
-func (p *GenTableColumn) SetIsIncrement(val *string) {
+func (p *GenTableColumn) SetIsIncrement(val string) {
 	p.IsIncrement = val
 }
-func (p *GenTableColumn) SetIsRequired(val *string) {
+func (p *GenTableColumn) SetIsRequired(val string) {
 	p.IsRequired = val
 }
-func (p *GenTableColumn) SetIsInsert(val *string) {
+func (p *GenTableColumn) SetIsInsert(val string) {
 	p.IsInsert = val
 }
-func (p *GenTableColumn) SetIsEdit(val *string) {
+func (p *GenTableColumn) SetIsEdit(val string) {
 	p.IsEdit = val
 }
-func (p *GenTableColumn) SetIsList(val *string) {
+func (p *GenTableColumn) SetIsList(val string) {
 	p.IsList = val
 }
-func (p *GenTableColumn) SetIsQuery(val *string) {
+func (p *GenTableColumn) SetIsQuery(val string) {
 	p.IsQuery = val
 }
-func (p *GenTableColumn) SetQueryType(val *string) {
+func (p *GenTableColumn) SetQueryType(val string) {
 	p.QueryType = val
 }
-func (p *GenTableColumn) SetHtmlType(val *string) {
+func (p *GenTableColumn) SetHtmlType(val string) {
 	p.HtmlType = val
 }
-func (p *GenTableColumn) SetDictType(val *string) {
+func (p *GenTableColumn) SetDictType(val string) {
 	p.DictType = val
 }
-func (p *GenTableColumn) SetSort(val *int64) {
+func (p *GenTableColumn) SetSort(val int64) {
 	p.Sort = val
 }
 
 var fieldIDToName_GenTableColumn = map[int16]string{
-	1:  "baseInfo",
-	2:  "columnId",
-	3:  "tableId",
-	4:  "columnName",
-	5:  "columnComment",
-	6:  "columnType",
-	7:  "GoType",
-	8:  "GoField",
-	9:  "isPk",
-	10: "isIncrement",
-	11: "isRequired",
-	12: "isInsert",
-	13: "isEdit",
-	14: "isList",
-	15: "isQuery",
-	16: "queryType",
-	17: "htmlType",
-	18: "dictType",
-	19: "sort",
-}
-
-func (p *GenTableColumn) IsSetBaseInfo() bool {
-	return p.BaseInfo != nil
-}
-
-func (p *GenTableColumn) IsSetTableId() bool {
-	return p.TableId != nil
-}
-
-func (p *GenTableColumn) IsSetColumnName() bool {
-	return p.ColumnName != nil
-}
-
-func (p *GenTableColumn) IsSetColumnComment() bool {
-	return p.ColumnComment != nil
-}
-
-func (p *GenTableColumn) IsSetColumnType() bool {
-	return p.ColumnType != nil
-}
-
-func (p *GenTableColumn) IsSetGoType() bool {
-	return p.GoType != nil
-}
-
-func (p *GenTableColumn) IsSetGoField() bool {
-	return p.GoField != nil
-}
-
-func (p *GenTableColumn) IsSetIsPk() bool {
-	return p.IsPk != nil
-}
-
-func (p *GenTableColumn) IsSetIsIncrement() bool {
-	return p.IsIncrement != nil
-}
-
-func (p *GenTableColumn) IsSetIsRequired() bool {
-	return p.IsRequired != nil
-}
-
-func (p *GenTableColumn) IsSetIsInsert() bool {
-	return p.IsInsert != nil
-}
-
-func (p *GenTableColumn) IsSetIsEdit() bool {
-	return p.IsEdit != nil
-}
-
-func (p *GenTableColumn) IsSetIsList() bool {
-	return p.IsList != nil
-}
-
-func (p *GenTableColumn) IsSetIsQuery() bool {
-	return p.IsQuery != nil
-}
-
-func (p *GenTableColumn) IsSetQueryType() bool {
-	return p.QueryType != nil
-}
-
-func (p *GenTableColumn) IsSetHtmlType() bool {
-	return p.HtmlType != nil
-}
-
-func (p *GenTableColumn) IsSetDictType() bool {
-	return p.DictType != nil
-}
-
-func (p *GenTableColumn) IsSetSort() bool {
-	return p.Sort != nil
+	1:  "createBy",
+	2:  "createTime",
+	3:  "updateBy",
+	4:  "updateTime",
+	5:  "remark",
+	6:  "params",
+	7:  "columnId",
+	8:  "tableId",
+	9:  "columnName",
+	10: "columnComment",
+	11: "columnType",
+	12: "goType",
+	13: "goField",
+	14: "isPk",
+	15: "isIncrement",
+	16: "isRequired",
+	17: "isInsert",
+	18: "isEdit",
+	19: "isList",
+	20: "isQuery",
+	21: "queryType",
+	22: "htmlType",
+	23: "dictType",
+	24: "sort",
 }
 
 func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
@@ -3541,7 +2920,7 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3549,7 +2928,7 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 2:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3557,7 +2936,7 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 3:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3581,7 +2960,7 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 6:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.MAP {
 				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3589,7 +2968,7 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 7:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField7(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3597,7 +2976,7 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 8:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField8(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3685,8 +3064,48 @@ func (p *GenTableColumn) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 19:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField19(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 20:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField20(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 21:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField21(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 22:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField22(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 23:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField23(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 24:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField24(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3722,27 +3141,29 @@ ReadStructEndError:
 }
 
 func (p *GenTableColumn) ReadField1(iprot thrift.TProtocol) error {
-	p.BaseInfo = NewBaseInfo()
-	if err := p.BaseInfo.Read(iprot); err != nil {
+
+	if v, err := iprot.ReadString(); err != nil {
 		return err
+	} else {
+		p.CreateBy = v
 	}
 	return nil
 }
 func (p *GenTableColumn) ReadField2(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadI64(); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ColumnId = v
+		p.CreateTime = v
 	}
 	return nil
 }
 func (p *GenTableColumn) ReadField3(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadI64(); err != nil {
+	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.TableId = &v
+		p.UpdateBy = v
 	}
 	return nil
 }
@@ -3751,7 +3172,7 @@ func (p *GenTableColumn) ReadField4(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ColumnName = &v
+		p.UpdateTime = v
 	}
 	return nil
 }
@@ -3760,34 +3181,53 @@ func (p *GenTableColumn) ReadField5(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.ColumnComment = &v
+		p.Remark = v
 	}
 	return nil
 }
 func (p *GenTableColumn) ReadField6(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
+	_, _, size, err := iprot.ReadMapBegin()
+	if err != nil {
 		return err
-	} else {
-		p.ColumnType = &v
+	}
+	p.Params = make(map[string]string, size)
+	for i := 0; i < size; i++ {
+		var _key string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_key = v
+		}
+
+		var _val string
+		if v, err := iprot.ReadString(); err != nil {
+			return err
+		} else {
+			_val = v
+		}
+
+		p.Params[_key] = _val
+	}
+	if err := iprot.ReadMapEnd(); err != nil {
+		return err
 	}
 	return nil
 }
 func (p *GenTableColumn) ReadField7(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.GoType = &v
+		p.ColumnId = v
 	}
 	return nil
 }
 func (p *GenTableColumn) ReadField8(iprot thrift.TProtocol) error {
 
-	if v, err := iprot.ReadString(); err != nil {
+	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.GoField = &v
+		p.TableId = v
 	}
 	return nil
 }
@@ -3796,7 +3236,7 @@ func (p *GenTableColumn) ReadField9(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsPk = &v
+		p.ColumnName = v
 	}
 	return nil
 }
@@ -3805,7 +3245,7 @@ func (p *GenTableColumn) ReadField10(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsIncrement = &v
+		p.ColumnComment = v
 	}
 	return nil
 }
@@ -3814,7 +3254,7 @@ func (p *GenTableColumn) ReadField11(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsRequired = &v
+		p.ColumnType = v
 	}
 	return nil
 }
@@ -3823,7 +3263,7 @@ func (p *GenTableColumn) ReadField12(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsInsert = &v
+		p.GoType = v
 	}
 	return nil
 }
@@ -3832,7 +3272,7 @@ func (p *GenTableColumn) ReadField13(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsEdit = &v
+		p.GoField = v
 	}
 	return nil
 }
@@ -3841,7 +3281,7 @@ func (p *GenTableColumn) ReadField14(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsList = &v
+		p.IsPk = v
 	}
 	return nil
 }
@@ -3850,7 +3290,7 @@ func (p *GenTableColumn) ReadField15(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.IsQuery = &v
+		p.IsIncrement = v
 	}
 	return nil
 }
@@ -3859,7 +3299,7 @@ func (p *GenTableColumn) ReadField16(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.QueryType = &v
+		p.IsRequired = v
 	}
 	return nil
 }
@@ -3868,7 +3308,7 @@ func (p *GenTableColumn) ReadField17(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.HtmlType = &v
+		p.IsInsert = v
 	}
 	return nil
 }
@@ -3877,16 +3317,61 @@ func (p *GenTableColumn) ReadField18(iprot thrift.TProtocol) error {
 	if v, err := iprot.ReadString(); err != nil {
 		return err
 	} else {
-		p.DictType = &v
+		p.IsEdit = v
 	}
 	return nil
 }
 func (p *GenTableColumn) ReadField19(iprot thrift.TProtocol) error {
 
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.IsList = v
+	}
+	return nil
+}
+func (p *GenTableColumn) ReadField20(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.IsQuery = v
+	}
+	return nil
+}
+func (p *GenTableColumn) ReadField21(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.QueryType = v
+	}
+	return nil
+}
+func (p *GenTableColumn) ReadField22(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.HtmlType = v
+	}
+	return nil
+}
+func (p *GenTableColumn) ReadField23(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.DictType = v
+	}
+	return nil
+}
+func (p *GenTableColumn) ReadField24(iprot thrift.TProtocol) error {
+
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		p.Sort = &v
+		p.Sort = v
 	}
 	return nil
 }
@@ -3973,6 +3458,26 @@ func (p *GenTableColumn) Write(oprot thrift.TProtocol) (err error) {
 			fieldId = 19
 			goto WriteFieldError
 		}
+		if err = p.writeField20(oprot); err != nil {
+			fieldId = 20
+			goto WriteFieldError
+		}
+		if err = p.writeField21(oprot); err != nil {
+			fieldId = 21
+			goto WriteFieldError
+		}
+		if err = p.writeField22(oprot); err != nil {
+			fieldId = 22
+			goto WriteFieldError
+		}
+		if err = p.writeField23(oprot); err != nil {
+			fieldId = 23
+			goto WriteFieldError
+		}
+		if err = p.writeField24(oprot); err != nil {
+			fieldId = 24
+			goto WriteFieldError
+		}
 	}
 	if err = oprot.WriteFieldStop(); err != nil {
 		goto WriteFieldStopError
@@ -3992,10 +3497,10 @@ WriteStructEndError:
 }
 
 func (p *GenTableColumn) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("baseInfo", thrift.STRUCT, 1); err != nil {
+	if err = oprot.WriteFieldBegin("createBy", thrift.STRING, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.BaseInfo.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.CreateBy); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4009,10 +3514,10 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("columnId", thrift.I64, 2); err != nil {
+	if err = oprot.WriteFieldBegin("createTime", thrift.STRING, 2); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.ColumnId); err != nil {
+	if err := oprot.WriteString(p.CreateTime); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -4026,16 +3531,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField3(oprot thrift.TProtocol) (err error) {
-	if p.IsSetTableId() {
-		if err = oprot.WriteFieldBegin("tableId", thrift.I64, 3); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.TableId); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("updateBy", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.UpdateBy); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4045,16 +3548,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetColumnName() {
-		if err = oprot.WriteFieldBegin("columnName", thrift.STRING, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ColumnName); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("updateTime", thrift.STRING, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.UpdateTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4064,16 +3565,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetColumnComment() {
-		if err = oprot.WriteFieldBegin("columnComment", thrift.STRING, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ColumnComment); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("remark", thrift.STRING, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Remark); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4083,16 +3582,25 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField6(oprot thrift.TProtocol) (err error) {
-	if p.IsSetColumnType() {
-		if err = oprot.WriteFieldBegin("columnType", thrift.STRING, 6); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.ColumnType); err != nil {
+	if err = oprot.WriteFieldBegin("params", thrift.MAP, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteMapBegin(thrift.STRING, thrift.STRING, len(p.Params)); err != nil {
+		return err
+	}
+	for k, v := range p.Params {
+		if err := oprot.WriteString(k); err != nil {
 			return err
 		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
+		if err := oprot.WriteString(v); err != nil {
+			return err
 		}
+	}
+	if err := oprot.WriteMapEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4102,16 +3610,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField7(oprot thrift.TProtocol) (err error) {
-	if p.IsSetGoType() {
-		if err = oprot.WriteFieldBegin("GoType", thrift.STRING, 7); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.GoType); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("columnId", thrift.I64, 7); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ColumnId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4121,16 +3627,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField8(oprot thrift.TProtocol) (err error) {
-	if p.IsSetGoField() {
-		if err = oprot.WriteFieldBegin("GoField", thrift.STRING, 8); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.GoField); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("tableId", thrift.I64, 8); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.TableId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4140,16 +3644,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField9(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsPk() {
-		if err = oprot.WriteFieldBegin("isPk", thrift.STRING, 9); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsPk); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("columnName", thrift.STRING, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ColumnName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4159,16 +3661,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField10(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsIncrement() {
-		if err = oprot.WriteFieldBegin("isIncrement", thrift.STRING, 10); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsIncrement); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("columnComment", thrift.STRING, 10); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ColumnComment); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4178,16 +3678,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField11(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsRequired() {
-		if err = oprot.WriteFieldBegin("isRequired", thrift.STRING, 11); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsRequired); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("columnType", thrift.STRING, 11); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ColumnType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4197,16 +3695,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField12(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsInsert() {
-		if err = oprot.WriteFieldBegin("isInsert", thrift.STRING, 12); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsInsert); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("goType", thrift.STRING, 12); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.GoType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4216,16 +3712,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField13(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsEdit() {
-		if err = oprot.WriteFieldBegin("isEdit", thrift.STRING, 13); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsEdit); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("goField", thrift.STRING, 13); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.GoField); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4235,16 +3729,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField14(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsList() {
-		if err = oprot.WriteFieldBegin("isList", thrift.STRING, 14); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsList); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("isPk", thrift.STRING, 14); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsPk); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4254,16 +3746,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField15(oprot thrift.TProtocol) (err error) {
-	if p.IsSetIsQuery() {
-		if err = oprot.WriteFieldBegin("isQuery", thrift.STRING, 15); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.IsQuery); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("isIncrement", thrift.STRING, 15); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsIncrement); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4273,16 +3763,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField16(oprot thrift.TProtocol) (err error) {
-	if p.IsSetQueryType() {
-		if err = oprot.WriteFieldBegin("queryType", thrift.STRING, 16); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.QueryType); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("isRequired", thrift.STRING, 16); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsRequired); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4292,16 +3780,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField17(oprot thrift.TProtocol) (err error) {
-	if p.IsSetHtmlType() {
-		if err = oprot.WriteFieldBegin("htmlType", thrift.STRING, 17); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.HtmlType); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("isInsert", thrift.STRING, 17); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsInsert); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4311,16 +3797,14 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField18(oprot thrift.TProtocol) (err error) {
-	if p.IsSetDictType() {
-		if err = oprot.WriteFieldBegin("dictType", thrift.STRING, 18); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteString(*p.DictType); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("isEdit", thrift.STRING, 18); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsEdit); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
@@ -4330,22 +3814,105 @@ WriteFieldEndError:
 }
 
 func (p *GenTableColumn) writeField19(oprot thrift.TProtocol) (err error) {
-	if p.IsSetSort() {
-		if err = oprot.WriteFieldBegin("sort", thrift.I64, 19); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.Sort); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("isList", thrift.STRING, 19); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsList); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 19 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 19 end error: ", p), err)
+}
+
+func (p *GenTableColumn) writeField20(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("isQuery", thrift.STRING, 20); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.IsQuery); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 20 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 20 end error: ", p), err)
+}
+
+func (p *GenTableColumn) writeField21(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("queryType", thrift.STRING, 21); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.QueryType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 21 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 21 end error: ", p), err)
+}
+
+func (p *GenTableColumn) writeField22(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("htmlType", thrift.STRING, 22); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.HtmlType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 22 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 22 end error: ", p), err)
+}
+
+func (p *GenTableColumn) writeField23(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("dictType", thrift.STRING, 23); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.DictType); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 23 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 23 end error: ", p), err)
+}
+
+func (p *GenTableColumn) writeField24(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("sort", thrift.I64, 24); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Sort); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 24 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 24 end error: ", p), err)
 }
 
 func (p *GenTableColumn) String() string {
@@ -4362,280 +3929,251 @@ func (p *GenTableColumn) DeepEqual(ano *GenTableColumn) bool {
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.BaseInfo) {
+	if !p.Field1DeepEqual(ano.CreateBy) {
 		return false
 	}
-	if !p.Field2DeepEqual(ano.ColumnId) {
+	if !p.Field2DeepEqual(ano.CreateTime) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.TableId) {
+	if !p.Field3DeepEqual(ano.UpdateBy) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.ColumnName) {
+	if !p.Field4DeepEqual(ano.UpdateTime) {
 		return false
 	}
-	if !p.Field5DeepEqual(ano.ColumnComment) {
+	if !p.Field5DeepEqual(ano.Remark) {
 		return false
 	}
-	if !p.Field6DeepEqual(ano.ColumnType) {
+	if !p.Field6DeepEqual(ano.Params) {
 		return false
 	}
-	if !p.Field7DeepEqual(ano.GoType) {
+	if !p.Field7DeepEqual(ano.ColumnId) {
 		return false
 	}
-	if !p.Field8DeepEqual(ano.GoField) {
+	if !p.Field8DeepEqual(ano.TableId) {
 		return false
 	}
-	if !p.Field9DeepEqual(ano.IsPk) {
+	if !p.Field9DeepEqual(ano.ColumnName) {
 		return false
 	}
-	if !p.Field10DeepEqual(ano.IsIncrement) {
+	if !p.Field10DeepEqual(ano.ColumnComment) {
 		return false
 	}
-	if !p.Field11DeepEqual(ano.IsRequired) {
+	if !p.Field11DeepEqual(ano.ColumnType) {
 		return false
 	}
-	if !p.Field12DeepEqual(ano.IsInsert) {
+	if !p.Field12DeepEqual(ano.GoType) {
 		return false
 	}
-	if !p.Field13DeepEqual(ano.IsEdit) {
+	if !p.Field13DeepEqual(ano.GoField) {
 		return false
 	}
-	if !p.Field14DeepEqual(ano.IsList) {
+	if !p.Field14DeepEqual(ano.IsPk) {
 		return false
 	}
-	if !p.Field15DeepEqual(ano.IsQuery) {
+	if !p.Field15DeepEqual(ano.IsIncrement) {
 		return false
 	}
-	if !p.Field16DeepEqual(ano.QueryType) {
+	if !p.Field16DeepEqual(ano.IsRequired) {
 		return false
 	}
-	if !p.Field17DeepEqual(ano.HtmlType) {
+	if !p.Field17DeepEqual(ano.IsInsert) {
 		return false
 	}
-	if !p.Field18DeepEqual(ano.DictType) {
+	if !p.Field18DeepEqual(ano.IsEdit) {
 		return false
 	}
-	if !p.Field19DeepEqual(ano.Sort) {
+	if !p.Field19DeepEqual(ano.IsList) {
+		return false
+	}
+	if !p.Field20DeepEqual(ano.IsQuery) {
+		return false
+	}
+	if !p.Field21DeepEqual(ano.QueryType) {
+		return false
+	}
+	if !p.Field22DeepEqual(ano.HtmlType) {
+		return false
+	}
+	if !p.Field23DeepEqual(ano.DictType) {
+		return false
+	}
+	if !p.Field24DeepEqual(ano.Sort) {
 		return false
 	}
 	return true
 }
 
-func (p *GenTableColumn) Field1DeepEqual(src *BaseInfo) bool {
+func (p *GenTableColumn) Field1DeepEqual(src string) bool {
 
-	if !p.BaseInfo.DeepEqual(src) {
+	if strings.Compare(p.CreateBy, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field2DeepEqual(src int64) bool {
+func (p *GenTableColumn) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.CreateTime, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTableColumn) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.UpdateBy, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTableColumn) Field4DeepEqual(src string) bool {
+
+	if strings.Compare(p.UpdateTime, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTableColumn) Field5DeepEqual(src string) bool {
+
+	if strings.Compare(p.Remark, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *GenTableColumn) Field6DeepEqual(src map[string]string) bool {
+
+	if len(p.Params) != len(src) {
+		return false
+	}
+	for k, v := range p.Params {
+		_src := src[k]
+		if strings.Compare(v, _src) != 0 {
+			return false
+		}
+	}
+	return true
+}
+func (p *GenTableColumn) Field7DeepEqual(src int64) bool {
 
 	if p.ColumnId != src {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field3DeepEqual(src *int64) bool {
+func (p *GenTableColumn) Field8DeepEqual(src int64) bool {
 
-	if p.TableId == src {
-		return true
-	} else if p.TableId == nil || src == nil {
-		return false
-	}
-	if *p.TableId != *src {
+	if p.TableId != src {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field4DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field9DeepEqual(src string) bool {
 
-	if p.ColumnName == src {
-		return true
-	} else if p.ColumnName == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ColumnName, *src) != 0 {
+	if strings.Compare(p.ColumnName, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field5DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field10DeepEqual(src string) bool {
 
-	if p.ColumnComment == src {
-		return true
-	} else if p.ColumnComment == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ColumnComment, *src) != 0 {
+	if strings.Compare(p.ColumnComment, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field6DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field11DeepEqual(src string) bool {
 
-	if p.ColumnType == src {
-		return true
-	} else if p.ColumnType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.ColumnType, *src) != 0 {
+	if strings.Compare(p.ColumnType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field7DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field12DeepEqual(src string) bool {
 
-	if p.GoType == src {
-		return true
-	} else if p.GoType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.GoType, *src) != 0 {
+	if strings.Compare(p.GoType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field8DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field13DeepEqual(src string) bool {
 
-	if p.GoField == src {
-		return true
-	} else if p.GoField == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.GoField, *src) != 0 {
+	if strings.Compare(p.GoField, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field9DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field14DeepEqual(src string) bool {
 
-	if p.IsPk == src {
-		return true
-	} else if p.IsPk == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsPk, *src) != 0 {
+	if strings.Compare(p.IsPk, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field10DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field15DeepEqual(src string) bool {
 
-	if p.IsIncrement == src {
-		return true
-	} else if p.IsIncrement == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsIncrement, *src) != 0 {
+	if strings.Compare(p.IsIncrement, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field11DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field16DeepEqual(src string) bool {
 
-	if p.IsRequired == src {
-		return true
-	} else if p.IsRequired == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsRequired, *src) != 0 {
+	if strings.Compare(p.IsRequired, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field12DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field17DeepEqual(src string) bool {
 
-	if p.IsInsert == src {
-		return true
-	} else if p.IsInsert == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsInsert, *src) != 0 {
+	if strings.Compare(p.IsInsert, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field13DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field18DeepEqual(src string) bool {
 
-	if p.IsEdit == src {
-		return true
-	} else if p.IsEdit == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsEdit, *src) != 0 {
+	if strings.Compare(p.IsEdit, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field14DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field19DeepEqual(src string) bool {
 
-	if p.IsList == src {
-		return true
-	} else if p.IsList == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsList, *src) != 0 {
+	if strings.Compare(p.IsList, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field15DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field20DeepEqual(src string) bool {
 
-	if p.IsQuery == src {
-		return true
-	} else if p.IsQuery == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.IsQuery, *src) != 0 {
+	if strings.Compare(p.IsQuery, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field16DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field21DeepEqual(src string) bool {
 
-	if p.QueryType == src {
-		return true
-	} else if p.QueryType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.QueryType, *src) != 0 {
+	if strings.Compare(p.QueryType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field17DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field22DeepEqual(src string) bool {
 
-	if p.HtmlType == src {
-		return true
-	} else if p.HtmlType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.HtmlType, *src) != 0 {
+	if strings.Compare(p.HtmlType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field18DeepEqual(src *string) bool {
+func (p *GenTableColumn) Field23DeepEqual(src string) bool {
 
-	if p.DictType == src {
-		return true
-	} else if p.DictType == nil || src == nil {
-		return false
-	}
-	if strings.Compare(*p.DictType, *src) != 0 {
+	if strings.Compare(p.DictType, src) != 0 {
 		return false
 	}
 	return true
 }
-func (p *GenTableColumn) Field19DeepEqual(src *int64) bool {
+func (p *GenTableColumn) Field24DeepEqual(src int64) bool {
 
-	if p.Sort == src {
-		return true
-	} else if p.Sort == nil || src == nil {
-		return false
-	}
-	if *p.Sort != *src {
+	if p.Sort != src {
 		return false
 	}
 	return true
@@ -5245,6 +4783,225 @@ func (p *ListGenTablesResponse) Field3DeepEqual(src []*GenTable) bool {
 	return true
 }
 
+type ImportTableSaveRequest struct {
+	Tables   string `thrift:"tables,1" frugal:"1,default,string" json:"tables"`
+	OperName string `thrift:"operName,2" frugal:"2,default,string" json:"operName"`
+}
+
+func NewImportTableSaveRequest() *ImportTableSaveRequest {
+	return &ImportTableSaveRequest{}
+}
+
+func (p *ImportTableSaveRequest) InitDefault() {
+	*p = ImportTableSaveRequest{}
+}
+
+func (p *ImportTableSaveRequest) GetTables() (v string) {
+	return p.Tables
+}
+
+func (p *ImportTableSaveRequest) GetOperName() (v string) {
+	return p.OperName
+}
+func (p *ImportTableSaveRequest) SetTables(val string) {
+	p.Tables = val
+}
+func (p *ImportTableSaveRequest) SetOperName(val string) {
+	p.OperName = val
+}
+
+var fieldIDToName_ImportTableSaveRequest = map[int16]string{
+	1: "tables",
+	2: "operName",
+}
+
+func (p *ImportTableSaveRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ImportTableSaveRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ImportTableSaveRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Tables = v
+	}
+	return nil
+}
+func (p *ImportTableSaveRequest) ReadField2(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.OperName = v
+	}
+	return nil
+}
+
+func (p *ImportTableSaveRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ImportTableSaveRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ImportTableSaveRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("tables", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.Tables); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ImportTableSaveRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("operName", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.OperName); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ImportTableSaveRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ImportTableSaveRequest(%+v)", *p)
+
+}
+
+func (p *ImportTableSaveRequest) DeepEqual(ano *ImportTableSaveRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Tables) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.OperName) {
+		return false
+	}
+	return true
+}
+
+func (p *ImportTableSaveRequest) Field1DeepEqual(src string) bool {
+
+	if strings.Compare(p.Tables, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *ImportTableSaveRequest) Field2DeepEqual(src string) bool {
+
+	if strings.Compare(p.OperName, src) != 0 {
+		return false
+	}
+	return true
+}
+
 type GetInfoResponse struct {
 	BaseResp *BaseResp         `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	Info     *GenTable         `thrift:"info,2" frugal:"2,default,GenTable" json:"info"`
@@ -5641,7 +5398,9 @@ func (p *GetInfoResponse) Field4DeepEqual(src []*GenTable) bool {
 }
 
 type DataListRequest struct {
-	GenTable *GenTable `thrift:"genTable,1" frugal:"1,default,GenTable" json:"genTable"`
+	GenTable  *GenTable  `thrift:"genTable,1" frugal:"1,default,GenTable" json:"genTable"`
+	PageInfo  *PageInfo  `thrift:"pageInfo,2" frugal:"2,default,PageInfo" json:"pageInfo"`
+	DateRange *DateRange `thrift:"dateRange,3" frugal:"3,default,DateRange" json:"dateRange"`
 }
 
 func NewDataListRequest() *DataListRequest {
@@ -5660,16 +5419,50 @@ func (p *DataListRequest) GetGenTable() (v *GenTable) {
 	}
 	return p.GenTable
 }
+
+var DataListRequest_PageInfo_DEFAULT *PageInfo
+
+func (p *DataListRequest) GetPageInfo() (v *PageInfo) {
+	if !p.IsSetPageInfo() {
+		return DataListRequest_PageInfo_DEFAULT
+	}
+	return p.PageInfo
+}
+
+var DataListRequest_DateRange_DEFAULT *DateRange
+
+func (p *DataListRequest) GetDateRange() (v *DateRange) {
+	if !p.IsSetDateRange() {
+		return DataListRequest_DateRange_DEFAULT
+	}
+	return p.DateRange
+}
 func (p *DataListRequest) SetGenTable(val *GenTable) {
 	p.GenTable = val
+}
+func (p *DataListRequest) SetPageInfo(val *PageInfo) {
+	p.PageInfo = val
+}
+func (p *DataListRequest) SetDateRange(val *DateRange) {
+	p.DateRange = val
 }
 
 var fieldIDToName_DataListRequest = map[int16]string{
 	1: "genTable",
+	2: "pageInfo",
+	3: "dateRange",
 }
 
 func (p *DataListRequest) IsSetGenTable() bool {
 	return p.GenTable != nil
+}
+
+func (p *DataListRequest) IsSetPageInfo() bool {
+	return p.PageInfo != nil
+}
+
+func (p *DataListRequest) IsSetDateRange() bool {
+	return p.DateRange != nil
 }
 
 func (p *DataListRequest) Read(iprot thrift.TProtocol) (err error) {
@@ -5694,6 +5487,22 @@ func (p *DataListRequest) Read(iprot thrift.TProtocol) (err error) {
 		case 1:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -5735,6 +5544,20 @@ func (p *DataListRequest) ReadField1(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
+func (p *DataListRequest) ReadField2(iprot thrift.TProtocol) error {
+	p.PageInfo = NewPageInfo()
+	if err := p.PageInfo.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+func (p *DataListRequest) ReadField3(iprot thrift.TProtocol) error {
+	p.DateRange = NewDateRange()
+	if err := p.DateRange.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
 
 func (p *DataListRequest) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -5744,6 +5567,14 @@ func (p *DataListRequest) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -5781,6 +5612,40 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
+func (p *DataListRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("pageInfo", thrift.STRUCT, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.PageInfo.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *DataListRequest) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("dateRange", thrift.STRUCT, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.DateRange.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
 func (p *DataListRequest) String() string {
 	if p == nil {
 		return "<nil>"
@@ -5798,6 +5663,12 @@ func (p *DataListRequest) DeepEqual(ano *DataListRequest) bool {
 	if !p.Field1DeepEqual(ano.GenTable) {
 		return false
 	}
+	if !p.Field2DeepEqual(ano.PageInfo) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.DateRange) {
+		return false
+	}
 	return true
 }
 
@@ -5805,6 +5676,327 @@ func (p *DataListRequest) Field1DeepEqual(src *GenTable) bool {
 
 	if !p.GenTable.DeepEqual(src) {
 		return false
+	}
+	return true
+}
+func (p *DataListRequest) Field2DeepEqual(src *PageInfo) bool {
+
+	if !p.PageInfo.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *DataListRequest) Field3DeepEqual(src *DateRange) bool {
+
+	if !p.DateRange.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
+type ListGenTableColumnsResponse struct {
+	BaseResp *BaseResp         `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
+	Total    int64             `thrift:"total,2" frugal:"2,default,i64" json:"total"`
+	Rows     []*GenTableColumn `thrift:"rows,3" frugal:"3,default,list<GenTableColumn>" json:"rows"`
+}
+
+func NewListGenTableColumnsResponse() *ListGenTableColumnsResponse {
+	return &ListGenTableColumnsResponse{}
+}
+
+func (p *ListGenTableColumnsResponse) InitDefault() {
+	*p = ListGenTableColumnsResponse{}
+}
+
+var ListGenTableColumnsResponse_BaseResp_DEFAULT *BaseResp
+
+func (p *ListGenTableColumnsResponse) GetBaseResp() (v *BaseResp) {
+	if !p.IsSetBaseResp() {
+		return ListGenTableColumnsResponse_BaseResp_DEFAULT
+	}
+	return p.BaseResp
+}
+
+func (p *ListGenTableColumnsResponse) GetTotal() (v int64) {
+	return p.Total
+}
+
+func (p *ListGenTableColumnsResponse) GetRows() (v []*GenTableColumn) {
+	return p.Rows
+}
+func (p *ListGenTableColumnsResponse) SetBaseResp(val *BaseResp) {
+	p.BaseResp = val
+}
+func (p *ListGenTableColumnsResponse) SetTotal(val int64) {
+	p.Total = val
+}
+func (p *ListGenTableColumnsResponse) SetRows(val []*GenTableColumn) {
+	p.Rows = val
+}
+
+var fieldIDToName_ListGenTableColumnsResponse = map[int16]string{
+	1: "baseResp",
+	2: "total",
+	3: "rows",
+}
+
+func (p *ListGenTableColumnsResponse) IsSetBaseResp() bool {
+	return p.BaseResp != nil
+}
+
+func (p *ListGenTableColumnsResponse) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.LIST {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListGenTableColumnsResponse[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListGenTableColumnsResponse) ReadField1(iprot thrift.TProtocol) error {
+	p.BaseResp = NewBaseResp()
+	if err := p.BaseResp.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+func (p *ListGenTableColumnsResponse) ReadField2(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.Total = v
+	}
+	return nil
+}
+func (p *ListGenTableColumnsResponse) ReadField3(iprot thrift.TProtocol) error {
+	_, size, err := iprot.ReadListBegin()
+	if err != nil {
+		return err
+	}
+	p.Rows = make([]*GenTableColumn, 0, size)
+	for i := 0; i < size; i++ {
+		_elem := NewGenTableColumn()
+		if err := _elem.Read(iprot); err != nil {
+			return err
+		}
+
+		p.Rows = append(p.Rows, _elem)
+	}
+	if err := iprot.ReadListEnd(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListGenTableColumnsResponse) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListGenTableColumnsResponse"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListGenTableColumnsResponse) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.BaseResp.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListGenTableColumnsResponse) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("total", thrift.I64, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Total); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListGenTableColumnsResponse) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("rows", thrift.LIST, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Rows)); err != nil {
+		return err
+	}
+	for _, v := range p.Rows {
+		if err := v.Write(oprot); err != nil {
+			return err
+		}
+	}
+	if err := oprot.WriteListEnd(); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ListGenTableColumnsResponse) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListGenTableColumnsResponse(%+v)", *p)
+
+}
+
+func (p *ListGenTableColumnsResponse) DeepEqual(ano *ListGenTableColumnsResponse) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.BaseResp) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.Total) {
+		return false
+	}
+	if !p.Field3DeepEqual(ano.Rows) {
+		return false
+	}
+	return true
+}
+
+func (p *ListGenTableColumnsResponse) Field1DeepEqual(src *BaseResp) bool {
+
+	if !p.BaseResp.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+func (p *ListGenTableColumnsResponse) Field2DeepEqual(src int64) bool {
+
+	if p.Total != src {
+		return false
+	}
+	return true
+}
+func (p *ListGenTableColumnsResponse) Field3DeepEqual(src []*GenTableColumn) bool {
+
+	if len(p.Rows) != len(src) {
+		return false
+	}
+	for i, v := range p.Rows {
+		_src := src[i]
+		if !v.DeepEqual(_src) {
+			return false
+		}
 	}
 	return true
 }
@@ -6655,259 +6847,6 @@ func (p *DownloadResponse) Field2DeepEqual(src []byte) bool {
 	return true
 }
 
-type BatchGenCodeResponse struct {
-	BaseResp *BaseResp `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
-	Data     [][]byte  `thrift:"data,2" frugal:"2,default,list<binary>" json:"data"`
-}
-
-func NewBatchGenCodeResponse() *BatchGenCodeResponse {
-	return &BatchGenCodeResponse{}
-}
-
-func (p *BatchGenCodeResponse) InitDefault() {
-	*p = BatchGenCodeResponse{}
-}
-
-var BatchGenCodeResponse_BaseResp_DEFAULT *BaseResp
-
-func (p *BatchGenCodeResponse) GetBaseResp() (v *BaseResp) {
-	if !p.IsSetBaseResp() {
-		return BatchGenCodeResponse_BaseResp_DEFAULT
-	}
-	return p.BaseResp
-}
-
-func (p *BatchGenCodeResponse) GetData() (v [][]byte) {
-	return p.Data
-}
-func (p *BatchGenCodeResponse) SetBaseResp(val *BaseResp) {
-	p.BaseResp = val
-}
-func (p *BatchGenCodeResponse) SetData(val [][]byte) {
-	p.Data = val
-}
-
-var fieldIDToName_BatchGenCodeResponse = map[int16]string{
-	1: "baseResp",
-	2: "data",
-}
-
-func (p *BatchGenCodeResponse) IsSetBaseResp() bool {
-	return p.BaseResp != nil
-}
-
-func (p *BatchGenCodeResponse) Read(iprot thrift.TProtocol) (err error) {
-
-	var fieldTypeId thrift.TType
-	var fieldId int16
-
-	if _, err = iprot.ReadStructBegin(); err != nil {
-		goto ReadStructBeginError
-	}
-
-	for {
-		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
-		if err != nil {
-			goto ReadFieldBeginError
-		}
-		if fieldTypeId == thrift.STOP {
-			break
-		}
-
-		switch fieldId {
-		case 1:
-			if fieldTypeId == thrift.STRUCT {
-				if err = p.ReadField1(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 2:
-			if fieldTypeId == thrift.LIST {
-				if err = p.ReadField2(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		default:
-			if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		}
-		if err = iprot.ReadFieldEnd(); err != nil {
-			goto ReadFieldEndError
-		}
-	}
-	if err = iprot.ReadStructEnd(); err != nil {
-		goto ReadStructEndError
-	}
-
-	return nil
-ReadStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
-ReadFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
-ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_BatchGenCodeResponse[fieldId]), err)
-SkipFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
-
-ReadFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
-ReadStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
-}
-
-func (p *BatchGenCodeResponse) ReadField1(iprot thrift.TProtocol) error {
-	p.BaseResp = NewBaseResp()
-	if err := p.BaseResp.Read(iprot); err != nil {
-		return err
-	}
-	return nil
-}
-func (p *BatchGenCodeResponse) ReadField2(iprot thrift.TProtocol) error {
-	_, size, err := iprot.ReadListBegin()
-	if err != nil {
-		return err
-	}
-	p.Data = make([][]byte, 0, size)
-	for i := 0; i < size; i++ {
-
-		var _elem []byte
-		if v, err := iprot.ReadBinary(); err != nil {
-			return err
-		} else {
-			_elem = []byte(v)
-		}
-
-		p.Data = append(p.Data, _elem)
-	}
-	if err := iprot.ReadListEnd(); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (p *BatchGenCodeResponse) Write(oprot thrift.TProtocol) (err error) {
-	var fieldId int16
-	if err = oprot.WriteStructBegin("BatchGenCodeResponse"); err != nil {
-		goto WriteStructBeginError
-	}
-	if p != nil {
-		if err = p.writeField1(oprot); err != nil {
-			fieldId = 1
-			goto WriteFieldError
-		}
-		if err = p.writeField2(oprot); err != nil {
-			fieldId = 2
-			goto WriteFieldError
-		}
-	}
-	if err = oprot.WriteFieldStop(); err != nil {
-		goto WriteFieldStopError
-	}
-	if err = oprot.WriteStructEnd(); err != nil {
-		goto WriteStructEndError
-	}
-	return nil
-WriteStructBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
-WriteFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
-WriteFieldStopError:
-	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
-WriteStructEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
-}
-
-func (p *BatchGenCodeResponse) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("baseResp", thrift.STRUCT, 1); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.BaseResp.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
-}
-
-func (p *BatchGenCodeResponse) writeField2(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("data", thrift.LIST, 2); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteListBegin(thrift.STRING, len(p.Data)); err != nil {
-		return err
-	}
-	for _, v := range p.Data {
-		if err := oprot.WriteBinary([]byte(v)); err != nil {
-			return err
-		}
-	}
-	if err := oprot.WriteListEnd(); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
-}
-
-func (p *BatchGenCodeResponse) String() string {
-	if p == nil {
-		return "<nil>"
-	}
-	return fmt.Sprintf("BatchGenCodeResponse(%+v)", *p)
-
-}
-
-func (p *BatchGenCodeResponse) DeepEqual(ano *BatchGenCodeResponse) bool {
-	if p == ano {
-		return true
-	} else if p == nil || ano == nil {
-		return false
-	}
-	if !p.Field1DeepEqual(ano.BaseResp) {
-		return false
-	}
-	if !p.Field2DeepEqual(ano.Data) {
-		return false
-	}
-	return true
-}
-
-func (p *BatchGenCodeResponse) Field1DeepEqual(src *BaseResp) bool {
-
-	if !p.BaseResp.DeepEqual(src) {
-		return false
-	}
-	return true
-}
-func (p *BatchGenCodeResponse) Field2DeepEqual(src [][]byte) bool {
-
-	if len(p.Data) != len(src) {
-		return false
-	}
-	for i, v := range p.Data {
-		_src := src[i]
-		if bytes.Compare(v, _src) != 0 {
-			return false
-		}
-	}
-	return true
-}
-
 type GenService interface {
 	ListGenTables(ctx context.Context, req *ListGenTablesRequest) (r *ListGenTablesResponse, err error)
 
@@ -6915,9 +6854,9 @@ type GenService interface {
 
 	DataList(ctx context.Context, req *DataListRequest) (r *ListGenTablesResponse, err error)
 
-	ColumnList(ctx context.Context, tableId int64) (r *ListGenTablesResponse, err error)
+	ColumnList(ctx context.Context, tableId int64) (r *ListGenTableColumnsResponse, err error)
 
-	ImportTableSave(ctx context.Context, tables string) (r *BaseResp, err error)
+	ImportTableSave(ctx context.Context, req *ImportTableSaveRequest) (r *BaseResp, err error)
 
 	EditSave(ctx context.Context, req *EditSaveRequest) (r *BaseResp, err error)
 
@@ -6931,7 +6870,7 @@ type GenService interface {
 
 	SynchDb(ctx context.Context, tableName string) (r *BaseResp, err error)
 
-	BatchGenCode(ctx context.Context, tables string) (r *BatchGenCodeResponse, err error)
+	BatchGenCode(ctx context.Context, tables string) (r *DownloadResponse, err error)
 }
 
 type GenServiceClient struct {
@@ -6987,7 +6926,7 @@ func (p *GenServiceClient) DataList(ctx context.Context, req *DataListRequest) (
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *GenServiceClient) ColumnList(ctx context.Context, tableId int64) (r *ListGenTablesResponse, err error) {
+func (p *GenServiceClient) ColumnList(ctx context.Context, tableId int64) (r *ListGenTableColumnsResponse, err error) {
 	var _args GenServiceColumnListArgs
 	_args.TableId = tableId
 	var _result GenServiceColumnListResult
@@ -6996,9 +6935,9 @@ func (p *GenServiceClient) ColumnList(ctx context.Context, tableId int64) (r *Li
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *GenServiceClient) ImportTableSave(ctx context.Context, tables string) (r *BaseResp, err error) {
+func (p *GenServiceClient) ImportTableSave(ctx context.Context, req *ImportTableSaveRequest) (r *BaseResp, err error) {
 	var _args GenServiceImportTableSaveArgs
-	_args.Tables = tables
+	_args.Req = req
 	var _result GenServiceImportTableSaveResult
 	if err = p.Client_().Call(ctx, "ImportTableSave", &_args, &_result); err != nil {
 		return
@@ -7059,7 +6998,7 @@ func (p *GenServiceClient) SynchDb(ctx context.Context, tableName string) (r *Ba
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *GenServiceClient) BatchGenCode(ctx context.Context, tables string) (r *BatchGenCodeResponse, err error) {
+func (p *GenServiceClient) BatchGenCode(ctx context.Context, tables string) (r *DownloadResponse, err error) {
 	var _args GenServiceBatchGenCodeArgs
 	_args.Tables = tables
 	var _result GenServiceBatchGenCodeResult
@@ -7284,7 +7223,7 @@ func (p *genServiceProcessorColumnList) Process(ctx context.Context, seqId int32
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := GenServiceColumnListResult{}
-	var retval *ListGenTablesResponse
+	var retval *ListGenTableColumnsResponse
 	if retval, err2 = p.handler.ColumnList(ctx, args.TableId); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ColumnList: "+err2.Error())
 		oprot.WriteMessageBegin("ColumnList", thrift.EXCEPTION, seqId)
@@ -7333,7 +7272,7 @@ func (p *genServiceProcessorImportTableSave) Process(ctx context.Context, seqId 
 	var err2 error
 	result := GenServiceImportTableSaveResult{}
 	var retval *BaseResp
-	if retval, err2 = p.handler.ImportTableSave(ctx, args.Tables); err2 != nil {
+	if retval, err2 = p.handler.ImportTableSave(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ImportTableSave: "+err2.Error())
 		oprot.WriteMessageBegin("ImportTableSave", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -7668,7 +7607,7 @@ func (p *genServiceProcessorBatchGenCode) Process(ctx context.Context, seqId int
 	iprot.ReadMessageEnd()
 	var err2 error
 	result := GenServiceBatchGenCodeResult{}
-	var retval *BatchGenCodeResponse
+	var retval *DownloadResponse
 	if retval, err2 = p.handler.BatchGenCode(ctx, args.Tables); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing BatchGenCode: "+err2.Error())
 		oprot.WriteMessageBegin("BatchGenCode", thrift.EXCEPTION, seqId)
@@ -8873,7 +8812,7 @@ func (p *GenServiceColumnListArgs) Field1DeepEqual(src int64) bool {
 }
 
 type GenServiceColumnListResult struct {
-	Success *ListGenTablesResponse `thrift:"success,0,optional" frugal:"0,optional,ListGenTablesResponse" json:"success,omitempty"`
+	Success *ListGenTableColumnsResponse `thrift:"success,0,optional" frugal:"0,optional,ListGenTableColumnsResponse" json:"success,omitempty"`
 }
 
 func NewGenServiceColumnListResult() *GenServiceColumnListResult {
@@ -8884,16 +8823,16 @@ func (p *GenServiceColumnListResult) InitDefault() {
 	*p = GenServiceColumnListResult{}
 }
 
-var GenServiceColumnListResult_Success_DEFAULT *ListGenTablesResponse
+var GenServiceColumnListResult_Success_DEFAULT *ListGenTableColumnsResponse
 
-func (p *GenServiceColumnListResult) GetSuccess() (v *ListGenTablesResponse) {
+func (p *GenServiceColumnListResult) GetSuccess() (v *ListGenTableColumnsResponse) {
 	if !p.IsSetSuccess() {
 		return GenServiceColumnListResult_Success_DEFAULT
 	}
 	return p.Success
 }
 func (p *GenServiceColumnListResult) SetSuccess(x interface{}) {
-	p.Success = x.(*ListGenTablesResponse)
+	p.Success = x.(*ListGenTableColumnsResponse)
 }
 
 var fieldIDToName_GenServiceColumnListResult = map[int16]string{
@@ -8961,7 +8900,7 @@ ReadStructEndError:
 }
 
 func (p *GenServiceColumnListResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewListGenTablesResponse()
+	p.Success = NewListGenTableColumnsResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -9035,7 +8974,7 @@ func (p *GenServiceColumnListResult) DeepEqual(ano *GenServiceColumnListResult) 
 	return true
 }
 
-func (p *GenServiceColumnListResult) Field0DeepEqual(src *ListGenTablesResponse) bool {
+func (p *GenServiceColumnListResult) Field0DeepEqual(src *ListGenTableColumnsResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false
@@ -9044,7 +8983,7 @@ func (p *GenServiceColumnListResult) Field0DeepEqual(src *ListGenTablesResponse)
 }
 
 type GenServiceImportTableSaveArgs struct {
-	Tables string `thrift:"tables,1" frugal:"1,default,string" json:"tables"`
+	Req *ImportTableSaveRequest `thrift:"req,1" frugal:"1,default,ImportTableSaveRequest" json:"req"`
 }
 
 func NewGenServiceImportTableSaveArgs() *GenServiceImportTableSaveArgs {
@@ -9055,15 +8994,24 @@ func (p *GenServiceImportTableSaveArgs) InitDefault() {
 	*p = GenServiceImportTableSaveArgs{}
 }
 
-func (p *GenServiceImportTableSaveArgs) GetTables() (v string) {
-	return p.Tables
+var GenServiceImportTableSaveArgs_Req_DEFAULT *ImportTableSaveRequest
+
+func (p *GenServiceImportTableSaveArgs) GetReq() (v *ImportTableSaveRequest) {
+	if !p.IsSetReq() {
+		return GenServiceImportTableSaveArgs_Req_DEFAULT
+	}
+	return p.Req
 }
-func (p *GenServiceImportTableSaveArgs) SetTables(val string) {
-	p.Tables = val
+func (p *GenServiceImportTableSaveArgs) SetReq(val *ImportTableSaveRequest) {
+	p.Req = val
 }
 
 var fieldIDToName_GenServiceImportTableSaveArgs = map[int16]string{
-	1: "tables",
+	1: "req",
+}
+
+func (p *GenServiceImportTableSaveArgs) IsSetReq() bool {
+	return p.Req != nil
 }
 
 func (p *GenServiceImportTableSaveArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -9086,7 +9034,7 @@ func (p *GenServiceImportTableSaveArgs) Read(iprot thrift.TProtocol) (err error)
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -9123,11 +9071,9 @@ ReadStructEndError:
 }
 
 func (p *GenServiceImportTableSaveArgs) ReadField1(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
+	p.Req = NewImportTableSaveRequest()
+	if err := p.Req.Read(iprot); err != nil {
 		return err
-	} else {
-		p.Tables = v
 	}
 	return nil
 }
@@ -9161,10 +9107,10 @@ WriteStructEndError:
 }
 
 func (p *GenServiceImportTableSaveArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("tables", thrift.STRING, 1); err != nil {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.Tables); err != nil {
+	if err := p.Req.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -9191,15 +9137,15 @@ func (p *GenServiceImportTableSaveArgs) DeepEqual(ano *GenServiceImportTableSave
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Tables) {
+	if !p.Field1DeepEqual(ano.Req) {
 		return false
 	}
 	return true
 }
 
-func (p *GenServiceImportTableSaveArgs) Field1DeepEqual(src string) bool {
+func (p *GenServiceImportTableSaveArgs) Field1DeepEqual(src *ImportTableSaveRequest) bool {
 
-	if strings.Compare(p.Tables, src) != 0 {
+	if !p.Req.DeepEqual(src) {
 		return false
 	}
 	return true
@@ -11551,7 +11497,7 @@ func (p *GenServiceBatchGenCodeArgs) Field1DeepEqual(src string) bool {
 }
 
 type GenServiceBatchGenCodeResult struct {
-	Success *BatchGenCodeResponse `thrift:"success,0,optional" frugal:"0,optional,BatchGenCodeResponse" json:"success,omitempty"`
+	Success *DownloadResponse `thrift:"success,0,optional" frugal:"0,optional,DownloadResponse" json:"success,omitempty"`
 }
 
 func NewGenServiceBatchGenCodeResult() *GenServiceBatchGenCodeResult {
@@ -11562,16 +11508,16 @@ func (p *GenServiceBatchGenCodeResult) InitDefault() {
 	*p = GenServiceBatchGenCodeResult{}
 }
 
-var GenServiceBatchGenCodeResult_Success_DEFAULT *BatchGenCodeResponse
+var GenServiceBatchGenCodeResult_Success_DEFAULT *DownloadResponse
 
-func (p *GenServiceBatchGenCodeResult) GetSuccess() (v *BatchGenCodeResponse) {
+func (p *GenServiceBatchGenCodeResult) GetSuccess() (v *DownloadResponse) {
 	if !p.IsSetSuccess() {
 		return GenServiceBatchGenCodeResult_Success_DEFAULT
 	}
 	return p.Success
 }
 func (p *GenServiceBatchGenCodeResult) SetSuccess(x interface{}) {
-	p.Success = x.(*BatchGenCodeResponse)
+	p.Success = x.(*DownloadResponse)
 }
 
 var fieldIDToName_GenServiceBatchGenCodeResult = map[int16]string{
@@ -11639,7 +11585,7 @@ ReadStructEndError:
 }
 
 func (p *GenServiceBatchGenCodeResult) ReadField0(iprot thrift.TProtocol) error {
-	p.Success = NewBatchGenCodeResponse()
+	p.Success = NewDownloadResponse()
 	if err := p.Success.Read(iprot); err != nil {
 		return err
 	}
@@ -11713,7 +11659,7 @@ func (p *GenServiceBatchGenCodeResult) DeepEqual(ano *GenServiceBatchGenCodeResu
 	return true
 }
 
-func (p *GenServiceBatchGenCodeResult) Field0DeepEqual(src *BatchGenCodeResponse) bool {
+func (p *GenServiceBatchGenCodeResult) Field0DeepEqual(src *DownloadResponse) bool {
 
 	if !p.Success.DeepEqual(src) {
 		return false

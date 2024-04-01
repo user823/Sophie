@@ -28,7 +28,7 @@ func NewCaptchaController(on bool) *CaptchaController {
 
 // 创建验证码
 func (f *CaptchaController) CreateCaptcha(ctx context.Context, c *app.RequestContext) {
-	rdb := kv.NewKVStore("redis").(kv.RedisStore)
+	rdb := kv.NewKVStore("redis", nil).(kv.RedisStore)
 	rdb.SetKeyPrefix(kv.CAPTHA_CODE_KEY)
 
 	// 验证码信息
@@ -63,7 +63,7 @@ func (f *CaptchaController) CheckCaptcha(ctx context.Context, c *app.RequestCont
 		return
 	}
 
-	rdb := kv.NewKVStore("redis").(kv.RedisStore)
+	rdb := kv.NewKVStore("redis", nil).(kv.RedisStore)
 	rdb.SetKeyPrefix(kv.CAPTHA_CODE_KEY)
 	if !rdb.Connected() {
 		core.WriteResponse(c, core.ErrResponse{Code: code.ERROR, Message: "服务器内部错误，请重试"})

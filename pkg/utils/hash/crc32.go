@@ -18,8 +18,8 @@ func newCrc32Hasher() Hasher {
 	}
 }
 
-func (c *crc32Hasher) HashKey(keyname string) string {
+func (c *crc32Hasher) HashKey(key []byte) string {
 	c.crc.Reset()
-	c.crc.Write([]byte(keyname))
+	c.crc.Write([]byte(key))
 	return hex.EncodeToString(c.crc.Sum(nil))
 }

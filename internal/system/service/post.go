@@ -44,27 +44,27 @@ func NewPosts(s store.Factory) PostSrv {
 }
 
 func (s *postService) SelectPostList(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) *v1.PostList {
-	result, err := s.store.Posts().SelectPostList(ctx, post, opts)
+	result, total, err := s.store.Posts().SelectPostList(ctx, post, opts)
 	if err != nil {
 		return &v1.PostList{
-			ListMeta: api.ListMeta{int64(len(result))},
+			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.PostList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
 
 func (s *postService) SelectPostAll(ctx context.Context, opts *api.GetOptions) *v1.PostList {
-	result, err := s.store.Posts().SelectPostAll(ctx, opts)
+	result, total, err := s.store.Posts().SelectPostAll(ctx, opts)
 	if err != nil {
 		return &v1.PostList{
-			ListMeta: api.ListMeta{int64(len(result))},
+			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.PostList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
@@ -87,7 +87,7 @@ func (s *postService) SelectPostListByUserId(ctx context.Context, userId int64, 
 
 func (s *postService) CheckPostNameUnique(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) bool {
 	result := s.store.Posts().CheckPostNameUnique(ctx, post.PostName, opts)
-	if result != nil && result.PostId == post.PostId {
+	if result != nil && result.PostId != post.PostId {
 		return false
 	}
 	return true
@@ -95,7 +95,7 @@ func (s *postService) CheckPostNameUnique(ctx context.Context, post *v1.SysPost,
 
 func (s *postService) CheckPostCodeUnique(ctx context.Context, post *v1.SysPost, opts *api.GetOptions) bool {
 	result := s.store.Posts().CheckPostCodeUnique(ctx, post.PostCode, opts)
-	if result != nil && result.PostId == post.PostId {
+	if result != nil && result.PostId != post.PostId {
 		return false
 	}
 	return true

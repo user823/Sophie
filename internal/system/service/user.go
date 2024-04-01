@@ -79,9 +79,9 @@ func NewUsers(s store.Factory) UserSrv {
 }
 
 func (s *userService) SelectUserList(ctx context.Context, user *v1.SysUser, opts *api.GetOptions) *v1.UserList {
-	result, _ := s.store.Users().SelectUserList(ctx, user, opts)
+	result, total, _ := s.store.Users().SelectUserList(ctx, user, opts)
 	return &v1.UserList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
@@ -176,9 +176,9 @@ func (s *userService) CheckUserAllowed(ctx context.Context, user *v1.SysUser, op
 func (s *userService) CheckUserDataScope(ctx context.Context, id int64, opts *api.GetOptions) bool {
 	logininfor := utils.GetLogininfoFromCtx(ctx)
 	if !v1.IsUserAdmin(logininfor.User.UserId) {
-		users, err := s.store.Users().SelectUserList(ctx, &v1.SysUser{UserId: id}, opts)
+		_, total, err := s.store.Users().SelectUserList(ctx, &v1.SysUser{UserId: id}, opts)
 		// 没有权限访问用户数据
-		if err != nil || len(users) == 0 {
+		if err != nil || total == 0 {
 			return false
 		}
 	}

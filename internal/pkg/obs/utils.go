@@ -6,19 +6,20 @@ import (
 	"github.com/user823/Sophie/pkg/utils/hash"
 	"github.com/user823/Sophie/pkg/utils/strutil"
 	"net/url"
+	"path"
 	"path/filepath"
 	"time"
 )
 
 var (
 	// 设置文件白名单
-	allowedPrefix = []string{".jpg", ".jpeg", ".png", ".gif", ".mp4", ".txt"}
+	AllowedPrefix = []string{".jpg", ".jpeg", ".png", ".gif", ".mp4", ".txt", ".bmp"}
 	timeFormat    = "20060102150405"
 )
 
 func CheckFileName(fileName string) bool {
 	prefix := filepath.Ext(fileName)
-	return strutil.ContainsAny(prefix, allowedPrefix...)
+	return strutil.ContainsAny(prefix, AllowedPrefix...)
 }
 
 // 生成obs访问路径
@@ -42,12 +43,13 @@ func GetURL(objectName string) string {
 	if !viper.GetBool(driver + ".use_ssl") {
 		schema = "http"
 	}
+	bucketName := viper.GetString(driver + ".bucket")
 
 	endpoint := viper.GetString(driver + ".endpoint")
 	u := &url.URL{
 		Scheme: schema,
 		Host:   endpoint,
-		Path:   objectName,
+		Path:   path.Join(bucketName, objectName),
 	}
 	return u.String()
 }

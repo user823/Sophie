@@ -26,7 +26,7 @@ create table sys_dept
     extend_shadow varchar(255) default null comment '扩展字段',
     primary key (dept_id)
 ) engine = innodb
-  auto_increment = 200 comment = '部门表' ;
+  auto_increment = 200 comment = '部门表' default character set = utf8mb4 collate utf8mb4_general_ci;
 
 -- ----------------------------
 -- 2、用户信息表
@@ -415,8 +415,8 @@ create table gen_table_column
     column_name    varchar(200) comment '列名称',
     column_comment varchar(500) comment '列描述',
     column_type    varchar(100) comment '列类型',
-    java_type      varchar(500) comment 'JAVA类型',
-    java_field     varchar(200) comment 'JAVA字段名',
+    go_type      varchar(500) comment 'Go类型',
+    go_field     varchar(200) comment 'Go字段名',
     is_pk          char(1) comment '是否主键（1是）',
     is_increment   char(1) comment '是否自增（1是）',
     is_required    char(1) comment '是否必填（1是）',
@@ -432,6 +432,7 @@ create table gen_table_column
     create_time    datetime comment '创建时间',
     update_by      varchar(64)  default '' comment '更新者',
     update_time    datetime comment '更新时间',
+    remark         varchar(500) default null comment '备注',
     extend_shadow varchar(255) default null comment '扩展字段',
     primary key (column_id)
 ) engine = innodb

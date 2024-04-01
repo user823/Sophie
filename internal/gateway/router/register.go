@@ -16,6 +16,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	var register loginInfo
 	if err := c.BindAndValidate(&register); err != nil {
 		core.Fail(c, validLoginErrMsg(err), nil)
+		return
 	}
 
 	// 注册用户信息
@@ -33,7 +34,5 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	// 登陆信息设置
-	sysLoginInfo := auth.GetLogininfo(c, register.Username)
-	appendLogininfo(sysLoginInfo)
+	core.OK(c, "注册成功", nil)
 }

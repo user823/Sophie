@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -19,13 +20,10 @@ type mysqlUserStore struct {
 var _ store.UserStore = &mysqlUserStore{}
 
 func selectUserVo(db *gorm.DB) *gorm.DB {
-	return db.Preload("Dept").Preload("Roles").Table("sys_user u").Joins("" +
-		"left join sys_dept d on u.dept_id = d.dept_id").Joins("" +
-		"left join sys_user_role ur on u.user_id = ur.user_id").Joins("" +
-		"left join sys_role r on r.role_id = ur.role_id")
+	return db.Model(&v1.SysUser{}).Preload("Dept").Preload("Roles").Table("sys_user u")
 }
 
-func (s *mysqlUserStore) SelectUserList(ctx context.Context, sysUser *v1.SysUser, opts *api.GetOptions) ([]*v1.SysUser, error) {
+func (s *mysqlUserStore) SelectUserList(ctx context.Context, sysUser *v1.SysUser, opts *api.GetOptions) ([]*v1.SysUser, int64, error) {
 	query := selectUserVo(s.db).Where("u.del_flag = 0")
 	if sysUser.UserId != 0 {
 		query = query.Where("u.user_id = ?", sysUser.UserId)
@@ -40,17 +38,18 @@ func (s *mysqlUserStore) SelectUserList(ctx context.Context, sysUser *v1.SysUser
 		query = query.Where("u.phonenumber like ?", "%"+sysUser.Phonenumber+"%")
 	}
 	if sysUser.DeptId != 0 {
-		query = query.Where("u.dept_id = ? OR u.dept_id in (select t.dept_id form sys_dept t where find_in_set(?, ancestors) ))", sysUser.DeptId, sysUser.DeptId)
+		query = query.Where("u.dept_id = ? OR u.dept_id in (select t.dept_id from sys_dept t where find_in_set(?, ancestors) ))", sysUser.DeptId, sysUser.DeptId)
 	}
+	query, err := dateScopeFromCtx(ctx, query, "u", "sys_dept")
 	query = opts.SQLCondition(query, "u.create_time")
-	query, err := dateScopeFromCtx(ctx, query, "u", "d")
+
 	if err != nil {
-		return []*v1.SysUser{}, err
+		return []*v1.SysUser{}, 0, err
 	}
 
 	var result []*v1.SysUser
 	err = query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, "u.create_time"), err
 }
 
 // 查询分配了角色的用户列表
@@ -67,7 +66,7 @@ func (s *mysqlUserStore) SelectAllocatedList(ctx context.Context, sysUser *v1.Sy
 		query = query.Where("u.phonenumber like ?", "%"+sysUser.Phonenumber+"%")
 	}
 	query = opts.SQLCondition(query, "")
-	query, err := dateScopeFromCtx(ctx, query, "u", "d")
+	query, err := dateScopeFromCtx(ctx, query, "u", "sys_dept")
 	if err != nil {
 		return []*v1.SysUser{}, err
 	}
@@ -94,7 +93,7 @@ func (s *mysqlUserStore) SelectUnallocatedList(ctx context.Context, sysUser *v1.
 	}
 
 	query = opts.SQLCondition(query, "")
-	query, err := dateScopeFromCtx(ctx, query, "u", "d")
+	query, err := dateScopeFromCtx(ctx, query, "u", "sys_dept")
 	if err != nil {
 		return []*v1.SysUser{}, err
 	}
@@ -162,6 +161,8 @@ func (s *mysqlUserStore) UpdateUser(ctx context.Context, sysUser *v1.SysUser, op
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(sysUser).Where("user_id = ?", sysUser.UserId).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(sysUser.UserId, "", "", ""))
 }
 
@@ -169,6 +170,8 @@ func (s *mysqlUserStore) UpdateUserAvatar(ctx context.Context, userName, avatar 
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(&v1.SysUser{}).Where("user_name = ?", userName).Update("avatar", avatar).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(0, userName, "", ""))
 }
 
@@ -176,6 +179,8 @@ func (s *mysqlUserStore) UpdateUserPwd(ctx context.Context, userName, password s
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Model(&v1.SysUser{}).Where("user_name = ?", userName).Update("password", password).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(0, userName, "", ""))
 }
 
@@ -183,6 +188,7 @@ func (s *mysqlUserStore) DeleteUserById(ctx context.Context, userid int64, opts 
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Where("user_id = ?", userid).Delete(&v1.SysUser{}).Error
 	}
+
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(userid, "", "", ""))
 }
 
@@ -271,7 +277,7 @@ var userCache = struct {
 
 func (s *mysqlUserStore) CachedDB() *cache.CachedDB {
 	userCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-userstore-")
 		rdsCli.SetRandomExp(true)
 
@@ -281,6 +287,7 @@ func (s *mysqlUserStore) CachedDB() *cache.CachedDB {
 	return cache.NewCachedDB(s.db, userCache.rdsCache)
 }
 
+// 任何更新操作都直接删除整个缓存
 func (s *mysqlUserStore) CacheKey(userid int64, name string, phone string, email string) string {
 	// id:name:phone:email
 	return fmt.Sprintf("%d:%s:%s:%s", userid, name, phone, email)

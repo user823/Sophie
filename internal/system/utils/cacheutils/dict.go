@@ -20,7 +20,7 @@ var dictCache = struct {
 func LoadingDictCache(s store.Factory) {
 	// 初始化
 	dictCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-dictcache-")
 		rdsCli.SetRandomExp(true)
 
@@ -31,7 +31,7 @@ func LoadingDictCache(s store.Factory) {
 		s, _ = mysql.GetMySQLFactoryOr(nil)
 	}
 	ctx := context.Background()
-	sysDictDatas, _ := s.DictData().SelectDictDataList(ctx, &v1.SysDictData{Status: "0"}, &api.GetOptions{})
+	sysDictDatas, _, _ := s.DictData().SelectDictDataList(ctx, &v1.SysDictData{Status: "0"}, &api.GetOptions{})
 
 	// 聚合
 	mp := make(map[string]*v1.DictDataList)

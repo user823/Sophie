@@ -14,14 +14,14 @@ type SysPost struct {
 	PostSort       int64  `json:"postSort,omitempty" gorm:"column:post_sort" query:"postSort"`
 	Status         string `json:"status,omitempty" gorm:"column:status" query:"status"`
 	// 用户是否存在此岗位标识（默认不存在）
-	Flag bool `json:"flag" gorm:"-" query:"flag"`
+	Flag bool `json:"flag,omitempty" gorm:"-" query:"flag"`
 }
 
 func (s *SysPost) TableName() string {
 	return "sys_post"
 }
 
-func (s *SysPost) String() string {
+func (s *SysPost) Marshal() string {
 	data, _ := jsoniter.Marshal(s)
 	return utils.B2s(data)
 }

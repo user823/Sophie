@@ -14,7 +14,7 @@ func BuildGetOption(pageInfo *v1.PageInfo, daterange *v1.DateRange, useCache boo
 		opts.PageNum = pageInfo.GetPageNum()
 		opts.PageSize = pageInfo.GetPageSize()
 		opts.OrderByColumn = pageInfo.GetOrderByColumn()
-		opts.IsAsc = pageInfo.GetIsAsc() == "ascending"
+		opts.IsAsc = pageInfo.GetIsAsc() == api.IS_ASC
 	}
 
 	if daterange != nil {

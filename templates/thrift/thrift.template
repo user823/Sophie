@@ -1,0 +1,96 @@
+namespace go v1
+
+{{$ModuleName := Capitalize .moduleName -}}
+{{$BusinessName := removePrefix .BusinessName}}
+{{$businessName := Uncapitalize $BusinessName}}
+// code-gen
+// kitex -module github.com/user823/Sophie -I api/thrift/{{.moduleName}}/v1 -service {{$ModuleName}}Service -gen-path api/thrift/{{.moduleName}}  {{.moduleName}}.thrift
+
+{/* 同一个模块有多个业务，这个只为当前的业务数据生成idl*/ -}
+{/* 为同一个模块的每个业务都生成了idl之后，再重新组织成一个idl文件*/ -}
+service {{$ModuleName}}Service {
+    // 生成基础的增删改查业务
+    List{{$BusinessName}}sResponse List{{$BusinessName}}s(1:List{{$BusinessName}}sRequest req)
+    Export{{$BusinessName}}Reponse Export{{$BusinessName}}(1:Export{{$BusinessName}}Request req)
+    {{$BusinessName}}Response Get{{$BusinessName}}(1:{{toThrift .pkColumn.GoType}} {{CamelCaseToSnakeCase .pkColumn.GoField}}}
+    BaseResp Create{{$BusinessName}}(1:Create{{$BusinessName}}Request req)
+    BaseResp Update{{$BusinessName}}(1:Update{{$BusinessName}}Request req)
+    BaseResp Delete{{$BusinessName}}(1:Delete{{$BusinessName}}Request req)
+}
+
+// 定义实体类
+struct BaseResp {
+    1:i64 code
+    2:string msg
+}
+
+struct PageInfo {
+    1:i64 pageNum
+    2:i64 pageSize
+    3:string orderByColumn
+    4:string isAsc
+}
+
+struct DateRange {
+    1:i64 beginTime // 使用毫秒
+    2:i64 endTime
+}
+
+struct {{$BusinessName}}Info {
+    1:string createBy
+    2:string createTime
+    3:string updateBy
+    4:string updateTime
+    5:string remark
+    6:map<string,string> params
+{{$count := 7 -}}
+{{range .columns -}}
+{{$thriftType := toThrift .GoType -}}
+{{$snakeName := CamelCaseToSnakeCase .GoField -}}
+    {{$count}}:{{$thriftType}} {{$snakeName}}
+{{$count = (add $count 1) -}}
+{{end}}
+{{if .sub -}}
+    {{$count}}:list<.subClassName> children
+{{end}}
+}
+
+struct List{{$BusinessName}}sRequest {
+    1:PageInfo pageInfo
+    2:DateRange dateRange
+    3:{{$BusinessName}}Info {{$businessName}}Info
+}
+
+struct List{{$BusinessName}}sResponse {
+    1:BaseResp baseResp
+    2:i64 total
+    3:list<{{$BusinessName}}Info> rows
+}
+
+struct Export{{$BusinessName}}Request {
+    1:PageInfo pageInfo
+    2:{{$BusinessName}}Info {{$businessName}}Info
+}
+
+struct Export{{$BusinessName}}Reponse  {
+    1:BaseResp baseResp
+    2:list<{{$BusinessName}}Info> list
+    3:string sheetName
+}
+
+struct {{$BusinessName}}Response {
+    1:BaseResp baseResp
+    2:{{$BusinessName}}Info {{$businessName}}Info
+}
+
+struct Create{{$BusinessName}}Request {
+   1:{{$BusinessName}}Info {{$businessName}}Info
+}
+
+struct Update{{$BusinessName}}Request {
+   1:{{$BusinessName}}Info {{$businessName}}Info
+}
+
+struct Delete{{$BusinessName}}Request {
+   1:{{$BusinessName}}Info {{$businessName}}Info
+}

@@ -48,7 +48,7 @@ type Client interface {
 	CreateSysLogininfo(ctx context.Context, req *v1.CreateSysLogininfoRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ListSysMenus(ctx context.Context, req *v1.ListSysMenusRequest, callOptions ...callopt.Option) (r *v1.ListSysMenusResponse, err error)
 	GetSysMenuById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.SysMenuResponse, err error)
-	ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest, callOptions ...callopt.Option) (r *v1.ListSysMenusResponse, err error)
+	ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest, callOptions ...callopt.Option) (r *v1.ListTreeMenuResponse, err error)
 	ListTreeMenuByRoleid(ctx context.Context, req *v1.ListTreeMenuByRoleidRequest, callOptions ...callopt.Option) (r *v1.RoleMenuResponse, err error)
 	CreateMenu(ctx context.Context, req *v1.CreateMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateMenu(ctx context.Context, req *v1.UpdateMenuRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -88,7 +88,7 @@ type Client interface {
 	CancelAuthUser(ctx context.Context, req *v1.CancelAuthUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	CancelAuthUserAll(ctx context.Context, req *v1.CancelAuthUserAllRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	SelectAuthUserAll(ctx context.Context, req *v1.SelectAuthUserAllRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
-	DeptTreeByRoleId(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.DeptTreeByRoleIdResponse, err error)
+	DeptTreeByRoleId(ctx context.Context, req *v1.DeptTreeByRoleIdRequest, callOptions ...callopt.Option) (r *v1.DeptTreeByRoleIdResponse, err error)
 	ListSysUsers(ctx context.Context, req *v1.ListSysUsersRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error)
 	ExportSysUser(ctx context.Context, req *v1.ExportSysUserRequest, callOptions ...callopt.Option) (r *v1.ExportSysUserResponse, err error)
 	ImportUserData(ctx context.Context, req *v1.ImportUserDataRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -100,8 +100,9 @@ type Client interface {
 	UpdateSysUser(ctx context.Context, req *v1.UpdateSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	DeleteSysUser(ctx context.Context, req *v1.DeleteSysUserRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ResetPassword(ctx context.Context, req *v1.ResetPasswordRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
+	UpdateUserAvatar(ctx context.Context, req *v1.UpdateUserAvatarRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ChangeSysUserStatus(ctx context.Context, req *v1.ChangeSysUserStatus, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
-	GetAuthRoleById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.AuthRoleInfoResponse, err error)
+	GetAuthRoleById(ctx context.Context, req *v1.GetAuthRoleByIdRequest, callOptions ...callopt.Option) (r *v1.AuthRoleInfoResponse, err error)
 	AuthRole(ctx context.Context, req *v1.AuthRoleRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ListDeptsTree(ctx context.Context, req *v1.ListDeptsTreeRequest, callOptions ...callopt.Option) (r *v1.ListDeptsTreeResponse, err error)
 	ListSysUserOnlines(ctx context.Context, req *v1.ListSysUserOnlinesRequest, callOptions ...callopt.Option) (r *v1.ListSysUserOnline, err error)
@@ -322,7 +323,7 @@ func (p *kSystemServiceClient) GetSysMenuById(ctx context.Context, id int64, cal
 	return p.kClient.GetSysMenuById(ctx, id)
 }
 
-func (p *kSystemServiceClient) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest, callOptions ...callopt.Option) (r *v1.ListSysMenusResponse, err error) {
+func (p *kSystemServiceClient) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest, callOptions ...callopt.Option) (r *v1.ListTreeMenuResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ListTreeMenu(ctx, req)
 }
@@ -522,9 +523,9 @@ func (p *kSystemServiceClient) SelectAuthUserAll(ctx context.Context, req *v1.Se
 	return p.kClient.SelectAuthUserAll(ctx, req)
 }
 
-func (p *kSystemServiceClient) DeptTreeByRoleId(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.DeptTreeByRoleIdResponse, err error) {
+func (p *kSystemServiceClient) DeptTreeByRoleId(ctx context.Context, req *v1.DeptTreeByRoleIdRequest, callOptions ...callopt.Option) (r *v1.DeptTreeByRoleIdResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.DeptTreeByRoleId(ctx, id)
+	return p.kClient.DeptTreeByRoleId(ctx, req)
 }
 
 func (p *kSystemServiceClient) ListSysUsers(ctx context.Context, req *v1.ListSysUsersRequest, callOptions ...callopt.Option) (r *v1.ListSysUsersResponse, err error) {
@@ -582,14 +583,19 @@ func (p *kSystemServiceClient) ResetPassword(ctx context.Context, req *v1.ResetP
 	return p.kClient.ResetPassword(ctx, req)
 }
 
+func (p *kSystemServiceClient) UpdateUserAvatar(ctx context.Context, req *v1.UpdateUserAvatarRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
+	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
+	return p.kClient.UpdateUserAvatar(ctx, req)
+}
+
 func (p *kSystemServiceClient) ChangeSysUserStatus(ctx context.Context, req *v1.ChangeSysUserStatus, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
 	return p.kClient.ChangeSysUserStatus(ctx, req)
 }
 
-func (p *kSystemServiceClient) GetAuthRoleById(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.AuthRoleInfoResponse, err error) {
+func (p *kSystemServiceClient) GetAuthRoleById(ctx context.Context, req *v1.GetAuthRoleByIdRequest, callOptions ...callopt.Option) (r *v1.AuthRoleInfoResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.GetAuthRoleById(ctx, id)
+	return p.kClient.GetAuthRoleById(ctx, req)
 }
 
 func (p *kSystemServiceClient) AuthRole(ctx context.Context, req *v1.AuthRoleRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error) {

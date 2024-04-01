@@ -8,5 +8,5 @@ import (
 
 type FileStore interface {
 	// 上传文件服务
-	Upload(ctx context.Context, data []byte, opts *api.CreateOptions) (v1.SysFile, error)
+	Upload(ctx context.Context, file string, data []byte, opts *api.CreateOptions) (*v1.SysFile, error)
 }

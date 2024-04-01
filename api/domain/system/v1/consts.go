@@ -57,7 +57,7 @@ const (
 // 操作相关信息
 const (
 	// 动作类型
-	BUSINESSTYPE_OTHER int64 = iota
+	BUSINESSTYPE_NULL int64 = iota
 	BUSINESSTYPE_INSERT
 	BUSINESSTYPE_UPDATE
 	BUSINESSTYPE_DELETE
@@ -67,6 +67,7 @@ const (
 	BUSINESSTYPE_FORCE   // 强退
 	BUSINESSTYPE_GENCODE // 生成代码
 	BUSINESSTYPE_CLEAN   // 清空数据
+	BUSINESSTYPE_OTHER   // 其他类型
 
 	// 操作类型
 	OPERATORTYPE_OTHER  int64 = iota - 10 // 其他用户

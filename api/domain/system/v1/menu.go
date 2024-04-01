@@ -3,7 +3,7 @@ package v1
 import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/user823/Sophie/api"
-	"github.com/user823/Sophie/api/domain/system/v1/vo"
+	"github.com/user823/Sophie/api/domain/vo"
 	"github.com/user823/Sophie/pkg/utils"
 )
 
@@ -31,7 +31,7 @@ func (s *SysMenu) TableName() string {
 	return "sys_menu"
 }
 
-func (s *SysMenu) String() string {
+func (s *SysMenu) Marshal() string {
 	data, _ := jsoniter.Marshal(s)
 	return utils.B2s(data)
 }

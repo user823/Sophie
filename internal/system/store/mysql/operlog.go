@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -27,7 +28,7 @@ func (s *mysqlOperLogStore) InsertOperLog(ctx context.Context, operlog *v1.SysOp
 	return create.Error
 }
 
-func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, error) {
+func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, int64, error) {
 	query := selectOperLogVo(s.db)
 	if operlog.OperIp != "" {
 		query = query.Where("oper_ip like ?", "%"+operlog.OperIp)
@@ -35,7 +36,7 @@ func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.S
 	if operlog.Title != "" {
 		query = query.Where("title like ?", "%"+operlog.Title+"%")
 	}
-	if operlog.BusinessType != nil {
+	if operlog.BusinessType != nil && *operlog.BusinessType != v1.BUSINESSTYPE_NULL {
 		query = query.Where("business_type = ?", operlog.BusinessType)
 	}
 	if len(operlog.BusinessTypes) > 0 {
@@ -52,7 +53,7 @@ func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.S
 
 	var result []*v1.SysOperLog
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, ""), err
 }
 
 func (s *mysqlOperLogStore) DeleteOperLogByIds(ctx context.Context, operids []int64, opts *api.DeleteOptions) error {
@@ -73,7 +74,7 @@ func (s *mysqlOperLogStore) SelectOperLogById(ctx context.Context, operid int64,
 	var result v1.SysOperLog
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -102,7 +103,7 @@ var operLogCache = struct {
 
 func (s *mysqlOperLogStore) CachedDB() *cache.CachedDB {
 	operLogCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-operlogstore-")
 		rdsCli.SetRandomExp(true)
 

@@ -19,6 +19,7 @@ const (
 )
 
 // 用户执行Start前要提供Run方法
+// 可通过实现Run() 方法来适配cron 框架
 type GoTask struct {
 	ServiceName string
 	hasNotify   atomic.Bool
@@ -84,6 +85,7 @@ func (s *GoTask) WaitForRunning(interval time.Duration) {
 		}
 		return
 	}
+
 	time.Sleep(interval)
 	if s.OnWaitEnd != nil {
 		s.OnWaitEnd()
@@ -91,13 +93,14 @@ func (s *GoTask) WaitForRunning(interval time.Duration) {
 }
 
 func (s *GoTask) Shutdown(delay time.Duration) {
-	<-time.After(delay)
-	log.Infof("Try to stop service: %s", s.ServiceName)
-	if !s.status.CompareAndSwap(STARTED, STOPING) {
-		return
-	}
-	s.Wakeup()
-	s.cancelFn()
+	time.AfterFunc(delay, func() {
+		log.Infof("Try to stop service: %s", s.ServiceName)
+		if !s.status.CompareAndSwap(STARTED, STOPING) {
+			return
+		}
+		s.Wakeup()
+		s.cancelFn()
+	})
 }
 
 // 获取任务执行结果

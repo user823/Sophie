@@ -35,7 +35,7 @@ const (
 	// 排序列
 	ORDER_BY_COLUMN = "orderByColumn"
 	// 排序方向
-	IS_ASC = "isAsc"
+	IS_ASC = "ascending"
 	// 资源映射路径 前缀
 	RESOURCE_PREFIX = "/profile"
 	// 内部请求
@@ -44,6 +44,10 @@ const (
 	LOGIN_INFO_KEY = "sysloginInfo"
 	// 数据范围 key（用来设置 sql查询时模版字符串）
 	DATA_SCOPE = "dataScope"
+	// 管理员权限字符
+	ALL_PERMISSIONS = "*:*:*"
+	// 默认登录有效期（3600s)
+	LOGIN_TIMEOUT = 3600
 )
 
 var (

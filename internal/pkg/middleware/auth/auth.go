@@ -2,6 +2,8 @@ package auth
 
 import (
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/google/uuid"
+	"github.com/mileusna/useragent"
 	"github.com/user823/Sophie/api"
 	v12 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/pkg/utils"
@@ -16,6 +18,7 @@ const (
 	BASICPREFIX = "Basic"
 	JWTPREFIX   = "Bearer"
 	UsernameKey = "username"
+	TokenIdKey  = "tokenId"
 )
 
 // 授权策略
@@ -46,17 +49,32 @@ func Compare(hashedPassword, plain string) error {
 }
 
 // 获取基本登陆信息
-func GetLogininfo(c *app.RequestContext, username string) *v12.Logininfo {
-	ip := utils.GetClientIP(c)
-	accessTime := time.Now().Unix()
-	status := api.LOGIN_SUCCESS
-	msg := "登陆成功"
-	return &v12.Logininfo{
-		UserName:   username,
-		InfoId:     0,
-		Ipaddr:     ip,
-		AccessTime: accessTime,
-		Status:     status,
-		Msg:        msg,
+func GetLogininfo(c *app.RequestContext, userinfo *v12.UserInfo, tokenId string) *v12.Logininfo {
+	accessTime := time.Now()
+	uaStr := utils.B2s(c.UserAgent())
+
+	res := &v12.Logininfo{
+		UserName:   userinfo.UserName,
+		Status:     api.LOGIN_SUCCESS,
+		Ipaddr:     utils.GetClientIP(c),
+		Msg:        "登录成功",
+		AccessTime: utils.Time2Str(accessTime),
+		TokenId:    tokenId,
+		LoginTime:  utils.Time2Str(accessTime),
 	}
+
+	if userinfo.Dept != nil {
+		res.DeptName = userinfo.Dept.DeptName
+	}
+
+	if uaStr != "" {
+		ua := useragent.Parse(uaStr)
+		res.Browser = ua.Name + ":" + ua.Version
+		res.Os = ua.OS
+	}
+
+	if tokenId == "" {
+		res.TokenId = uuid.NewString()
+	}
+	return res
 }

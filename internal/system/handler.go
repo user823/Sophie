@@ -11,6 +11,7 @@ import (
 	"github.com/user823/Sophie/internal/system/store/es"
 	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
+	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/utils/strutil"
 	"strconv"
 	"strings"
@@ -50,7 +51,6 @@ func (s *SystemServiceImpl) ExportConfig(ctx context.Context, req *v1.ExportConf
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysConfig2ConfigInfo(list.Items),
 		SheetName: "参数数据",
-		Title:     "",
 	}, nil
 }
 
@@ -80,7 +80,7 @@ func (s *SystemServiceImpl) CreateConfig(ctx context.Context, req *v1.CreateConf
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !configSrv.CheckConfigKeyUnique(ctx, sysConfig, &api.GetOptions{Cache: true}) {
+	if !configSrv.CheckConfigKeyUnique(ctx, sysConfig, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增参数 %s 失败，参数键名已存在", sysConfig.ConfigName)), nil
 	}
 	sysConfig.CreateBy = loginInfo.User.UserName
@@ -99,7 +99,7 @@ func (s *SystemServiceImpl) UpdateConfig(ctx context.Context, req *v1.UpdateConf
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !configSrv.CheckConfigKeyUnique(ctx, sysConfig, &api.GetOptions{Cache: true}) {
+	if !configSrv.CheckConfigKeyUnique(ctx, sysConfig, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增参数 %s 失败，参数键名已存在", sysConfig.ConfigName)), nil
 	}
 	sysConfig.UpdateBy = loginInfo.User.UserName
@@ -179,7 +179,7 @@ func (s *SystemServiceImpl) GetDeptById(ctx context.Context, req *v1.GetDeptById
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !deptSrv.CheckDeptDataScope(ctx, req.Id, &api.GetOptions{Cache: true}) {
+	if !deptSrv.CheckDeptDataScope(ctx, req.Id, &api.GetOptions{Cache: false}) {
 		return &v1.DeptResponse{
 			BaseResp: utils.Fail("没有权限访问部门数据！"),
 		}, nil
@@ -199,11 +199,11 @@ func (s *SystemServiceImpl) CreateDept(ctx context.Context, req *v1.CreateDeptRe
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: true}) {
+	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增部门 %s 失败，部门名称已存在", sysDept.DeptName)), nil
 	}
 	sysDept.CreateBy = loginInfo.User.UserName
-	if err = deptSrv.InsertDept(ctx, sysDept, &api.CreateOptions{}); err != nil {
+	if err = deptSrv.InsertDept(ctx, sysDept, &api.CreateOptions{Validate: true}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
 	return utils.Ok("操作成功"), nil
@@ -218,7 +218,7 @@ func (s *SystemServiceImpl) UpdateDept(ctx context.Context, req *v1.UpdateDeptRe
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: true}) {
+	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改部门 %s 失败，部门名称已存在", sysDept.DeptName)), nil
 	}
 	if sysDept.ParentId == sysDept.DeptId {
@@ -243,13 +243,13 @@ func (s *SystemServiceImpl) DeleteDept(ctx context.Context, req *v1.DeleteDeptRe
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if deptSrv.HasChildByDeptId(ctx, req.GetDeptId(), &api.GetOptions{Cache: true}) {
+	if deptSrv.HasChildByDeptId(ctx, req.GetDeptId(), &api.GetOptions{Cache: false}) {
 		return utils.Warn("存在下级部门，无法删除"), nil
 	}
-	if deptSrv.CheckDeptExistUser(ctx, req.GetDeptId(), &api.GetOptions{Cache: true}) {
+	if deptSrv.CheckDeptExistUser(ctx, req.GetDeptId(), &api.GetOptions{Cache: false}) {
 		return utils.Warn("部门存在用户，不允许删除"), nil
 	}
-	if !deptSrv.CheckDeptDataScope(ctx, req.GetDeptId(), &api.GetOptions{Cache: true}) {
+	if !deptSrv.CheckDeptDataScope(ctx, req.GetDeptId(), &api.GetOptions{Cache: false}) {
 		return utils.Fail("没有权限访问部门数据！"), nil
 	}
 
@@ -288,7 +288,6 @@ func (s *SystemServiceImpl) ExportDictData(ctx context.Context, req *v1.ExportDi
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysDictData2DictData(list.Items),
 		SheetName: "字典数据",
-		Title:     "",
 	}, nil
 }
 
@@ -320,7 +319,7 @@ func (s *SystemServiceImpl) CreateDictData(ctx context.Context, req *v1.CreateDi
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictData := v1.DictData2SysDictData(req.GetDictData())
 	sysDictData.CreateBy = loginInfo.User.UserName
-	if err = service.NewDictDatas(store).InsertDictData(ctx, sysDictData, &api.CreateOptions{}); err != nil {
+	if err = service.NewDictDatas(store).InsertDictData(ctx, sysDictData, &api.CreateOptions{Validate: true}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
 	return utils.Ok("操作成功"), nil
@@ -376,7 +375,6 @@ func (s *SystemServiceImpl) ExportDictType(ctx context.Context, req *v1.ExportDi
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysDictType2DictType(list.Items),
 		SheetName: "字典类型",
-		Title:     "",
 	}, nil
 }
 
@@ -397,12 +395,12 @@ func (s *SystemServiceImpl) CreateDictType(ctx context.Context, req *v1.CreateDi
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictType := v1.DictType2SysDictType(req.GetDictType())
 	dictTypeSrv := service.NewDictTypes(store)
-	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: true}) {
+	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增字典 %s 失败，字典类型已存在", sysDictType.DictName)), nil
 	}
 
 	sysDictType.CreateBy = loginInfo.User.UserName
-	if err = dictTypeSrv.InsertDictType(ctx, sysDictType, &api.CreateOptions{}); err != nil {
+	if err = dictTypeSrv.InsertDictType(ctx, sysDictType, &api.CreateOptions{Validate: true}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
 	return utils.Ok("操作成功"), nil
@@ -415,12 +413,13 @@ func (s *SystemServiceImpl) UpdateDictType(ctx context.Context, req *v1.UpdateDi
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	dictTypeSrv := service.NewDictTypes(store)
 	sysDictType := v1.DictType2SysDictType(req.GetDictType())
-	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: true}) {
+	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改字典 %s 失败，字典类型已存在", sysDictType.DictName)), nil
 	}
 
 	sysDictType.UpdateBy = loginInfo.User.UserName
 	if err = dictTypeSrv.UpdateDictType(ctx, sysDictType, &api.UpdateOptions{}); err != nil {
+		log.Infof("修改字典类型错误: %s", err.Error())
 		return utils.Fail("系统内部错误"), nil
 	}
 	return utils.Ok("操作成功"), nil
@@ -447,7 +446,7 @@ func (s *SystemServiceImpl) RefreshDictType(ctx context.Context) (resp *v1.BaseR
 // DictTypeOptionSelect implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) DictTypeOptionSelect(ctx context.Context) (resp *v1.DictTypeOptionSelectResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
-	list := service.NewDictTypes(store).SelectDictTypeAll(ctx, &api.GetOptions{Cache: true})
+	list := service.NewDictTypes(store).SelectDictTypeAll(ctx, &api.GetOptions{Cache: false})
 	return &v1.DictTypeOptionSelectResponse{
 		BaseResp: utils.Ok("操作成功"),
 		Data:     v1.MSysDictType2DictType(list.Items),
@@ -482,7 +481,6 @@ func (s *SystemServiceImpl) ExportLogininfo(ctx context.Context, req *v1.ExportL
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysLogininfor2Logininfor(list.Items),
 		SheetName: "登录日志",
-		Title:     "",
 	}, nil
 }
 
@@ -508,7 +506,7 @@ func (s *SystemServiceImpl) LogininfoClean(ctx context.Context) (resp *v1.BaseRe
 
 // UnlockByUserName implements the SystemServiceImpl interface.
 func (s *SystemServiceImpl) UnlockByUserName(ctx context.Context, username string) (resp *v1.BaseResp, err error) {
-	redisCli := kv.NewKVStore("redis").(kv.RedisStore)
+	redisCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 	redisCli.SetKeyPrefix(kv.PWD_ERR_CNT_KEY)
 	redisCli.DeleteKey(ctx, username)
 	return utils.Ok("操作成功"), nil
@@ -551,16 +549,19 @@ func (s *SystemServiceImpl) GetSysMenuById(ctx context.Context, id int64) (resp 
 }
 
 // ListTreeMenu implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest) (resp *v1.ListSysMenusResponse, err error) {
+func (s *SystemServiceImpl) ListTreeMenu(ctx context.Context, req *v1.ListTreeMenuRequest) (resp *v1.ListTreeMenuResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
+	menuSrv := service.NewMenus(store)
 
-	menus := service.NewMenus(store).SelectMenuListWithMenu(ctx, sysMenu, loginInfo.User.UserId, &api.GetOptions{Cache: true})
-	return &v1.ListSysMenusResponse{
+	menus := menuSrv.SelectMenuListWithMenu(ctx, sysMenu, loginInfo.User.UserId, &api.GetOptions{Cache: true})
+	res := menuSrv.BuildMenuTreeSelect(ctx, menus.Items)
+
+	return &v1.ListTreeMenuResponse{
 		BaseResp: utils.Ok("操作成功"),
-		Data:     v1.MSysMenu2MenuInfo(menus.Items),
+		Data:     v1.MTreeSelectTrans(res),
 	}, nil
 }
 
@@ -588,7 +589,7 @@ func (s *SystemServiceImpl) CreateMenu(ctx context.Context, req *v1.CreateMenuRe
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	menuSrv := service.NewMenus(store)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
-	if !menuSrv.CheckMenuNameUnique(ctx, sysMenu, &api.GetOptions{Cache: true}) {
+	if !menuSrv.CheckMenuNameUnique(ctx, sysMenu, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增菜单 %s 失败，菜单名称已存在", sysMenu.MenuName)), nil
 	}
 	if sysMenu.IsFrame == v13.YES_FRAME && !strutil.IsHttp(sysMenu.Path) {
@@ -609,7 +610,7 @@ func (s *SystemServiceImpl) UpdateMenu(ctx context.Context, req *v1.UpdateMenuRe
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	menuSrv := service.NewMenus(store)
 	sysMenu := v1.MenuInfo2SysMenu(req.GetMenuInfo())
-	if !menuSrv.CheckMenuNameUnique(ctx, sysMenu, &api.GetOptions{Cache: true}) {
+	if !menuSrv.CheckMenuNameUnique(ctx, sysMenu, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增菜单 %s 失败，菜单名称已存在", sysMenu.MenuName)), nil
 	}
 	if sysMenu.IsFrame == v13.YES_FRAME && !strutil.IsHttp(sysMenu.Path) {
@@ -632,10 +633,10 @@ func (s *SystemServiceImpl) DeleteMenu(ctx context.Context, req *v1.DeleteMenuRe
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	menuSrv := service.NewMenus(store)
-	if menuSrv.HasChildByMenuId(ctx, req.GetMenuId(), &api.GetOptions{Cache: true}) {
+	if menuSrv.HasChildByMenuId(ctx, req.GetMenuId(), &api.GetOptions{Cache: false}) {
 		return utils.Fail("存在子菜单，不允许删除"), nil
 	}
-	if menuSrv.CheckMenuExistsRole(ctx, req.GetMenuId(), &api.GetOptions{Cache: true}) {
+	if menuSrv.CheckMenuExistsRole(ctx, req.GetMenuId(), &api.GetOptions{Cache: false}) {
 		return utils.Warn("菜单已分配，不允许删除"), nil
 	}
 	if err = menuSrv.DeleteMenuBuId(ctx, req.GetMenuId(), &api.DeleteOptions{}); err != nil {
@@ -750,7 +751,6 @@ func (s *SystemServiceImpl) ExportSysOperLog(ctx context.Context, req *v1.Export
 		BaseResp:  utils.Ok("操作成功"),
 		OperLogs:  v1.MSysOperLog2Operlog(list.Items),
 		SheetName: "操作日志",
-		Title:     "",
 	}, nil
 }
 
@@ -815,7 +815,6 @@ func (s *SystemServiceImpl) ExportSysPost(ctx context.Context, req *v1.ExportSys
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysPost2PostInfo(list.Items),
 		SheetName: "岗位数据",
-		Title:     "",
 	}, nil
 }
 
@@ -837,10 +836,10 @@ func (s *SystemServiceImpl) CreateSysPost(ctx context.Context, req *v1.CreateSys
 	postSrv := service.NewPosts(store)
 	sysPost := v1.PostInfo2SysPost(req.GetPostInfo())
 
-	if !postSrv.CheckPostNameUnique(ctx, sysPost, &api.GetOptions{Cache: true}) {
+	if !postSrv.CheckPostNameUnique(ctx, sysPost, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增岗位 %s 失败，岗位名称已存在", sysPost.PostName)), nil
 	}
-	if !postSrv.CheckPostCodeUnique(ctx, sysPost, &api.GetOptions{Cache: true}) {
+	if !postSrv.CheckPostCodeUnique(ctx, sysPost, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增岗位 %s 失败，岗位编码已存在", sysPost.PostCode)), nil
 	}
 	sysPost.CreateBy = loginInfo.User.UserName
@@ -858,10 +857,10 @@ func (s *SystemServiceImpl) UpdateSysPost(ctx context.Context, req *v1.UpdateSys
 	postSrv := service.NewPosts(store)
 	sysPost := v1.PostInfo2SysPost(req.GetPostInfo())
 
-	if !postSrv.CheckPostNameUnique(ctx, sysPost, &api.GetOptions{Cache: true}) {
+	if !postSrv.CheckPostNameUnique(ctx, sysPost, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增岗位 %s 失败，岗位名称已存在", sysPost.PostName)), nil
 	}
-	if !postSrv.CheckPostCodeUnique(ctx, sysPost, &api.GetOptions{Cache: true}) {
+	if !postSrv.CheckPostCodeUnique(ctx, sysPost, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增岗位 %s 失败，岗位编码已存在", sysPost.PostCode)), nil
 	}
 	sysPost.UpdateBy = loginInfo.User.UserName
@@ -876,6 +875,15 @@ func (s *SystemServiceImpl) DeleteSysPost(ctx context.Context, req *v1.DeleteSys
 	store, _ := es.GetESFactoryOr(nil)
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+	postSrv := service.NewPosts(store)
+
+	for i := range req.PostIds {
+		post := postSrv.SelectPostById(ctx, req.PostIds[i], &api.GetOptions{Cache: false})
+		if postSrv.CountUserPostById(ctx, req.PostIds[i], &api.GetOptions{Cache: true}) > 0 {
+			return utils.Fail(fmt.Sprintf("%s 岗位已经分配, 不能删除", post.PostName)), nil
+		}
+	}
+
 	if err = service.NewPosts(store).DeletePostByIds(ctx, req.GetPostIds(), &api.DeleteOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
@@ -918,10 +926,10 @@ func (s *SystemServiceImpl) UpdateProfile(ctx context.Context, req *v1.UpdatePro
 	userSrv := service.NewUsers(store)
 
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
-	if sysUser.Phonenumber != "" && !userSrv.CheckPhoneUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if sysUser.Phonenumber != "" && !userSrv.CheckPhoneUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改用户 %s 失败，手机号已存在", sysUser.Username)), nil
 	}
-	if sysUser.Email != "" && !userSrv.CheckEmailUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if sysUser.Email != "" && !userSrv.CheckEmailUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改用户 %s 失败，邮箱账号已存在", sysUser.Username)), nil
 	}
 
@@ -979,7 +987,6 @@ func (s *SystemServiceImpl) ExportSysRole(ctx context.Context, req *v1.ExportSys
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysRole2RoleInfo(list.Items),
 		SheetName: "角色数据",
-		Title:     "",
 	}, nil
 }
 
@@ -1000,10 +1007,10 @@ func (s *SystemServiceImpl) CreateSysRole(ctx context.Context, req *v1.CreateSys
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	roleSrv := service.NewRoles(store)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
-	if !roleSrv.CheckRoleNameUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleNameUnique(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色名称已存在y", sysRole.RoleName)), nil
 	}
-	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
 
@@ -1022,10 +1029,10 @@ func (s *SystemServiceImpl) UpdateSysRole(ctx context.Context, req *v1.UpdateSys
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
-	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改角色 %s 失败，角色名称已存在", sysRole.RoleName)), nil
 	}
-	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
 	sysRole.UpdateBy = loginInfo.User.UserName
@@ -1043,10 +1050,10 @@ func (s *SystemServiceImpl) DataScope(ctx context.Context, req *v1.DataScopeRequ
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
-	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改角色 %s 失败，角色名称已存在", sysRole.RoleName)), nil
 	}
-	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
 
@@ -1064,10 +1071,10 @@ func (s *SystemServiceImpl) ChangeSysRoleStatus(ctx context.Context, req *v1.Cha
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysRole := v1.RoleInfo2SysRole(req.GetRoleInfo())
 
-	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleAllowed(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("修改角色 %s 失败，角色名称已存在", sysRole.RoleName)), nil
 	}
-	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleKeyUnique(ctx, sysRole, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增角色 %s 失败，角色权限已存在", sysRole.RoleName)), nil
 	}
 
@@ -1160,7 +1167,7 @@ func (s *SystemServiceImpl) SelectAuthUserAll(ctx context.Context, req *v1.Selec
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	roleSrv := service.NewRoles(store)
-	if !roleSrv.CheckRoleDataScope(ctx, req.RoleId, &api.GetOptions{Cache: true}) {
+	if !roleSrv.CheckRoleDataScope(ctx, req.RoleId, &api.GetOptions{Cache: false}) {
 		return utils.Fail("没有权限访问角色数据！"), nil
 	}
 	if err = roleSrv.InsertAuthUsers(ctx, req.GetRoleId(), req.GetUserIds(), &api.CreateOptions{}); err != nil {
@@ -1170,22 +1177,18 @@ func (s *SystemServiceImpl) SelectAuthUserAll(ctx context.Context, req *v1.Selec
 }
 
 // DeptTreeByRoleId implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) DeptTreeByRoleId(ctx context.Context, id int64) (resp *v1.DeptTreeByRoleIdResponse, err error) {
+func (s *SystemServiceImpl) DeptTreeByRoleId(ctx context.Context, req *v1.DeptTreeByRoleIdRequest) (resp *v1.DeptTreeByRoleIdResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	deptSrv := service.NewDepts(store)
-	keys := deptSrv.SelectDeptListByRoleId(ctx, id, &api.GetOptions{Cache: true})
+	keys := deptSrv.SelectDeptListByRoleId(ctx, req.Id, &api.GetOptions{Cache: true})
 	depts := deptSrv.SelectDeptTreeList(ctx, &v13.SysDept{}, &api.GetOptions{Cache: true})
 	return &v1.DeptTreeByRoleIdResponse{
 		BaseResp:    utils.Ok("操作成功"),
 		CheckedKeys: keys,
 		Depts:       v1.MTreeSelectTrans(depts),
 	}, nil
-}
-
-// GetSysRoleByUser implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) GetSysRoleByUser(ctx context.Context, id int64) (resp *v1.ListSysRolesResponse, err error) {
-	// TODO: Your code here...
-	return
 }
 
 // ListSysUsers implements the SystemServiceImpl interface.
@@ -1219,7 +1222,6 @@ func (s *SystemServiceImpl) ExportSysUser(ctx context.Context, req *v1.ExportSys
 		BaseResp:  utils.Ok("操作成功"),
 		List:      v1.MSysUser2UserInfo(list.Items),
 		SheetName: "用户数据",
-		Title:     "",
 	}, nil
 }
 
@@ -1242,6 +1244,11 @@ func (s *SystemServiceImpl) GetUserInfo(ctx context.Context, id int64) (resp *v1
 	store, _ := es.GetESFactoryOr(nil)
 
 	user := service.NewUsers(store).SelectUserById(ctx, id, &api.GetOptions{Cache: true})
+	if user == nil {
+		return &v1.UserInfoResponse{
+			BaseResp: utils.Fail("未找到用户"),
+		}, nil
+	}
 	permissionSrv := service.NewPermissions(store)
 	roles := permissionSrv.GetRolePermission(ctx, user, &api.GetOptions{Cache: true})
 	permissions := permissionSrv.GetMenuPermission(ctx, user, &api.GetOptions{Cache: true})
@@ -1290,7 +1297,7 @@ func (s *SystemServiceImpl) RegisterSysUser(ctx context.Context, req *v1.Registe
 			IsOk:     false,
 		}, nil
 	}
-	if !service.NewUsers(store).CheckUserNameUnique(ctx, user, &api.GetOptions{Cache: true}) {
+	if !service.NewUsers(store).CheckUserNameUnique(ctx, user, &api.GetOptions{Cache: false}) {
 		return &v1.RegisterSysUserResponse{
 			BaseResp: utils.Fail(fmt.Sprintf("保存用户 %s 失败，注册账号已经存在", user.Username)),
 			IsOk:     false,
@@ -1319,7 +1326,7 @@ func (s *SystemServiceImpl) GetUserInfoById(ctx context.Context, req *v1.GetUser
 	posts := postSrv.SelectPostAll(ctx, &api.GetOptions{Cache: true})
 	if req.Id != -1 {
 		// 查询用户权限
-		if !userSrv.CheckUserDataScope(ctx, req.Id, &api.GetOptions{Cache: true}) {
+		if !userSrv.CheckUserDataScope(ctx, req.Id, &api.GetOptions{Cache: false}) {
 			return &v1.UserInfoByIdResponse{
 				BaseResp: utils.Fail("没有权限访问用户数据！"),
 			}, nil
@@ -1368,13 +1375,13 @@ func (s *SystemServiceImpl) CreateSysUser(ctx context.Context, req *v1.CreateSys
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !userSrv.CheckUserNameUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserNameUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，登录账号已存在", sysUser.Username)), nil
 	}
-	if sysUser.Phonenumber != "" && !userSrv.CheckPhoneUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if sysUser.Phonenumber != "" && !userSrv.CheckPhoneUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，手机号码已存在", sysUser.Username)), nil
 	}
-	if sysUser.Email != "" && !userSrv.CheckEmailUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if sysUser.Email != "" && !userSrv.CheckEmailUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，邮箱账号已存在", sysUser.Username)), nil
 	}
 
@@ -1395,19 +1402,19 @@ func (s *SystemServiceImpl) UpdateSysUser(ctx context.Context, req *v1.UpdateSys
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail("不允许操作超级管理员用户"), nil
 	}
-	if !userSrv.CheckUserDataScope(ctx, sysUser.UserId, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserDataScope(ctx, sysUser.UserId, &api.GetOptions{Cache: false}) {
 		return utils.Fail("没有权限访问用户数据！"), nil
 	}
-	if !userSrv.CheckUserNameUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserNameUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，登录账号已存在", sysUser.Username)), nil
 	}
-	if sysUser.Phonenumber != "" && !userSrv.CheckPhoneUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if sysUser.Phonenumber != "" && !userSrv.CheckPhoneUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，手机号码已存在", sysUser.Username)), nil
 	}
-	if sysUser.Email != "" && !userSrv.CheckEmailUnique(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if sysUser.Email != "" && !userSrv.CheckEmailUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，邮箱账号已存在", sysUser.Username)), nil
 	}
 
@@ -1447,10 +1454,10 @@ func (s *SystemServiceImpl) ResetPassword(ctx context.Context, req *v1.ResetPass
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail("不允许操作超级管理员用户"), nil
 	}
-	if !userSrv.CheckUserDataScope(ctx, sysUser.UserId, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserDataScope(ctx, sysUser.UserId, &api.GetOptions{Cache: false}) {
 		return utils.Fail("没有权限访问用户数据！"), nil
 	}
 
@@ -1458,6 +1465,18 @@ func (s *SystemServiceImpl) ResetPassword(ctx context.Context, req *v1.ResetPass
 	encryptedPasswd, _ := auth.Encrypt(sysUser.Password)
 	sysUser.Password = encryptedPasswd
 	if err = userSrv.ResetPwd(ctx, sysUser, &api.UpdateOptions{}); err != nil {
+		return utils.Fail("系统内部错误"), nil
+	}
+	return utils.Ok("操作成功"), nil
+}
+
+// UpdateUserAvatar implements the SystemServiceImpl interface.
+func (s *SystemServiceImpl) UpdateUserAvatar(ctx context.Context, req *v1.UpdateUserAvatarRequest) (resp *v1.BaseResp, err error) {
+	store, _ := es.GetESFactoryOr(nil)
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
+	if err = service.NewUsers(store).UpdateUserAvatar(ctx, loginInfo.User.UserName, req.Avatar, &api.UpdateOptions{}); err != nil {
 		return utils.Fail("系统内部错误"), nil
 	}
 	return utils.Ok("操作成功"), nil
@@ -1471,10 +1490,10 @@ func (s *SystemServiceImpl) ChangeSysUserStatus(ctx context.Context, req *v1.Cha
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserAllowed(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail("不允许操作超级管理员用户"), nil
 	}
-	if !userSrv.CheckUserDataScope(ctx, sysUser.UserId, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserDataScope(ctx, sysUser.UserId, &api.GetOptions{Cache: false}) {
 		return utils.Fail("没有权限访问用户数据！"), nil
 	}
 
@@ -1486,10 +1505,13 @@ func (s *SystemServiceImpl) ChangeSysUserStatus(ctx context.Context, req *v1.Cha
 }
 
 // GetAuthRoleById implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) GetAuthRoleById(ctx context.Context, id int64) (resp *v1.AuthRoleInfoResponse, err error) {
+func (s *SystemServiceImpl) GetAuthRoleById(ctx context.Context, req *v1.GetAuthRoleByIdRequest) (resp *v1.AuthRoleInfoResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
-	user := service.NewUsers(store).SelectUserById(ctx, id, &api.GetOptions{Cache: true})
-	roles := service.NewRoles(store).SelectRolesByUserId(ctx, id, &api.GetOptions{Cache: true})
+	loginInfo := req.User
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
+	user := service.NewUsers(store).SelectUserById(ctx, req.Id, &api.GetOptions{Cache: true})
+	roles := service.NewRoles(store).SelectRolesByUserId(ctx, req.Id, &api.GetOptions{Cache: true})
 
 	return &v1.AuthRoleInfoResponse{
 		BaseResp: utils.Ok("操作成功"),
@@ -1505,7 +1527,7 @@ func (s *SystemServiceImpl) AuthRole(ctx context.Context, req *v1.AuthRoleReques
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
-	if !userSrv.CheckUserDataScope(ctx, req.UserId, &api.GetOptions{Cache: true}) {
+	if !userSrv.CheckUserDataScope(ctx, req.UserId, &api.GetOptions{Cache: false}) {
 		return utils.Fail("没有权限访问用户数据！"), nil
 	}
 	if err = userSrv.InsertUserAuth(ctx, req.UserId, req.RoleIds, &api.UpdateOptions{}); err != nil {
@@ -1534,6 +1556,7 @@ func (s *SystemServiceImpl) ListSysUserOnlines(ctx context.Context, req *v1.List
 	store, _ := es.GetESFactoryOr(nil)
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+	log.Infof("%v %v", req.Ipaddr, req.UserName)
 	list := service.NewUserOnlines(store).SelectUserOnline(ctx, req.Ipaddr, req.UserName, &api.GetOptions{Cache: true})
 	return &v1.ListSysUserOnline{
 		BaseResp: utils.Ok("操作成功"),

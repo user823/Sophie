@@ -3,7 +3,7 @@ package hash
 const DefaultHashAlgorithm = "fnv"
 
 type Hasher interface {
-	HashKey(string) string
+	HashKey([]byte) string
 }
 
 func NewHasher(strategy string) Hasher {

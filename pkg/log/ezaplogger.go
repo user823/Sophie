@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"go.uber.org/zap"
 )
 
 type environment []string
@@ -134,10 +135,6 @@ func (l *ezapLogger) Write(p []byte) (n int, err error) {
 	return l.logger.Write(p)
 }
 
-func (l *ezapLogger) SetAggregation(on bool) {
-	l.logger.SetAggregation(on)
-}
-
 func (l *ezapLogger) WithValues(keysAndValues ...any) Logger {
 	l.env = keysAndValues
 	return l
@@ -164,4 +161,8 @@ func (l *ezapLogger) RedirectToStd() {
 	if a, ok := l.logger.(StdLoggerAdapter); ok {
 		a.RedirectToStd()
 	}
+}
+
+func (l *ezapLogger) ZapLogger() *zap.Logger {
+	return l.logger.ZapLogger()
 }

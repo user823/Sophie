@@ -5,12 +5,10 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/user823/Sophie/api"
 	"github.com/user823/Sophie/api/domain/system/v1"
-	"github.com/user823/Sophie/api/domain/system/v1/vo"
+	vo2 "github.com/user823/Sophie/api/domain/vo"
 	"github.com/user823/Sophie/internal/system/store"
 	"github.com/user823/Sophie/pkg/utils/intutil"
 	"github.com/user823/Sophie/pkg/utils/strutil"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"strings"
 )
 
@@ -28,11 +26,11 @@ type MenuSrv interface {
 	// 根据角色ID查询菜单树信息
 	SelectMenuListByRoleId(ctx context.Context, roleId int64, opts *api.GetOptions) []int64
 	// 构建前端路由所需要的菜单
-	BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo.RouterVo
+	BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo2.RouterVo
 	// 构建前端路由所需要的树结构
 	BuildMenuTree(ctx context.Context, menus []*v1.SysMenu) *v1.MenuList
 	// 构建前端所需要下拉树结构
-	BuildMenuTreeSelect(ctx context.Context, menus []*v1.SysMenu) []vo.TreeSelect
+	BuildMenuTreeSelect(ctx context.Context, menus []*v1.SysMenu) []vo2.TreeSelect
 	// 根据菜单ID查询信息
 	SelectMenuById(ctx context.Context, menuId int64, opts *api.GetOptions) *v1.SysMenu
 	// 是否存在菜单子节点
@@ -64,17 +62,22 @@ func (s *menuService) SelectMenuList(ctx context.Context, userId int64, opts *ap
 }
 
 func (s *menuService) SelectMenuListWithMenu(ctx context.Context, menu *v1.SysMenu, userId int64, opts *api.GetOptions) *v1.MenuList {
+	var result []*v1.SysMenu
+	var err error
+
+	// 管理员搜索所有列表
 	if v1.IsUserAdmin(userId) {
-		result, err := s.store.Menus().SelectMenuList(ctx, menu, opts)
+		result, err = s.store.Menus().SelectMenuList(ctx, menu, opts)
 		if err != nil {
 			return &v1.MenuList{ListMeta: api.ListMeta{0}}
 		}
-		return &v1.MenuList{ListMeta: api.ListMeta{int64(len(result))}, Items: result}
+	} else {
+		result, err = s.store.Menus().SelectMenuListByUserId(ctx, menu, userId, opts)
+		if err != nil {
+			return &v1.MenuList{ListMeta: api.ListMeta{0}}
+		}
 	}
-	result, err := s.store.Menus().SelectMenuListByUserId(ctx, menu, userId, opts)
-	if err != nil {
-		return &v1.MenuList{ListMeta: api.ListMeta{0}}
-	}
+
 	return &v1.MenuList{ListMeta: api.ListMeta{int64(len(result))}, Items: result}
 }
 
@@ -154,10 +157,10 @@ func (s *menuService) SelectMenuListByRoleId(ctx context.Context, roleId int64, 
 	return result
 }
 
-func (s *menuService) BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo.RouterVo {
-	routers := make([]vo.RouterVo, 0, len(menus))
+func (s *menuService) BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo2.RouterVo {
+	routers := make([]vo2.RouterVo, 0, len(menus))
 	for i := range menus {
-		router := vo.RouterVo{}
+		router := vo2.RouterVo{}
 		router.Hidden = menus[i].Visible == "1"
 		router.Name = getRouterName(menus[i])
 		router.Path = getRouterPath(menus[i])
@@ -171,24 +174,24 @@ func (s *menuService) BuildMenus(ctx context.Context, menus []*v1.SysMenu) []vo.
 			router.Redirect = "noRedirect"
 			router.Children = s.BuildMenus(ctx, cMenus)
 		} else if isMenuFrame(menus[i]) {
-			router.Meta = vo.MetaVo{}
-			children := vo.RouterVo{}
+			router.Meta = vo2.MetaVo{}
+			children := vo2.RouterVo{}
 			children.Path = menus[i].Path
 			children.Component = menus[i].Component
-			children.Name = strings.ToTitle(menus[i].Path)
+			children.Name = strutil.Capitalize(menus[i].Path)
 			children.Meta = NewMetaVo(menus[i].MenuName, menus[i].Icon, menus[i].IsCache == "1", menus[i].Path)
 			children.Query = menus[i].Query
-			router.Children = []vo.RouterVo{children}
+			router.Children = []vo2.RouterVo{children}
 		} else if menus[i].ParentId == 0 && isInnerLink(menus[i]) {
-			router.Meta = vo.MetaVo{menus[i].MenuName, menus[i].Icon, false, ""}
+			router.Meta = vo2.MetaVo{menus[i].MenuName, menus[i].Icon, false, ""}
 			router.Path = "/"
-			children := vo.RouterVo{}
+			children := vo2.RouterVo{}
 			routerPath := innerLinkReplaceEach(menus[i].Path)
 			children.Path = routerPath
 			children.Component = v1.INNER_LINK
-			children.Name = strings.ToTitle(routerPath)
-			children.Meta = vo.MetaVo{menus[i].MenuName, menus[i].Icon, false, menus[i].Path}
-			router.Children = []vo.RouterVo{children}
+			children.Name = strutil.Capitalize(routerPath)
+			children.Meta = vo2.MetaVo{menus[i].MenuName, menus[i].Icon, false, menus[i].Path}
+			router.Children = []vo2.RouterVo{children}
 		}
 		routers = append(routers, router)
 	}
@@ -203,6 +206,7 @@ func (s *menuService) BuildMenuTree(ctx context.Context, menus []*v1.SysMenu) *v
 	}
 
 	for i := range menus {
+		// 顶层节点，则递归
 		if !intutil.ContainsAnyInt64(menus[i].ParentId, menuIds...) {
 			menuRecursionFn(menus, menus[i])
 			list = append(list, menus[i])
@@ -217,9 +221,9 @@ func (s *menuService) BuildMenuTree(ctx context.Context, menus []*v1.SysMenu) *v
 	}
 }
 
-func (s *menuService) BuildMenuTreeSelect(ctx context.Context, menus []*v1.SysMenu) []vo.TreeSelect {
+func (s *menuService) BuildMenuTreeSelect(ctx context.Context, menus []*v1.SysMenu) []vo2.TreeSelect {
 	menuTrees := s.BuildMenuTree(ctx, menus)
-	res := make([]vo.TreeSelect, 0, menuTrees.ListMeta.TotalCount)
+	res := make([]vo2.TreeSelect, 0, menuTrees.ListMeta.TotalCount)
 	for i := range menuTrees.Items {
 		res = append(res, menuTrees.Items[i].BuildTreeSelect())
 	}
@@ -256,15 +260,14 @@ func (s *menuService) DeleteMenuBuId(ctx context.Context, menuId int64, opts *ap
 
 func (s *menuService) CheckMenuNameUnique(ctx context.Context, menu *v1.SysMenu, opts *api.GetOptions) bool {
 	info := s.store.Menus().CheckMenuNameUnique(ctx, menu.MenuName, menu.ParentId, opts)
-	if info != nil && info.MenuId == menu.MenuId {
+	if info != nil && info.MenuId != menu.MenuId {
 		return false
 	}
 	return true
 }
 
 func getRouterName(menu *v1.SysMenu) string {
-	c := cases.Title(language.English)
-	routerName := c.String(menu.Path)
+	routerName := strutil.Capitalize(menu.Path)
 	// 非外链并且是一级目录（类型为目录）
 	if isMenuFrame(menu) {
 		routerName = ""
@@ -311,7 +314,7 @@ func getComponent(menu *v1.SysMenu) string {
 		component = menu.Component
 	} else if menu.Component != "" && menu.ParentId != 0 && isInnerLink(menu) {
 		component = v1.INNER_LINK
-	} else if menu.Component != "" && isParentView(menu) {
+	} else if menu.Component == "" && isParentView(menu) {
 		component = v1.PARENT_VIEW
 	}
 	return component
@@ -345,8 +348,8 @@ func getMenuChildList(list []*v1.SysMenu, t *v1.SysMenu) []*v1.SysMenu {
 	return tlist
 }
 
-func NewMetaVo(title, icon string, noCache bool, link string) vo.MetaVo {
-	res := vo.MetaVo{
+func NewMetaVo(title, icon string, noCache bool, link string) vo2.MetaVo {
+	res := vo2.MetaVo{
 		Title:   title,
 		Icon:    icon,
 		NoCache: noCache,

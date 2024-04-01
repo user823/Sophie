@@ -1,12 +1,3 @@
-driver: minio
-
-minio:
-  endpoint: 10.211.55.3:9000
-  bucket: sophie
-  access_key: sophie
-  secret_key: 12345678
-  use_ssl: false
-
 log:
   aggregation: false
   name: sophie-system-logger
@@ -14,3 +5,8 @@ log:
 rpc_server:
   bind_address: 127.0.0.1
   bind_port: 8082
+
+availability:
+  trace_enable: true
+  trace_endpoint: 127.0.0.1:4317
+  metric_enable: false

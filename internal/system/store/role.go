@@ -8,7 +8,7 @@ import (
 
 type RoleStore interface {
 	// 根据分页条件查询角色数据
-	SelectRoleList(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) ([]*v1.SysRole, error)
+	SelectRoleList(ctx context.Context, role *v1.SysRole, opts *api.GetOptions) ([]*v1.SysRole, int64, error)
 	// 根据用户id 查询角色
 	SelectRolePermissionByUserId(uctx context.Context, serid int64, opts *api.GetOptions) ([]*v1.SysRole, error)
 	// 查询所有角色

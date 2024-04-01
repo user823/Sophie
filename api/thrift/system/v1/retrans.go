@@ -23,9 +23,9 @@ func SysUser2UserInfo(user *v1.SysUser) *UserInfo {
 
 	userInfo := &UserInfo{
 		CreateBy:    user.CreateBy,
-		CreateTime:  utils.Time2Second(user.CreatedAt),
+		CreateTime:  utils.Time2Str(user.CreatedAt),
 		UpdateBy:    user.UpdateBy,
-		UpdateTime:  utils.Time2Second(user.UpdatedAt),
+		UpdateTime:  utils.Time2Str(user.UpdatedAt),
 		Remark:      user.Remark,
 		Params:      params,
 		UserId:      user.UserId,
@@ -48,7 +48,7 @@ func SysUser2UserInfo(user *v1.SysUser) *UserInfo {
 	}
 
 	if user.LoginDate != nil {
-		userInfo.LoginDate = utils.Time2Second(*user.LoginDate)
+		userInfo.LoginDate = utils.Time2Str(*user.LoginDate)
 	}
 	return userInfo
 }
@@ -78,9 +78,9 @@ func SysDept2DeptInfo(dept *v1.SysDept) *DeptInfo {
 
 	return &DeptInfo{
 		CreateBy:   dept.CreateBy,
-		CreateTime: utils.Time2Second(dept.CreatedAt),
+		CreateTime: utils.Time2Str(dept.CreatedAt),
 		UpdateBy:   dept.UpdateBy,
-		UpdateTime: utils.Time2Second(dept.UpdatedAt),
+		UpdateTime: utils.Time2Str(dept.UpdatedAt),
 		Remark:     dept.Remark,
 		Params:     params,
 		DeptId:     dept.DeptId,
@@ -118,9 +118,9 @@ func SysRole2RoleInfo(role *v1.SysRole) *RoleInfo {
 
 	return &RoleInfo{
 		CreateBy:          role.CreateBy,
-		CreateTime:        utils.Time2Second(role.CreatedAt),
+		CreateTime:        utils.Time2Str(role.CreatedAt),
 		UpdateBy:          role.UpdateBy,
-		UpdateTime:        utils.Time2Second(role.UpdatedAt),
+		UpdateTime:        utils.Time2Str(role.UpdatedAt),
 		Remark:            role.Remark,
 		Params:            params,
 		RoleId:            role.RoleId,
@@ -159,13 +159,14 @@ func SysPost2PostInfo(post *v1.SysPost) *PostInfo {
 
 	return &PostInfo{
 		CreateBy:   post.CreateBy,
-		CreateTime: utils.Time2Second(post.CreatedAt),
+		CreateTime: utils.Time2Str(post.CreatedAt),
 		UpdateBy:   post.UpdateBy,
-		UpdateTime: utils.Time2Second(post.UpdatedAt),
+		UpdateTime: utils.Time2Str(post.UpdatedAt),
 		Remark:     post.Remark,
 		Params:     params,
 		PostId:     post.PostId,
 		PostCode:   post.PostCode,
+		PostName:   post.PostName,
 		PostSort:   post.PostSort,
 		Status:     post.Status,
 		Flag:       post.Flag,
@@ -192,9 +193,9 @@ func SysConfig2ConfigInfo(config *v1.SysConfig) *ConfigInfo {
 
 	return &ConfigInfo{
 		CreateBy:    config.CreateBy,
-		CreateTime:  utils.Time2Second(config.CreatedAt),
+		CreateTime:  utils.Time2Str(config.CreatedAt),
 		UpdateBy:    config.UpdateBy,
-		UpdateTime:  utils.Time2Second(config.UpdatedAt),
+		UpdateTime:  utils.Time2Str(config.UpdatedAt),
 		Remark:      config.Remark,
 		Params:      params,
 		ConfigId:    config.ConfigId,
@@ -225,9 +226,9 @@ func SysDictData2DictData(dictData *v1.SysDictData) *DictData {
 
 	return &DictData{
 		CreateBy:   dictData.CreateBy,
-		CreateTime: utils.Time2Second(dictData.CreatedAt),
+		CreateTime: utils.Time2Str(dictData.CreatedAt),
 		UpdateBy:   dictData.UpdateBy,
-		UpdateTime: utils.Time2Second(dictData.UpdatedAt),
+		UpdateTime: utils.Time2Str(dictData.UpdatedAt),
 		Remark:     dictData.Remark,
 		Params:     params,
 		DictCode:   dictData.DictCode,
@@ -262,9 +263,9 @@ func SysDictType2DictType(dictType *v1.SysDictType) *DictType {
 
 	return &DictType{
 		CreateBy:   dictType.CreateBy,
-		CreateTime: utils.Time2Second(dictType.CreatedAt),
+		CreateTime: utils.Time2Str(dictType.CreatedAt),
 		UpdateBy:   dictType.UpdateBy,
-		UpdateTime: utils.Time2Second(dictType.UpdatedAt),
+		UpdateTime: utils.Time2Str(dictType.UpdatedAt),
 		Remark:     dictType.Remark,
 		Params:     params,
 		DictId:     dictType.DictId,
@@ -287,7 +288,7 @@ func SysLogininfor2Logininfor(logininfor *v1.SysLogininfor) *Logininfo {
 		return nil
 	}
 
-	accessTime := utils.Time2Second(logininfor.AccessTime)
+	accessTime := utils.Time2Str(logininfor.AccessTime)
 	return &Logininfo{
 		InfoId:     logininfor.InfoId,
 		UserName:   logininfor.UserName,
@@ -322,9 +323,9 @@ func SysMenu2MenuInfo(menu *v1.SysMenu) *MenuInfo {
 	}
 	return &MenuInfo{
 		CreateBy:   menu.CreateBy,
-		CreateTime: utils.Time2Second(menu.CreatedAt),
+		CreateTime: utils.Time2Str(menu.CreatedAt),
 		UpdateBy:   menu.UpdateBy,
-		UpdateTime: utils.Time2Second(menu.UpdatedAt),
+		UpdateTime: utils.Time2Str(menu.UpdatedAt),
 		Remark:     menu.Remark,
 		Params:     params,
 		MenuId:     menu.MenuId,
@@ -366,9 +367,9 @@ func SysNotice2NoticeInfo(notice *v1.SysNotice) *NoticeInfo {
 
 	return &NoticeInfo{
 		CreateBy:      notice.CreateBy,
-		CreateTime:    utils.Time2Second(notice.CreatedAt),
+		CreateTime:    utils.Time2Str(notice.CreatedAt),
 		UpdateBy:      notice.UpdateBy,
-		UpdateTime:    utils.Time2Second(notice.UpdatedAt),
+		UpdateTime:    utils.Time2Str(notice.UpdatedAt),
 		Remark:        notice.Remark,
 		Params:        params,
 		NoticeId:      notice.NoticeId,
@@ -400,7 +401,7 @@ func SysOperLog2OperLog(log *v1.SysOperLog) *OperLog {
 		operatorType = *log.OperatorType
 	}
 
-	operTime := utils.Time2Second(log.OperTime)
+	operTime := utils.Time2Str(log.OperTime)
 	return &OperLog{
 		OperId:        log.OperId,
 		Title:         log.Title,

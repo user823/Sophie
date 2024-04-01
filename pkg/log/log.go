@@ -1,11 +1,8 @@
 package log
 
 import (
-	"bytes"
-	"fmt"
 	"go.uber.org/zap"
 	"sync"
-	"sync/atomic"
 )
 
 // 定义兼容标准库的logger类型
@@ -40,10 +37,7 @@ type Logger interface {
 	Errorln(v ...any)
 	Errorw(msg string, keysAndValues ...any)
 	Write(p []byte) (n int, err error)
-
-	// SetAggregation 开启/关闭 日志聚合模式
-	// 默认是关闭状态
-	SetAggregation(bool)
+	ZapLogger() *zap.Logger
 
 	// WithValues 添加环境信息
 	WithValues(keysAndValues ...any) Logger
@@ -77,39 +71,8 @@ const (
 // 默认使用的logger
 var (
 	std Logger
-	// 写入到redis中
-	// 获取本次log产生的日志字符串
-	logbuf     bytes.Buffer
-	rchManager RecordChManager
-	mu         sync.Mutex
+	mu  sync.Mutex
 )
-
-type RecordChManager struct {
-	RecordCh   chan string
-	shouldStop uint32
-}
-
-func (r *RecordChManager) Start(bufSize uint64) {
-	r.RecordCh = make(chan string, bufSize)
-	atomic.SwapUint32(&r.shouldStop, 0)
-}
-
-func (r *RecordChManager) Stop() {
-	atomic.SwapUint32(&r.shouldStop, 1)
-	close(r.RecordCh)
-}
-
-func (r *RecordChManager) ShouldStop() bool {
-	return atomic.LoadUint32(&r.shouldStop) == 1
-}
-
-func (r *RecordChManager) GetChannel() chan string {
-	return r.RecordCh
-}
-
-func GetRecordMagager() *RecordChManager {
-	return &rchManager
-}
 
 // log 包导入即可用，使用默认的配置
 func init() {
@@ -124,6 +87,8 @@ func init() {
 	if a, ok := std.(StdLoggerAdapter); ok {
 		a.RedirectToStd()
 	}
+
+	zap.ReplaceGlobals(ZapLogger())
 }
 
 func Default() Logger {
@@ -137,6 +102,8 @@ func SetGlobal(l Logger) {
 	if a, ok := std.(StdLoggerAdapter); ok {
 		a.RedirectToStd()
 	}
+
+	zap.ReplaceGlobals(ZapLogger())
 }
 
 func New(opts *Options) (Logger, error) {
@@ -164,253 +131,149 @@ func New(opts *Options) (Logger, error) {
 	实现zapLogger
 */
 
-func (l *zapLogger) shouldAggregation() bool {
-	return l.flags&aggregationFlag != 0
-}
-
 func (l *zapLogger) Fatal(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Fatalw(fmt.Sprint(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
 	l.zlogger.Sugar().Fatal(v...)
 }
 
 func (l *zapLogger) Fatalf(format string, v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Fatalw(fmt.Sprintf(format, v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Fatalf(format, v...)
 }
 
 func (l *zapLogger) Fatalln(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Fatalw(fmt.Sprintln(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Fatalln(v...)
 }
 
 func (l *zapLogger) Fatalw(msg string, keysAndValues ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Fatalw(msg, keysAndValues...)
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Fatalw(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Panic(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Panicw(fmt.Sprint(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Panic(v...)
 }
 
 func (l *zapLogger) Panicf(format string, v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Panicw(fmt.Sprintf(format, v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Panicf(format, v...)
 }
 
 func (l *zapLogger) Panicln(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Panicw(fmt.Sprintln(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Panicln(v...)
 }
 
 func (l *zapLogger) Panicw(msg string, keysAndValues ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Panicw(msg, keysAndValues...)
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Panicw(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Info(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Infow(fmt.Sprint(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Info(v...)
 }
 
 func (l *zapLogger) Infof(format string, v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Infow(fmt.Sprintf(format, v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Infof(format, v...)
 }
 
 func (l *zapLogger) Infoln(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Infow(fmt.Sprintln(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Infoln(v...)
 }
 
 func (l *zapLogger) Infow(msg string, keysAndValues ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Infow(msg, keysAndValues...)
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Infow(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Print(v ...any) {
+
 	l.Info(v...)
 }
 
 func (l *zapLogger) Printf(format string, v ...any) {
+
 	l.Infof(format, v...)
 }
 
 func (l *zapLogger) Println(v ...any) {
+
 	l.Infoln(v...)
 }
 
 func (l *zapLogger) Printw(msg string, keysAndValues ...any) {
+
 	l.Infow(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Debug(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Debugw(fmt.Sprint(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Debug(v...)
 }
 
 func (l *zapLogger) Debugln(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Debugw(fmt.Sprintln(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Debugln(v...)
 }
 
 func (l *zapLogger) Debugf(format string, v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Debugw(fmt.Sprintf(format, v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Debugf(format, v...)
 }
 
 func (l *zapLogger) Debugw(msg string, keysAndValues ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Debugw(msg, keysAndValues...)
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Debugw(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Warn(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Warnw(fmt.Sprint(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Warnln(v...)
 }
 
 func (l *zapLogger) Warnf(format string, v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Warnw(fmt.Sprintf(format, v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Warnf(format, v...)
 }
 
 func (l *zapLogger) Warnln(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Warnw(fmt.Sprintln(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Warnln(v...)
 }
 
 func (l *zapLogger) Warnw(msg string, keysAndValues ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Warnw(msg, keysAndValues...)
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Warnw(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Error(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Errorw(fmt.Sprint(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Error(v...)
 }
 
 func (l *zapLogger) Errorf(format string, v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Errorw(fmt.Sprintf(format, v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Errorf(format, v...)
 }
 
 func (l *zapLogger) Errorln(v ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Errorw(fmt.Sprintln(v...))
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Errorln(v...)
 }
 
 func (l *zapLogger) Errorw(msg string, keysAndValues ...any) {
-	if !rchManager.ShouldStop() && l.shouldAggregation() {
-		l.zlogger.Sugar().Errorw(msg, keysAndValues)
-		rchManager.RecordCh <- logbuf.String()
-		return
-	}
+
 	l.zlogger.Sugar().Errorw(msg, keysAndValues...)
 }
 
 func (l *zapLogger) Write(p []byte) (n int, err error) {
+
 	l.zlogger.Info(string(p))
 	return len(p), nil
-}
-
-func (l *zapLogger) SetAggregation(on bool) {
-	if on {
-		l.flags |= aggregationFlag
-	} else {
-		l.flags &= ^aggregationFlag
-	}
 }
 
 func (l *zapLogger) WithValues(keysAndValues ...any) Logger {
@@ -447,6 +310,10 @@ func (l *zapLogger) Flush() {
 
 func (l *zapLogger) RedirectToStd() {
 	zap.RedirectStdLog(l.zlogger)
+}
+
+func (l *zapLogger) ZapLogger() *zap.Logger {
+	return l.zlogger
 }
 
 func Fatal(v ...any) {
@@ -561,18 +428,14 @@ func Errorw(msg string, keysAndValues ...any) {
 	std.Errorw(msg, keysAndValues...)
 }
 
-func SetAggregation(on bool) {
-	std.SetAggregation(on)
-}
-
-func WithValues(keysAndValues ...any) {
-	std.WithValues(keysAndValues...)
-}
-
-func GetRecordChan() *chan string {
-	return &rchManager.RecordCh
+func WithValues(keysAndValues ...any) Logger {
+	return std.WithValues(keysAndValues...)
 }
 
 func Flush() {
 	std.Flush()
+}
+
+func ZapLogger() *zap.Logger {
+	return std.ZapLogger()
 }

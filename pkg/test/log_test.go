@@ -2,16 +2,41 @@ package test
 
 import (
 	"context"
-	"fmt"
 	"github.com/user823/Sophie/pkg/db/kv"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"sync"
 	"testing"
+	"time"
 )
+
+var (
+	redisStore kv.RedisStore
+)
+
+func InitRedis() {
+	ctx := context.Background()
+	cfg := &kv.RedisConfig{
+		Addrs:                 []string{"127.0.0.1:6379"},
+		Username:              "sophie",
+		Password:              "123456",
+		Database:              0,
+		MasterName:            "",
+		MaxIdle:               2000,
+		MaxActive:             4000,
+		Timeout:               0,
+		EnableCluster:         false,
+		UseSSL:                false,
+		SSLInsecureSkipVerify: false,
+	}
+	go kv.KeepConnection(ctx, cfg)
+	redisStore = kv.NewKVStore("redis", nil).(kv.RedisStore)
+	time.Sleep(2 * time.Second)
+}
 
 func TestLog(t *testing.T) {
 	logger := log.Default()
@@ -42,25 +67,30 @@ func TestZap(t *testing.T) {
 }
 
 func TestAggregation(t *testing.T) {
-	ctx := context.Background()
-	go redis.KeepConnection(ctx, &redis.RedisConfig{
-		Addrs:    []string{"127.0.0.1:6379"},
-		Password: "123456",
-		Database: 0,
-	})
-	redisClient := kv.NewKVStore("redis").(kv.RedisStore)
-	aggregation.NewAnalytics(aggregation.NewAnalyticsOptions(), redisClient, log.GetRecordMagager())
+	pr := producer.NewRedisProducer(redisStore)
+	aggregation.NewAnalytics(aggregation.NewAnalyticsOptions(), pr)
 
 	// 开启日志聚合
 	analytics := aggregation.GetAnalytics()
 	analytics.Start()
-	log.SetAggregation(true)
 
-	// 附带环境信息
-	log.Infow("my first log~", "a", "b")
+	var wg sync.WaitGroup
+	wg.Add(100)
+	// 多线程测试
+	for i := 0; i < 100; i++ {
+		go func(i int) {
+			defer wg.Done()
+			log.Infof("this is %d", i)
+		}(i)
+	}
+	wg.Wait()
 
 	// 关闭日志聚合刷新缓存
 	analytics.Stop()
-	result := redisClient.GetAndDeleteSet(ctx, aggregation.RecordkeyName)
-	fmt.Println(result)
+}
+
+func TestAggregationSub(t *testing.T) {
+	InitRedis()
+
+	t.Run("test-aggregation", TestAggregation)
 }

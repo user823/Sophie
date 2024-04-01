@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -22,7 +23,7 @@ func selectDictDataVo(db *gorm.DB) *gorm.DB {
 	return db.Table("sys_dict_data")
 }
 
-func (s *mysqlDictDataStore) SelectDictDataList(ctx context.Context, dictData *v1.SysDictData, opts *api.GetOptions) ([]*v1.SysDictData, error) {
+func (s *mysqlDictDataStore) SelectDictDataList(ctx context.Context, dictData *v1.SysDictData, opts *api.GetOptions) ([]*v1.SysDictData, int64, error) {
 	query := selectDictDataVo(s.db)
 	if dictData.DictType != "" {
 		query = query.Where("dict_type = ?", dictData.DictType)
@@ -38,17 +39,17 @@ func (s *mysqlDictDataStore) SelectDictDataList(ctx context.Context, dictData *v
 
 	var result []*v1.SysDictData
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, ""), err
 }
 
-func (s *mysqlDictDataStore) SelectDictDataByType(ctx context.Context, dictType string, opts *api.GetOptions) ([]*v1.SysDictData, error) {
+func (s *mysqlDictDataStore) SelectDictDataByType(ctx context.Context, dictType string, opts *api.GetOptions) ([]*v1.SysDictData, int64, error) {
 	query := selectDictDataVo(s.db).Where("status = 0 and dict_type = ?", dictType)
 	query = opts.SQLCondition(query, "")
 	query = query.Order("dict_sort ASC")
 
 	var result []*v1.SysDictData
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, ""), err
 }
 
 func (s *mysqlDictDataStore) SelectDictLabel(ctx context.Context, dictType, dictValue string, opts *api.GetOptions) (string, error) {
@@ -67,7 +68,7 @@ func (s *mysqlDictDataStore) SelectDictDataById(ctx context.Context, dictCode in
 	var result v1.SysDictData
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -134,7 +135,7 @@ func (s *mysqlDictDataStore) UpdateDictDataType(ctx context.Context, oldType, ne
 	}
 	s.CachedDB().DelCache(ctx, cacheKeys...)
 
-	update := opts.SQLCondition(s.db).Where("dict_type = ?", oldType).Update("dict_type", newType)
+	update := opts.SQLCondition(s.db).Table("sys_dict_data").Where("dict_type = ?", oldType).Update("dict_type", newType)
 	return update.Error
 }
 
@@ -145,7 +146,7 @@ var dictDataCache = struct {
 
 func (s *mysqlDictDataStore) CachedDB() *cache.CachedDB {
 	dictDataCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-dictdatastore-")
 		rdsCli.SetRandomExp(true)
 

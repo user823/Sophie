@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/user823/Sophie/pkg/db/kv"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
 	"github.com/user823/Sophie/pkg/utils"
 	"reflect"
 	"testing"
@@ -14,7 +13,7 @@ import (
 var (
 	client           kv.RedisStore
 	ctx              = context.Background()
-	connectionConfig = &redis.RedisConfig{
+	connectionConfig = &kv.RedisConfig{
 		Addrs:    []string{"127.0.0.1:6379"},
 		Password: "123456",
 		Database: 0,
@@ -28,8 +27,8 @@ const (
 )
 
 func init() {
-	go redis.KeepConnection(ctx, connectionConfig)
-	client = kv.NewKVStore("redis").(kv.RedisStore)
+	go kv.KeepConnection(ctx, connectionConfig)
+	client = kv.NewKVStore("redis", nil).(kv.RedisStore)
 	client.SetKeyPrefix(testKeyPrefix)
 	client.SetHashKey(hashKey)
 	client.SetRandomExp(randomExp)
@@ -54,7 +53,7 @@ func Test_RedisClient_Connect(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -87,7 +86,7 @@ func Test_RedisClient_SetKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -154,7 +153,7 @@ func Test_RedisClient_GetMultiKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -191,7 +190,7 @@ func Test_RedisClient_GetKeyTTL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -228,7 +227,7 @@ func Test_RedisClient_GetRawKey(t *testing.T) {
 	client.SetRawKey(ctx, "a", "b", 0)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -263,7 +262,7 @@ func Test_RedisClient_GetKeys(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -297,7 +296,7 @@ func Test_RedisClient_DeleteKey(t *testing.T) {
 	client.SetKey(ctx, "a", "b", 0)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -327,7 +326,7 @@ func Test_RedisClient_DeleteAllKeys(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -359,7 +358,7 @@ func Test_RedisClient_DeleteRawKey(t *testing.T) {
 	client.SetRawKey(ctx, "a", "b", 0)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -393,7 +392,7 @@ func Test_RedisClient_GetKeysAndValuesWithFilter(t *testing.T) {
 	client.SetRawKey(ctx, "cx", "e", 0)
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -450,7 +449,7 @@ func Test_RedisClient_DeleteKeys(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -483,11 +482,11 @@ func Test_RedisClient_IncrememntWithExpire(t *testing.T) {
 	client.DeleteKey(ctx, "cnt")
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
-			if got := r.IncrememntWithExpire(tt.args.ctx, tt.args.key, tt.args.expire); got != tt.want {
+			if got := r.IncrementWithExpire(tt.args.ctx, tt.args.key, tt.args.expire); got != tt.want {
 				t.Errorf("RedisClient.IncrememntWithExpire() = %v, want %v", got, tt.want)
 			}
 		})
@@ -547,7 +546,7 @@ func Test_RedisClient_SetRollingWindow(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -584,7 +583,7 @@ func Test_RedisClient_GetRollingWindow(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -619,7 +618,7 @@ func Test_RedisClient_GetSet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -654,7 +653,7 @@ func Test_RedisClient_AddToSet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -682,7 +681,7 @@ func Test_RedisClient_GetAndDeleteSet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -712,7 +711,7 @@ func Test_RedisClient_RemoveFromSet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -740,7 +739,7 @@ func Test_RedisClient_DeleteScanMatch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -771,7 +770,7 @@ func Test_RedisClient_AddToSortedSet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -803,7 +802,7 @@ func Test_RedisClient_GetSortedSetRange(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -843,7 +842,7 @@ func Test_RedisClient_RemoveSortedSetRange(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -876,7 +875,7 @@ func Test_RedisClient_GetListRange(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -912,41 +911,13 @@ func Test_RedisClient_RemoveFromList(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
 			if err := r.RemoveFromList(tt.args.ctx, tt.args.key, tt.args.value); (err != nil) != tt.wantErr {
 				t.Errorf("RedisClient.RemoveFromList() error = %v, wantErr %v", err, tt.wantErr)
 			}
-		})
-	}
-}
-
-func Test_RedisClient_AppendToSet(t *testing.T) {
-	type fields struct {
-		KeyPrefix string
-		HashKey   bool
-	}
-	type args struct {
-		ctx   context.Context
-		key   string
-		value string
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
-				KeyPrefix: tt.fields.KeyPrefix,
-				HashKey:   tt.fields.HashKey,
-			}
-			r.AppendToSet(tt.args.ctx, tt.args.key, tt.args.value)
 		})
 	}
 }
@@ -971,7 +942,7 @@ func Test_RedisClient_Exists(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -1007,7 +978,7 @@ func Test_RedisClient_SetExp(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -1039,7 +1010,7 @@ func Test_RedisClient_SetRawKey(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := &redis.RedisClient{
+			r := &kv.RedisClient{
 				KeyPrefix: tt.fields.KeyPrefix,
 				HashKey:   tt.fields.HashKey,
 			}
@@ -1051,7 +1022,7 @@ func Test_RedisClient_SetRawKey(t *testing.T) {
 }
 
 func TestRedisAppendSetPipelined(t *testing.T) {
-	client.AppendToSetPipelined(ctx, "test", []string{"123", "456"})
+	client.AppendToSetPipelined(ctx, "test", []string{"123", "456", "789"})
 	result := client.GetAndDeleteSet(ctx, "test")
 	fmt.Println(result)
 }
@@ -1065,4 +1036,18 @@ func TestGetAndDelete(t *testing.T) {
 		t.Errorf(err.Error())
 	}
 	t.Logf("result is %s", res)
+}
+
+func TestSetRowingWindows(t *testing.T) {
+	client.SetKeyPrefix(kv.SYS_LOGIN_USER)
+	client.SetRollingWindow(ctx, kv.SYS_LOGIN_USER_IDS, (1000 * time.Second).Milliseconds(), "123", true)
+}
+
+func TestGetRowingWindows(t *testing.T) {
+	client.SetKeyPrefix(kv.SYS_LOGIN_USER)
+	l, res := client.GetRollingWindow(ctx, kv.SYS_LOGIN_USER_IDS, (1000 * time.Second).Milliseconds(), true)
+	t.Logf("总记录数为: %d", l)
+	for i := range res {
+		t.Logf("%v", res[i])
+	}
 }

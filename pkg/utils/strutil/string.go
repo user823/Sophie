@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
 type Compare func(str string, target string) bool
@@ -28,6 +29,10 @@ func CompareAny(compare Compare, target string, searchStrings ...string) bool {
 
 func ContainsAny(str string, searchStrings ...string) bool {
 	return CompareAny(func(str1, str2 string) bool { return str1 == str2 }, str, searchStrings...)
+}
+
+func ContainsAnyIgnoreCase(str string, searchStrings ...string) bool {
+	return CompareAny(func(str1, str2 string) bool { return strings.ToLower(str1) == strings.ToLower(str2) }, str, searchStrings...)
 }
 
 // 简单模式匹配（*）
@@ -108,4 +113,91 @@ func Strs2Int64(strs string) (res []int64) {
 		res = append(res, num)
 	}
 	return
+}
+
+func Capitalize(s string) string {
+	if s == "" {
+		return s
+	}
+	r := []rune(s)
+	r[0] = unicode.ToUpper(r[0])
+	return string(r)
+}
+
+func Uncapitalize(s string) string {
+	if s == "" {
+		return s
+	}
+	r := []rune(s)
+	r[0] = unicode.ToLower(r[0])
+	return string(r)
+}
+
+// 转化驼峰命名法（将下划线表示法转化为驼峰表示法）
+func ToCamelCase(s string) string {
+	if s == "" || !strings.Contains(s, string(SEPARATOR)) {
+		return s
+	}
+	s = strings.ToLower(s)
+	var buffer strings.Builder
+	upperCase := false
+	for _, r := range s {
+		if r == SEPARATOR {
+			upperCase = true
+		} else if upperCase {
+			buffer.WriteRune(unicode.ToUpper(r))
+			upperCase = false
+		} else {
+			buffer.WriteRune(r)
+		}
+	}
+	return buffer.String()
+}
+
+// 转化驼峰命名法（将下划线大写命名的字符串转换为驼峰式，HELLO_WORLD->HelloWorld)
+func ConvertToCamelCase(name string) string {
+	if name == "" {
+		return ""
+	} else if strings.Index(name, "_") == -1 {
+		return Capitalize(name)
+	}
+	var builder strings.Builder
+	camels := strings.Split(name, "_")
+	for i := range camels {
+		if camels[i] == "" {
+			continue
+		}
+		builder.WriteString(Capitalize(camels[i]))
+	}
+	return builder.String()
+}
+
+// 转化成蛇形命名法
+func CamelCaseToSnakeCase(s string) string {
+	var buf strings.Builder
+	for i, r := range s {
+		if i > 0 && unicode.IsUpper(r) {
+			buf.WriteRune('_')
+		}
+		buf.WriteRune(unicode.ToLower(r))
+	}
+	return buf.String()
+}
+
+// 取子串
+func SubStringBetween(str, open, close string) string {
+	if str == "" || open == "" || close == "" {
+		return ""
+	}
+
+	start := strings.Index(str, open)
+	end := strings.Index(str, close)
+	if start == -1 || end == -1 {
+		return ""
+	}
+	return str[start+1 : end]
+}
+
+func EndsWithIgnoreCase(str string, suffix string) bool {
+	return strings.HasSuffix(strings.ToLower(str), suffix)
 }

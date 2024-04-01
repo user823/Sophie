@@ -122,7 +122,7 @@ func newGenServiceColumnListResult() interface{} {
 func importTableSaveHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.GenServiceImportTableSaveArgs)
 	realResult := result.(*v1.GenServiceImportTableSaveResult)
-	success, err := handler.(v1.GenService).ImportTableSave(ctx, realArg.Tables)
+	success, err := handler.(v1.GenService).ImportTableSave(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func (p *kClient) DataList(ctx context.Context, req *v1.DataListRequest) (r *v1.
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ColumnList(ctx context.Context, tableId int64) (r *v1.ListGenTablesResponse, err error) {
+func (p *kClient) ColumnList(ctx context.Context, tableId int64) (r *v1.ListGenTableColumnsResponse, err error) {
 	var _args v1.GenServiceColumnListArgs
 	_args.TableId = tableId
 	var _result v1.GenServiceColumnListResult
@@ -313,9 +313,9 @@ func (p *kClient) ColumnList(ctx context.Context, tableId int64) (r *v1.ListGenT
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ImportTableSave(ctx context.Context, tables string) (r *v1.BaseResp, err error) {
+func (p *kClient) ImportTableSave(ctx context.Context, req *v1.ImportTableSaveRequest) (r *v1.BaseResp, err error) {
 	var _args v1.GenServiceImportTableSaveArgs
-	_args.Tables = tables
+	_args.Req = req
 	var _result v1.GenServiceImportTableSaveResult
 	if err = p.c.Call(ctx, "ImportTableSave", &_args, &_result); err != nil {
 		return
@@ -383,7 +383,7 @@ func (p *kClient) SynchDb(ctx context.Context, tableName string) (r *v1.BaseResp
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) BatchGenCode(ctx context.Context, tables string) (r *v1.BatchGenCodeResponse, err error) {
+func (p *kClient) BatchGenCode(ctx context.Context, tables string) (r *v1.DownloadResponse, err error) {
 	var _args v1.GenServiceBatchGenCodeArgs
 	_args.Tables = tables
 	var _result v1.GenServiceBatchGenCodeResult

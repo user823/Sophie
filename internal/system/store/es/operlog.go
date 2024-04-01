@@ -11,6 +11,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/system/store"
 	"github.com/user823/Sophie/internal/system/store/mysql"
+	"github.com/user823/Sophie/pkg/errors"
 	"github.com/user823/Sophie/pkg/utils"
 )
 
@@ -25,7 +26,16 @@ func (s *esOperLogStore) InsertOperLog(ctx context.Context, operlog *v1.SysOperL
 	return sqlCli.OperLogs().InsertOperLog(ctx, operlog, opts)
 }
 
-func (s *esOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, error) {
+func (s *esOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysOperLog, opts *api.GetOptions) ([]*v1.SysOperLog, int64, error) {
+	// 如果未启用缓存
+	if !opts.Cache {
+		mycli, err := mysql.GetMySQLFactoryOr(nil)
+		if err != nil {
+			return []*v1.SysOperLog{}, 0, errors.New("获取mysql client失败")
+		}
+		return mycli.OperLogs().SelectOperLogList(ctx, operlog, opts)
+	}
+
 	filters := make([]types.Query, 0, 7)
 
 	if operlog.OperIp != "" {
@@ -100,11 +110,22 @@ func (s *esOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysO
 		})
 	}
 
+	// 查询记录总数
+	resp1, err := s.es.Count().Index("sys_oper_log").Query(&types.Query{
+		Bool: &types.BoolQuery{Filter: filters},
+	}).Do(ctx)
+	if err != nil {
+		return []*v1.SysOperLog{}, 0, err
+	}
+	total := resp1.Count
+
+	// 开始分页查询
+	opts.StartPage()
 	resp, err := s.es.Search().Index("sys_oper_log").Query(&types.Query{
 		Bool: &types.BoolQuery{Filter: filters},
-	}).Sort(types.SortOptions{SortOptions: map[string]types.FieldSort{"oper_id": {Order: &sortorder.SortOrder{"desc"}}}}).Do(ctx)
+	}).From(int(opts.PageNum-1) * int(opts.PageSize)).Size(int(opts.PageSize)).Sort(types.SortOptions{SortOptions: map[string]types.FieldSort{"oper_id": {Order: &sortorder.SortOrder{"desc"}}}}).Do(ctx)
 	if err != nil {
-		return []*v1.SysOperLog{}, err
+		return []*v1.SysOperLog{}, 0, err
 	}
 	result := make([]*v1.SysOperLog, 0, resp.Hits.Total.Value)
 	for _, hit := range resp.Hits.Hits {
@@ -112,7 +133,7 @@ func (s *esOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.SysO
 		jsoniter.Unmarshal(hit.Source_, &record)
 		result = append(result, &record)
 	}
-	return result, nil
+	return result, total, nil
 }
 
 func (s *esOperLogStore) DeleteOperLogByIds(ctx context.Context, operids []int64, opts *api.DeleteOptions) error {

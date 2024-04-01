@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/user823/Sophie/internal/system/store/mysql"
 	"github.com/user823/Sophie/internal/system/utils/cacheutils"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
+	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/db/sql"
 	"testing"
 	"time"
@@ -24,14 +24,14 @@ func Init() {
 	}
 	mysql.GetMySQLFactoryOr(mysqlOptions)
 
-	connectionConfig := &redis.RedisConfig{
+	connectionConfig := &kv.RedisConfig{
 		Addrs:    []string{"127.0.0.1:6379"},
 		Password: "123456",
 		Database: 0,
 	}
-	go redis.KeepConnection(context.Background(), connectionConfig)
+	go kv.KeepConnection(context.Background(), connectionConfig)
 	time.Sleep(2 * time.Second)
-	if !redis.Connected() {
+	if !kv.Connected() {
 		fmt.Printf("redis 未连接成功")
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/user823/Sophie/api"
-	v12 "github.com/user823/Sophie/api/thrift/system/v1"
+	"github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/internal/pkg/code"
 	"github.com/user823/Sophie/pkg/core"
 	"github.com/user823/Sophie/pkg/log"
@@ -14,7 +14,6 @@ import (
 
 const (
 	REQUIRE_PERMISSION = "requirePermissions"
-	ALL_PERMISSIONS    = "*.*.*"
 )
 
 func RequirePermissions(permissions string, opts ...Option) app.HandlerFunc {
@@ -36,11 +35,11 @@ func RequirePermissions(permissions string, opts ...Option) app.HandlerFunc {
 		if !ok || data == nil {
 			core.WriteResponse(c, core.ErrResponse{Code: code.UNAUTHRIZED, Message: "登录信息失效，请重新登录"})
 		}
-		loginInfo := data.(v12.LoginUser)
+		loginInfo := data.(v1.LoginUser)
 
 		// 获取用户权限
 		perms := loginInfo.Permissions
-		if hasPerm("*.*.*", perms) {
+		if hasPerm(api.ALL_PERMISSIONS, perms) {
 			c.Next(ctx)
 			return
 		}
@@ -72,7 +71,7 @@ func RequirePermissions(permissions string, opts ...Option) app.HandlerFunc {
 
 func hasPerm(requirePerm string, perms []string) bool {
 	compare := func(str string, target string) bool {
-		if target == ALL_PERMISSIONS {
+		if target == api.ALL_PERMISSIONS {
 			return true
 		}
 		return strutil.SimpleMatch(str, target)

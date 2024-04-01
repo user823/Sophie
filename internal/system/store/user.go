@@ -8,7 +8,7 @@ import (
 
 type UserStore interface {
 	// 根据条件分页查询用户列表
-	SelectUserList(ctx context.Context, sysUser *v1.SysUser, opts *api.GetOptions) ([]*v1.SysUser, error)
+	SelectUserList(ctx context.Context, sysUser *v1.SysUser, opts *api.GetOptions) ([]*v1.SysUser, int64, error)
 	// 根据条件分页查询已配用户角色列表
 	SelectAllocatedList(ctx context.Context, sysUser *v1.SysUser, opts *api.GetOptions) ([]*v1.SysUser, error)
 	// 根据条件分页查询未分配用户角色列表

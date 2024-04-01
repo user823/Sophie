@@ -3,8 +3,8 @@ package rpc
 import (
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
-	"github.com/user823/Sophie/api/domain/job/v1"
-	"github.com/user823/Sophie/api/thrift/job/v1/jobservice"
+	"github.com/user823/Sophie/api/domain/schedule/v1"
+	"github.com/user823/Sophie/api/thrift/schedule/v1/jobservice"
 	"github.com/user823/Sophie/pkg/log"
 )
 

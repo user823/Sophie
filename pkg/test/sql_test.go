@@ -16,7 +16,7 @@ var (
 	e  error
 )
 
-func init() {
+func InitSQL() {
 	db, e = sql.NewDB("mysql", &sql.MysqlConfig{
 		Host:                  "127.0.0.1:3306",
 		Username:              "sophie",
@@ -229,7 +229,30 @@ func TestSelectUserVo(t *testing.T) {
 	t.Logf("%d", len(result))
 }
 
+func TestRaw(t *testing.T) {
+	query := db.Raw("SELECT table_name, table_comment, create_time, update_time FROM `information_schema`.`tables` WHERE table_schema = (select database()) AND table_name not like 'gen_%' AND table_name not in (select table_name from gen_table) ORDER BY create_time desc")
+	rows, err := query.Rows()
+	if err != nil {
+		t.Log(err)
+		return
+	}
+
+	type Tmp struct {
+		Name    string    `gorm:"column:table_name"`
+		Comment string    `gorm:"column:table_comment"`
+		Ct      time.Time `gorm:"column:create_time"`
+		Ut      time.Time `gorm:"column:update_time"`
+	}
+	for rows.Next() {
+		var result Tmp
+		rows.Scan(&result.Name, &result.Comment, &result.Ct, &result.Ut)
+		t.Log(result)
+	}
+}
+
 func TestDBSub(t *testing.T) {
+	InitSQL()
+
 	t.Run("test-connection", TestQuery)
 	t.Run("test-marshal", TestMarshal)
 	t.Run("test-scans", TestJoins)
@@ -246,4 +269,5 @@ func TestDBSub(t *testing.T) {
 	t.Run("test-TxCommit", TestTxCommit)
 
 	t.Run("test-SelectUserVo", TestSelectUserVo)
+	t.Run("test-Raw", TestRaw)
 }

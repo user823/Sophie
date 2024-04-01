@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/user823/Sophie/api"
 	"github.com/user823/Sophie/api/domain/system/v1"
-	"github.com/user823/Sophie/api/domain/system/v1/vo"
+	"github.com/user823/Sophie/api/domain/vo"
 	"github.com/user823/Sophie/internal/system/store"
 	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/utils/intutil"
@@ -142,7 +142,7 @@ func (s *deptService) CheckDeptExistUser(ctx context.Context, deptId int64, opts
 
 func (s *deptService) CheckDeptNameUnique(ctx context.Context, dept *v1.SysDept, opts *api.GetOptions) bool {
 	info := s.store.Depts().CheckDeptNameUnique(ctx, dept.DeptName, dept.DeptId, opts)
-	if info != nil && info.DeptId == dept.DeptId {
+	if info != nil && info.DeptId != dept.DeptId {
 		return false
 	}
 	return true
@@ -161,6 +161,13 @@ func (s *deptService) CheckDeptDataScope(ctx context.Context, deptId int64, opts
 }
 
 func (s *deptService) InsertDept(ctx context.Context, dept *v1.SysDept, opts *api.CreateOptions) error {
+	// 首先验证格式
+	if opts.Validate {
+		if err := dept.Validate(); err != nil {
+			return err
+		}
+	}
+
 	if dept.ParentId != 0 {
 		info, err := s.store.Depts().SelectDeptById(ctx, dept.ParentId, &api.GetOptions{Cache: true})
 		if err != nil {

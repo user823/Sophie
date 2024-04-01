@@ -13,9 +13,9 @@ import (
 	"github.com/user823/Sophie/internal/system/store/mysql"
 	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"github.com/user823/Sophie/pkg/shutdown"
 	"time"
 )
@@ -36,8 +36,8 @@ func createGatewayServer(cfg *Config) (*SystemServer, error) {
 	gs.SetInOrder()
 
 	if cfg.Log.Aggregation {
-		r := kv.NewKVStore("redis")
-		aggregation.NewAnalytics(cfg.Aggregation, r.(kv.RedisStore), log.GetRecordMagager())
+		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
+		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r))
 	}
 
 	generalOpts := cfg.CreateKitexOptions()
@@ -53,20 +53,32 @@ func createGatewayServer(cfg *Config) (*SystemServer, error) {
 }
 
 func (s *SystemServer) PrepareRun() *SystemServer {
-	ctx, cancel := context.WithCancel(context.Background())
-
 	// 创建后台任务
+	var tasks []*support.GoTask
 	viperTask := support.GoTask{}
 	viperTask.Run = func(ctx context.Context) (interface{}, error) {
 		// 每5s 拉取一次配置信息
-		for viperTask.Status() == support.STARTED {
-			viperTask.WaitForRunning(5 * time.Second)
+		for {
+			select {
+			case <-ctx.Done():
+				return nil, nil
+			default:
+				viperTask.WaitForRunning(5 * time.Second)
+			}
 			if err := viper.WatchRemoteConfig(); err != nil {
 				log.Debug("Read remoting config err: %s", err.Error())
 			}
 		}
-		return nil, nil
 	}
+	tasks = append(tasks, &viperTask)
+
+	redisTask := support.GoTask{
+		Run: func(ctx context.Context) (interface{}, error) {
+			kv.KeepConnection(ctx, s.ServerConfig.Redis)
+			return nil, nil
+		},
+	}
+	tasks = append(tasks, &redisTask)
 
 	// 初始化服务组件
 	if _, err := mysql.GetMySQLFactoryOr(s.ServerConfig.MySQL); err != nil {
@@ -77,11 +89,6 @@ func (s *SystemServer) PrepareRun() *SystemServer {
 	}
 
 	// 设置关停回调
-	s.Gs.AddShutdownCallbacks(func(msg string) error {
-		log.Info("Starting graceful shutdown...")
-		cancel()
-		return nil
-	})
 	s.Gs.AddShutdownCallbacks(func(msg string) error {
 		log.Infof("%s: viper service is closing...", msg)
 		viperTask.Shutdown(support.NOW)
@@ -94,6 +101,11 @@ func (s *SystemServer) PrepareRun() *SystemServer {
 			return nil
 		})
 	}
+	s.Gs.AddShutdownCallbacks(func(s string) error {
+		log.Infof("%s: redis is closing...", s)
+		redisTask.Shutdown(support.NOW)
+		return nil
+	})
 
 	// 最后关闭服务
 	s.Gs.AddShutdownCallbacks(func(msg string) error {
@@ -106,8 +118,9 @@ func (s *SystemServer) PrepareRun() *SystemServer {
 	})
 
 	// 启动各种定时任务
-	viperTask.Start()
-	go redis.KeepConnection(ctx, s.ServerConfig.Redis)
+	for i := range tasks {
+		tasks[i].Start()
+	}
 	return s
 }
 
@@ -122,16 +135,15 @@ func (s *SystemServer) Run() error {
 		return err
 	}
 
-	// 运行服务
-	if s.ServerConfig.Availability.TraceEnable {
-		p := provider.NewOpenTelemetryProvider(
-			provider.WithServiceName(v1.ServiceName),
-			// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
-			provider.WithExportEndpoint("localhost:4317"),
-			provider.WithInsecure(),
-		)
-		defer p.Shutdown(context.Background())
+	tracingOpts := []provider.Option{
+		provider.WithServiceName(v1.ServiceName),
+		provider.WithEnableTracing(s.ServerConfig.Availability.TraceEnable),
+		provider.WithExportEndpoint(s.ServerConfig.Availability.TraceEndpoint),
+		provider.WithInsecure(),
+		provider.WithEnableMetrics(s.ServerConfig.Availability.MetricEnable),
 	}
 
+	p := provider.NewOpenTelemetryProvider(tracingOpts...)
+	defer p.Shutdown(context.Background())
 	return s.Server.Run()
 }

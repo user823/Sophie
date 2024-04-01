@@ -2,13 +2,20 @@ package router
 
 import (
 	"context"
+	"fmt"
+	"github.com/hertz-contrib/swagger"
+	swaggerFiles "github.com/swaggo/files"
 	system2 "github.com/user823/Sophie/api/domain/system/v1"
+	"github.com/user823/Sophie/internal/gateway/controller/v1/file"
+	"github.com/user823/Sophie/internal/gateway/controller/v1/gen"
+	"github.com/user823/Sophie/internal/gateway/controller/v1/job"
 	"time"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/user823/Sophie/api"
 	v1 "github.com/user823/Sophie/api/thrift/system/v1"
+	_ "github.com/user823/Sophie/docs/swagger"
 	"github.com/user823/Sophie/internal/gateway/controller/v1/system"
 	"github.com/user823/Sophie/internal/gateway/rpc"
 	"github.com/user823/Sophie/internal/pkg/code"
@@ -25,6 +32,7 @@ type Options struct {
 	Healthz     bool
 	Info        *JwtInfo
 	BaseAPI     string
+	Address     string
 }
 
 type JwtInfo struct {
@@ -60,6 +68,12 @@ func WithBaseAPI(api string) Option {
 	}
 }
 
+func WithAddress(address string) Option {
+	return func(o *Options) {
+		o.Address = address
+	}
+}
+
 func InitRouter(h *server.Hertz, opts ...Option) {
 	opt := &Options{}
 	for i := range opts {
@@ -88,8 +102,8 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 	{
 		jwtStrategy := newJWTAuth(opt.Info).(*auth.JWTStrategy)
 		a_.POST("/login", captchaController.CheckCaptcha, jwtStrategy.LoginHandler)
-		a_.DELETE("/logout", jwtStrategy.LogoutHandler)
-		a_.POST("/refresh", jwtStrategy.RefreshHandler)
+		a_.DELETE("/logout", jwtStrategy.ExtractToken(), jwtStrategy.LogoutHandler)
+		a_.POST("/refresh", jwtStrategy.ExtractToken(), jwtStrategy.RefreshHandler)
 		a_.POST("/register", captchaController.CheckCaptcha, Register)
 	}
 
@@ -101,13 +115,11 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		userController := system.NewUserController()
 		user_ := system_.Group("/user")
 		user_.GET("/list", secure.RequirePermissions("system:user:list"), userController.List)
-		user_.POST("/export", secure.RequirePermissions("system:user:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), userController.Export)
-		user_.POST("/importData", secure.RequirePermissions("system:user:import"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_IMPORT}), userController.ImportData)
-		user_.POST("/importTemplate", userController.ImportTemplate)
+		user_.POST("/export", secure.RequirePermissions("system:user:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), userController.Export)
 		user_.GET("/getInfo", userController.GetInfo)
 		user_.GET("/info/:username", userController.GetInfoWithName)
-		user_.GET("/:userid", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId)
-		user_.GET("", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId2)
+		user_.GET("/:userId", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId)
+		user_.GET("/", secure.RequirePermissions("system:user:query"), userController.GetInfoWithId2)
 		user_.POST("", secure.RequirePermissions("system:user:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), userController.Add)
 		user_.PUT("", secure.RequirePermissions("system:user:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), userController.Edit)
 		user_.DELETE("/:userIds", secure.RequirePermissions("system:user:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "用户管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), userController.Remove)
@@ -121,10 +133,10 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		roleController := system.NewRoleController()
 		role_ := system_.Group("/role")
 		role_.GET("/list", secure.RequirePermissions("system:role:list"), roleController.List)
-		role_.POST("/export", secure.RequirePermissions("system:role:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), roleController.Export)
+		role_.POST("/export", secure.RequirePermissions("system:role:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), roleController.Export)
 		role_.GET("/:roleId", secure.RequirePermissions("system:role:query"), roleController.GetInfo)
-		role_.POST("/add", secure.RequirePermissions("system:role:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), roleController.Add)
-		role_.PUT("/edit", secure.RequirePermissions("system:role:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), roleController.Edit)
+		role_.POST("", secure.RequirePermissions("system:role:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), roleController.Add)
+		role_.PUT("", secure.RequirePermissions("system:role:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), roleController.Edit)
 		role_.PUT("/dataScope", secure.RequirePermissions("system:role:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), roleController.DataScope)
 		role_.PUT("/changeStatus", secure.RequirePermissions("system:role:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), roleController.ChangeStatus)
 		role_.DELETE("/:roleIds", secure.RequirePermissions("system:role:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "角色管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), roleController.Remove)
@@ -148,18 +160,18 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		postController := system.NewPostController()
 		post_ := system_.Group("/post")
 		post_.GET("/list", secure.RequirePermissions("system:post:list"), postController.List)
-		post_.POST("/export", secure.RequirePermissions("system:post:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "岗位管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), postController.Export)
+		post_.POST("/export", secure.RequirePermissions("system:post:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "岗位管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), postController.Export)
 		post_.GET("/:postId", secure.RequirePermissions("system:post:query"), postController.GetInfo)
 		post_.POST("", secure.RequirePermissions("system:post:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "岗位管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), postController.Add)
 		post_.PUT("", secure.RequirePermissions("system:post:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "岗位管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), postController.Edit)
-		post_.DELETE("/:postIds", secure.RequirePermissions("system:post:remove"), postController.Remove)
+		post_.DELETE("/:postIds", secure.RequirePermissions("system:post:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "岗位管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), postController.Remove)
 		post_.GET("/optionselect", postController.OptionSelect)
 
 		// 操作日志记录
 		operlogController := system.NewOperlogController()
 		operlog_ := system_.Group("/operlog")
 		operlog_.GET("/list", secure.RequirePermissions("system:operlog:list"), operlogController.List)
-		operlog_.POST("/export", secure.RequirePermissions("system:operlog:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "操作日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), operlogController.Export)
+		operlog_.POST("/export", secure.RequirePermissions("system:operlog:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "操作日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), operlogController.Export)
 		operlog_.DELETE("/:operIds", secure.RequirePermissions("system:operlog:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "操作日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), operlogController.Remove)
 		operlog_.DELETE("/clean", secure.RequirePermissions("system:operlog:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "操作日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_CLEAN}), operlogController.Clean)
 
@@ -188,7 +200,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		logininfoController := system.NewLogininfoController()
 		logininfo_ := system_.Group("/logininfor")
 		logininfo_.GET("/list", secure.RequirePermissions("system:logininfor:list"), logininfoController.List)
-		logininfo_.POST("/export", secure.RequirePermissions("system:logininfor:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "登录日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), logininfoController.Export)
+		logininfo_.POST("/export", secure.RequirePermissions("system:logininfor:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "登录日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), logininfoController.Export)
 		logininfo_.DELETE("/:infoIds", secure.RequirePermissions("system:logininfor:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "登录日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), logininfoController.Remove)
 		logininfo_.DELETE("/clean", secure.RequirePermissions("system:logininfor:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "登录日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), logininfoController.Clean)
 		logininfo_.GET("/unlock/:userName", secure.RequirePermissions("system:logininfor:unlock"), mw.Log(logsaver, map[string]any{mw.TITLE: "登录日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_OTHER}), logininfoController.Unlock)
@@ -197,7 +209,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		dictController := system.NewDictController()
 		dict_type_ := system_.Group("/dict/type")
 		dict_type_.GET("/list", secure.RequirePermissions("system:dict:list"), dictController.ListType)
-		dict_type_.POST("/export", secure.RequirePermissions("system:dict:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), dictController.ExportType)
+		dict_type_.POST("/export", secure.RequirePermissions("system:dict:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), dictController.ExportType)
 		dict_type_.GET("/:dictId", secure.RequirePermissions("system:dict:query"), dictController.GetInfoType)
 		dict_type_.POST("", secure.RequirePermissions("system:dict:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), dictController.AddType)
 		dict_type_.PUT("", secure.RequirePermissions("system:dict:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), dictController.EditType)
@@ -208,7 +220,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		// 字典数据管理
 		dict_data_ := system_.Group("/dict/data")
 		dict_data_.GET("/list", secure.RequirePermissions("system:dict:list"), dictController.ListData)
-		dict_data_.POST("/export", secure.RequirePermissions("system:dict:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典数据", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), dictController.ExportData)
+		dict_data_.POST("/export", secure.RequirePermissions("system:dict:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典数据", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), dictController.ExportData)
 		dict_data_.GET("/:dictCode", secure.RequirePermissions("system:dict:query"), dictController.GetInfoData)
 		dict_data_.GET("/type/:dictType", dictController.DictType)
 		dict_data_.POST("", secure.RequirePermissions("system:dict:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "字典数据", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), dictController.AddData)
@@ -229,7 +241,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		configController := system.NewConfigController()
 		config_ := system_.Group("/config")
 		config_.GET("/list", secure.RequirePermissions("system:config:list"), configController.List)
-		config_.POST("/export", secure.RequirePermissions("system:config:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "参数管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), configController.Export)
+		config_.POST("/export", secure.RequirePermissions("system:config:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "参数管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), configController.Export)
 		config_.GET("/:configId", configController.GetInfo)
 		config_.GET("/configKey/:configKey", configController.GetConfigKey)
 		config_.POST("", secure.RequirePermissions("system:config:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "参数管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), configController.Add)
@@ -244,27 +256,27 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		onlineUser_.DELETE("/:tokenId", secure.RequirePermissions("monitor:online:forceLogout"), mw.Log(logsaver, map[string]any{mw.TITLE: "参数管理", mw.BUSINESSTYE: system2.BUSINESSTYPE_FORCE}), onlineUserController.ForceLogout)
 	}
 
-	//// 文件模块
-	//file_ := s.Group("/file", auto.AuthFunc())
-	//{
-	//	fileController := file.NewFileController()
-	//	file_.POST("/upload", fileController.Upload)
-	//}
+	// 文件模块
+	file_ := s.Group("/file", auto.AuthFunc())
+	{
+		fileController := file.NewFileController()
+		file_.POST("/upload", fileController.Upload)
+	}
 	//
-	//// 定时任务模块
-	//schedule_ := s.Group("/schedule", auto.AuthFunc())
-	//{
-	//	jobController := job.NewJobController()
-	//	job_ := schedule_.Group("/job")
-	//	job_.GET("/list", secure.RequirePermissions("system:job:list"), jobController.List)
-	//	job_.POST("/export", secure.RequirePermissions("monitor:job:export"), jobController.Export)
-	//	job_.GET("/:jobId", secure.RequirePermissions("monitor:jon:query"), jobController.GetInfo)
-	//	job_.POST("/", secure.RequirePermissions("monitor:job:add"), jobController.Add)
-	//	job_.PUT("/", secure.RequirePermissions("monitor:job:edit"), jobController.Edit)
-	//	job_.PUT("/changeStatus", secure.RequirePermissions("monitor:job:changeStatus"), jobController.ChangeStatus)
-	//	job_.PUT("/run", secure.RequirePermissions("monitor:job:changeStatus"), jobController.Run)
-	//	job_.DELETE("/:jobIds", secure.RequirePermissions("monitor:job:remove"), jobController.Remove)
-	//}
+	// 定时任务模块
+	schedule_ := s.Group("/schedule", auto.AuthFunc())
+	{
+		jobController := job.NewJobController()
+		job_ := schedule_.Group("/job")
+		job_.GET("/list", secure.RequirePermissions("monitor:job:list"), jobController.List)
+		job_.POST("/export", secure.RequirePermissions("monitor:job:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT, mw.IsSaveResponseData: false}), jobController.Export)
+		job_.GET("/:jobId", secure.RequirePermissions("monitor:jon:query"), jobController.GetInfo)
+		job_.POST("", secure.RequirePermissions("monitor:job:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), jobController.Add)
+		job_.PUT("", secure.RequirePermissions("monitor:job:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), jobController.Edit)
+		job_.PUT("/changeStatus", secure.RequirePermissions("monitor:job:changeStatus"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), jobController.ChangeStatus)
+		job_.PUT("/run", secure.RequirePermissions("monitor:job:changeStatus"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), jobController.Run)
+		job_.DELETE("/:jobIds", secure.RequirePermissions("monitor:job:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), jobController.Remove)
+	}
 	//
 	// 代码生成模块
 	code_ := s.Group("/code")
@@ -273,28 +285,30 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		code_.GET("", captchaController.CreateCaptcha)
 
 		// 代码生成服务
-		//genController := gen.NewGenController()
-		//gen_ := code_.Group("/gen", auto.AuthFunc())
-		//gen_.GET("/list", secure.RequirePermissions("tool:gen:list"), genController.List)
-		//gen_.GET("/:tableId", secure.RequirePermissions("tool:gen:query"), genController.GetInfo)
-		//gen_.GET("/db/list", secure.RequirePermissions("tool:gen:list"), genController.DataList)
-		//gen_.GET("/column/:tableId", genController.ColumnList)
-		//gen_.POST("/importTable", secure.RequirePermissions("tool:gen:import"), genController.ImportTableSave)
-		//gen_.PUT("/", secure.RequirePermissions("tool:gen:edit"), genController.EditSave)
-		//gen_.DELETE("/:tableIds", secure.RequirePermissions("tool:gen:remove"), genController.Remove)
-		//gen_.GET("/preview/:tableId", secure.RequirePermissions("tool:gen:preview"), genController.Preview)
-		//gen_.GET("/download/:tableName", secure.RequirePermissions("tool:gen:code"), genController.Download)
-		//gen_.GET("/genCode/:tableName", secure.RequirePermissions("tool:gen:code"), genController.GenCode)
-		//gen_.GET("/synchDb/:tableName", secure.RequirePermissions("tool:gen:edit"), genController.SynchDb)
-		//gen_.GET("/batchGenCode", secure.RequirePermissions("tool:gen:code"), genController.BatchGenCode)
+		genController := gen.NewGenController()
+		gen_ := code_.Group("/gen", auto.AuthFunc())
+		gen_.GET("/list", secure.RequirePermissions("tool:gen:list"), genController.List)
+		gen_.GET("/:tableId", secure.RequirePermissions("tool:gen:query"), genController.GetInfo)
+		gen_.GET("/db/list", secure.RequirePermissions("tool:gen:list"), genController.DataList)
+		gen_.GET("/column/:tableId", genController.ColumnList)
+		gen_.POST("/importTable", secure.RequirePermissions("tool:gen:import"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_IMPORT}), genController.ImportTableSave)
+		gen_.PUT("", secure.RequirePermissions("tool:gen:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), genController.EditSave)
+		gen_.DELETE("/:tableIds", secure.RequirePermissions("tool:gen:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), genController.Remove)
+		gen_.GET("/preview/:tableId", secure.RequirePermissions("tool:gen:preview"), genController.Preview)
+		gen_.GET("/download/:tableName", secure.RequirePermissions("tool:gen:code"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_GENCODE, mw.IsSaveResponseData: false}), genController.Download)
+		gen_.GET("/genCode/:tableName", secure.RequirePermissions("tool:gen:code"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_GENCODE, mw.IsSaveResponseData: false}), genController.GenCode)
+		gen_.GET("/synchDb/:tableName", secure.RequirePermissions("tool:gen:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE, mw.IsSaveResponseData: false}), genController.SynchDb)
+		gen_.GET("/batchGenCode", secure.RequirePermissions("tool:gen:code"), mw.Log(logsaver, map[string]any{mw.TITLE: "代码生成", mw.BUSINESSTYE: system2.BUSINESSTYPE_GENCODE, mw.IsSaveResponseData: false}), genController.BatchGenCode)
 	}
 
-	//健康检查
+	// 健康检查
 	if opt.Healthz {
-		h.GET("/health", func(c context.Context, ctx *app.RequestContext) {
-			core.OK(ctx, "ok", nil)
-		})
+		h.GET("/health", healthCheck)
 	}
+
+	// swagger 接口
+	url := swagger.URL(fmt.Sprintf("http://%s/swagger/doc.json", opt.Address))
+	h.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler, url, swagger.DefaultModelsExpandDepth(-1)))
 }
 
 type rpcLogSaver struct{}
@@ -305,4 +319,14 @@ func (r *rpcLogSaver) SaveLog(ctx context.Context, operLog *v1.OperLog, options 
 		return rpc.ErrRPC
 	}
 	return nil
+}
+
+// healthCheck godoc
+// @Summary	健康检查
+// @Description 检查gateway 的服务状态
+// @Accept application/json
+// @Produce application/json
+// @Router /health [get]
+func healthCheck(c context.Context, ctx *app.RequestContext) {
+	core.OK(ctx, "ok", nil)
 }

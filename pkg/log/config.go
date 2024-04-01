@@ -1,6 +1,7 @@
 package log
 
 import (
+	"github.com/user823/Sophie/pkg/log/aggregation"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"io"
@@ -91,7 +92,7 @@ func (c *Config) Build() *zapLogger {
 	L := &zapLogger{level: c.level}
 
 	// 添加buf通道
-	c.AddOutput(zapcore.AddSync(&logbuf))
+	c.AddOutput(zapcore.AddSync(aggregation.GetAnalytics()))
 
 	jsonEncoder := zapcore.NewJSONEncoder(c.encoderConfig)
 	output := zapcore.NewMultiWriteSyncer(c.outputWss...)
@@ -120,8 +121,6 @@ func (c *Config) Build() *zapLogger {
 	logger := zap.New(core, opts...).Named(c.Name)
 	L.zlogger = logger
 
-	// 设置启用日志聚合
-	L.SetAggregation(c.aggregation)
 	return L
 }
 

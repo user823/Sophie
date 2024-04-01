@@ -1,0 +1,20 @@
+log:
+  aggregation: false
+  name: sophie-gen-logger
+
+rpc_server:
+  bind_address: 127.0.0.1
+  bind_port: 8085
+
+gen:
+  engine_name: sophie-gen
+  template_search_path: ., /home/amber/GolangProjects/Sophie/templates
+  params:
+    author: sophie
+    auto_remove_pre: false
+    table_prefix: sys_
+
+availability:
+  trace_enable: true
+  trace_endpoint: 127.0.0.1:4317
+  metric_enable: false

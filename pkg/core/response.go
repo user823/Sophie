@@ -9,9 +9,15 @@ import (
 )
 
 type ErrResponse struct {
+	Code     int           `json:"code"`
+	Message  string        `json:"msg,omitempty"`
+	Data     any           `json:"data,omitempty"`
+	BaseResp *BaseResponse `json:"baseResp"`
+}
+
+type BaseResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"msg,omitempty"`
-	Data    any    `json:"data,omitempty"`
 }
 
 func JSON(c *app.RequestContext, data any) {

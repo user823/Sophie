@@ -2,6 +2,8 @@ package options
 
 import (
 	flag "github.com/spf13/pflag"
+	"github.com/user823/Sophie/pkg/db/kv"
+	"github.com/user823/Sophie/pkg/log"
 	"time"
 )
 
@@ -14,6 +16,7 @@ type ServiceDiscoverOptions struct {
 	MaxAttemtTimes int           `json:"max_attemt_times" mapstructure:"max_attemt_times"`
 	ObserverDelay  time.Duration `json:"observer_delay" mapstructure:"observer_delay"`
 	RetryDelay     time.Duration `json:"retry_delay" mapstructure:"retry_delay"`
+	TTL            int           `json:"ttl" mapstructure:"ttl"`
 }
 
 func NewServiceDiscoverOptions() *ServiceDiscoverOptions {
@@ -22,6 +25,7 @@ func NewServiceDiscoverOptions() *ServiceDiscoverOptions {
 		MaxAttemtTimes: 5,
 		ObserverDelay:  10 * time.Second,
 		RetryDelay:     5 * time.Second,
+		TTL:            60,
 	}
 }
 
@@ -37,4 +41,15 @@ func (o *ServiceDiscoverOptions) AddFlags(fs *flag.FlagSet) {
 	fs.IntVar(&o.MaxAttemtTimes, "server_discover.max_retry_times", o.MaxAttemtTimes, "The number of etcd connect retry times. ")
 	fs.DurationVar(&o.ObserverDelay, "server_discover.observer_delay", o.ObserverDelay, "ObserverDelay used to connect etcd. ")
 	fs.DurationVar(&o.RetryDelay, "server_discover.retry_delay", o.RetryDelay, "RetryDelay used to re-connect etcd. ")
+	fs.IntVar(&o.TTL, "server_discover.ttl", o.TTL, "Registry to etcd validate time duration (seconds)")
+}
+
+func (o *ServiceDiscoverOptions) BuildEtcdConfig() *kv.EtcdConfig {
+	return &kv.EtcdConfig{
+		Endpoints: o.Addrs,
+		Username:  o.Username,
+		Password:  o.Password,
+		UseSSL:    false,
+		Logger:    log.ZapLogger(),
+	}
 }

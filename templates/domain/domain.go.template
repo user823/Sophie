@@ -1,0 +1,88 @@
+package v1
+
+import (
+{{range .importList -}}
+    "{{.}}"
+{{end}}
+	"github.com/go-playground/validator/v10"
+	jsoniter "github.com/json-iterator/go"
+	"github.com/user823/Sophie/api"
+	"github.com/user823/Sophie/pkg/utils"
+	"github.com/user823/Sophie/pkg/validators"
+{{if or .treeCode -}}
+    "github.com/user823/Sophie/api/domain/vo"
+{{end}}
+)
+
+{{$ModuleName := Capitalize .moduleName -}}
+const (
+    ServiceName = "Sophie {{$ModuleName}}"
+)
+
+type {{.ClassName}} struct {
+    api.ObjectMeta `json:"metadata,omitempty"`
+{{range .columns -}}
+{{if not (.IsSuperColumn) -}}
+    // {{.ColumnComment}}
+    {{$snakeName := CamelCaseToSnakeCase .GoField -}}
+    {{.GoField}} {{.GoType}} `json:"{{$snakeName}},omitempty" gorm:"{{.ColumnName}} query:{{$snakeName}}"`
+{{end}}
+{{end}}
+{{if .sub -}}
+    // {{.subTable.FunctionName}}信息
+    Children []*{{.subClassName}}  `json:"children,omitempty" gorm:"-" query:"children"`
+{{end}}
+}
+
+func (s *{{.ClassName}}) TableName() string {
+    return {{.tableName}}
+}
+
+func (s *{{.ClassName}}) Marshal() string {
+	data, _ := jsoniter.Marshal(s)
+	return utils.B2s(data)
+}
+
+func (s *{{.ClassName}}) Unmarshal(str string) {
+	data := utils.S2b(str)
+	jsoniter.Unmarshal(data, s)
+}
+
+func (s *{{.ClassName}}) Validate() error {
+	vd := validators.GetValidatorOr()
+	err := vd.Struct(s)
+	if err != nil {
+		for _, e := range err.(validator.ValidationErrors) {
+			return build{{.BusinessName}}ErrMsg(e)
+		}
+	}
+	return nil
+}
+
+func build{{.BusinessName}}ErrMsg(err validator.FieldError) error {
+	switch err.StructNamespace() {
+	// TODO
+	// 这里根据validate 标签自定义返回错误消息
+	// example: return validators.BuildErrMsgHelper(err, "部门名称")
+	}
+	return nil
+}
+
+{{if or .treeCode -}}
+func (s *{{.ClassName}}) BuildTreeSelect() vo.TreeSelect {
+	children := make([]vo.TreeSelect, 0, len(s.Children))
+	for i := range s.Children {
+		children = append(children, s.Children[i].BuildTreeSelect())
+	}
+	return vo.TreeSelect{
+		Id:       s.{{.BusinessName}}Id,
+		Label:    s.{{.BusinessName}}Name,
+		Children: children,
+	}
+}
+{{end}}
+
+type {{.BusinessName}}List struct {
+	api.ListMeta `json:",inline"`
+	Items        []*SysDictType `json:"items"`
+}

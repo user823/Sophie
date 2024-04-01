@@ -1,9 +1,10 @@
 package v1
 
 import (
+	"github.com/mitchellh/mapstructure"
 	"github.com/user823/Sophie/api"
 	"github.com/user823/Sophie/api/domain/system/v1"
-	"github.com/user823/Sophie/api/domain/system/v1/vo"
+	vo2 "github.com/user823/Sophie/api/domain/vo"
 	"github.com/user823/Sophie/pkg/utils"
 	"time"
 )
@@ -20,17 +21,17 @@ func UserInfo2SysUser(userinfo *UserInfo) *v1.SysUser {
 		}
 	}
 	var loginDate *time.Time
-	if userinfo.LoginDate != 0 {
-		temp := utils.Second2Time(userinfo.GetLoginDate())
+	if userinfo.LoginDate != "" {
+		temp := utils.Str2Time(userinfo.GetLoginDate())
 		loginDate = &temp
 	}
 
 	user := &v1.SysUser{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  userinfo.CreateBy,
-			CreatedAt: utils.Second2Time(userinfo.CreateTime),
+			CreatedAt: utils.Str2Time(userinfo.CreateTime),
 			UpdateBy:  userinfo.UpdateBy,
-			UpdatedAt: utils.Second2Time(userinfo.UpdateTime),
+			UpdatedAt: utils.Str2Time(userinfo.UpdateTime),
 			Remark:    userinfo.Remark,
 			Extend:    map[string]interface{}{"Params": userinfo.Params},
 		},
@@ -79,9 +80,9 @@ func DeptInfo2SysDept(deptinfo *DeptInfo) *v1.SysDept {
 	return &v1.SysDept{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  deptinfo.CreateBy,
-			CreatedAt: utils.Second2Time(deptinfo.CreateTime),
+			CreatedAt: utils.Str2Time(deptinfo.CreateTime),
 			UpdateBy:  deptinfo.UpdateBy,
-			UpdatedAt: utils.Second2Time(deptinfo.UpdateTime),
+			UpdatedAt: utils.Str2Time(deptinfo.UpdateTime),
 			Remark:    deptinfo.Remark,
 			Extend:    map[string]interface{}{"Params": deptinfo.Params},
 		},
@@ -115,9 +116,9 @@ func RoleInfo2SysRole(roleinfo *RoleInfo) *v1.SysRole {
 	return &v1.SysRole{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  roleinfo.CreateBy,
-			CreatedAt: utils.Second2Time(roleinfo.CreateTime),
+			CreatedAt: utils.Str2Time(roleinfo.CreateTime),
 			UpdateBy:  roleinfo.UpdateBy,
-			UpdatedAt: utils.Second2Time(roleinfo.UpdateTime),
+			UpdatedAt: utils.Str2Time(roleinfo.UpdateTime),
 			Remark:    roleinfo.Remark,
 			Extend:    map[string]interface{}{"Params": roleinfo.Params},
 		},
@@ -155,7 +156,7 @@ func LoginInfo2SysLogininfo(loginfo *Logininfo) *v1.SysLogininfor {
 		Ipaddr:     loginfo.GetIpaddr(),
 		Status:     loginfo.GetStatus(),
 		Msg:        loginfo.GetMsg(),
-		AccessTime: utils.Second2Time(loginfo.GetAccessTime()),
+		AccessTime: utils.Str2Time(loginfo.GetAccessTime()),
 	}
 }
 
@@ -175,9 +176,9 @@ func PostInfo2SysPost(postinfo *PostInfo) *v1.SysPost {
 	return &v1.SysPost{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  postinfo.CreateBy,
-			CreatedAt: utils.Second2Time(postinfo.CreateTime),
+			CreatedAt: utils.Str2Time(postinfo.CreateTime),
 			UpdateBy:  postinfo.UpdateBy,
-			UpdatedAt: utils.Second2Time(postinfo.UpdateTime),
+			UpdatedAt: utils.Str2Time(postinfo.UpdateTime),
 			Remark:    postinfo.Remark,
 			Extend:    map[string]interface{}{"Params": postinfo.Params},
 		},
@@ -206,9 +207,9 @@ func ConfigInfo2SysConfig(configInfo *ConfigInfo) *v1.SysConfig {
 	return &v1.SysConfig{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  configInfo.CreateBy,
-			CreatedAt: utils.Second2Time(configInfo.CreateTime),
+			CreatedAt: utils.Str2Time(configInfo.CreateTime),
 			UpdateBy:  configInfo.UpdateBy,
-			UpdatedAt: utils.Second2Time(configInfo.UpdateTime),
+			UpdatedAt: utils.Str2Time(configInfo.UpdateTime),
 			Remark:    configInfo.Remark,
 			Extend:    map[string]interface{}{"Params": configInfo.Params},
 		},
@@ -235,9 +236,9 @@ func DictData2SysDictData(dictData *DictData) *v1.SysDictData {
 	return &v1.SysDictData{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  dictData.CreateBy,
-			CreatedAt: utils.Second2Time(dictData.CreateTime),
+			CreatedAt: utils.Str2Time(dictData.CreateTime),
 			UpdateBy:  dictData.UpdateBy,
-			UpdatedAt: utils.Second2Time(dictData.UpdateTime),
+			UpdatedAt: utils.Str2Time(dictData.UpdateTime),
 			Remark:    dictData.Remark,
 			Extend:    map[string]interface{}{"Params": dictData.Params},
 		},
@@ -267,9 +268,9 @@ func DictType2SysDictType(dictType *DictType) *v1.SysDictType {
 	return &v1.SysDictType{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  dictType.CreateBy,
-			CreatedAt: utils.Second2Time(dictType.CreateTime),
+			CreatedAt: utils.Str2Time(dictType.CreateTime),
 			UpdateBy:  dictType.UpdateBy,
-			UpdatedAt: utils.Second2Time(dictType.UpdateTime),
+			UpdatedAt: utils.Str2Time(dictType.UpdateTime),
 			Remark:    dictType.Remark,
 			Extend:    map[string]interface{}{"Params": dictType.Params},
 		},
@@ -300,9 +301,9 @@ func MenuInfo2SysMenu(menuinfo *MenuInfo) *v1.SysMenu {
 	return &v1.SysMenu{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  menuinfo.CreateBy,
-			CreatedAt: utils.Second2Time(menuinfo.CreateTime),
+			CreatedAt: utils.Str2Time(menuinfo.CreateTime),
 			UpdateBy:  menuinfo.UpdateBy,
-			UpdatedAt: utils.Second2Time(menuinfo.UpdateTime),
+			UpdatedAt: utils.Str2Time(menuinfo.UpdateTime),
 			Remark:    menuinfo.Remark,
 			Extend:    map[string]interface{}{"Params": menuinfo.Params},
 		},
@@ -341,9 +342,9 @@ func NoticeInfo2SysNotice(notice *NoticeInfo) *v1.SysNotice {
 	return &v1.SysNotice{
 		ObjectMeta: api.ObjectMeta{
 			CreateBy:  notice.CreateBy,
-			CreatedAt: utils.Second2Time(notice.CreateTime),
+			CreatedAt: utils.Str2Time(notice.CreateTime),
 			UpdateBy:  notice.UpdateBy,
-			UpdatedAt: utils.Second2Time(notice.UpdateTime),
+			UpdatedAt: utils.Str2Time(notice.UpdateTime),
 			Remark:    notice.Remark,
 			Extend:    map[string]interface{}{"Params": notice.Params},
 		},
@@ -383,7 +384,7 @@ func OperLog2SysOperLog(operlog *OperLog) *v1.SysOperLog {
 		JsonResult:    operlog.GetJsonResult_(),
 		Status:        operlog.GetStatus(),
 		ErrorMsg:      operlog.GetErrorMsg(),
-		OperTime:      time.Unix(operlog.GetOperTime(), 0),
+		OperTime:      utils.Str2Time(operlog.GetOperTime()),
 		CostTime:      operlog.GetCostTime(),
 	}
 }
@@ -396,7 +397,7 @@ func MOperLog2SysOperLog(logs []*OperLog) []*v1.SysOperLog {
 	return res
 }
 
-func MTreeSelectTrans(vs []vo.TreeSelect) []*TreeSelect {
+func MTreeSelectTrans(vs []vo2.TreeSelect) []*TreeSelect {
 	res := make([]*TreeSelect, 0, len(vs))
 	for i := range vs {
 		res = append(res, TreeSelectTrans(vs[i]))
@@ -404,7 +405,7 @@ func MTreeSelectTrans(vs []vo.TreeSelect) []*TreeSelect {
 	return res
 }
 
-func TreeSelectTrans(v vo.TreeSelect) *TreeSelect {
+func TreeSelectTrans(v vo2.TreeSelect) *TreeSelect {
 	return &TreeSelect{
 		Id:       v.Id,
 		Label:    v.Label,
@@ -412,7 +413,7 @@ func TreeSelectTrans(v vo.TreeSelect) *TreeSelect {
 	}
 }
 
-func MRouterVoTrans(rs []vo.RouterVo) []*RouterInfo {
+func MRouterVoTrans(rs []vo2.RouterVo) []*RouterInfo {
 	res := make([]*RouterInfo, 0, len(rs))
 	for i := range rs {
 		res = append(res, RouterVoTrans(rs[i]))
@@ -420,7 +421,7 @@ func MRouterVoTrans(rs []vo.RouterVo) []*RouterInfo {
 	return res
 }
 
-func RouterVoTrans(r vo.RouterVo) *RouterInfo {
+func RouterVoTrans(r vo2.RouterVo) *RouterInfo {
 	return &RouterInfo{
 		Name:       r.Name,
 		Path:       r.Path,
@@ -436,5 +437,36 @@ func RouterVoTrans(r vo.RouterVo) *RouterInfo {
 			Link:    r.Meta.Link,
 		},
 		Children: MRouterVoTrans(r.Children),
+	}
+}
+
+// logininfo 适配redis存储
+func (l *Logininfo) Marshal() map[string]any {
+	return map[string]any{
+		"UserName":   l.UserName,
+		"Status":     l.Status,
+		"Ipaddr":     l.Ipaddr,
+		"Msg":        l.Msg,
+		"AccessTime": l.AccessTime,
+		"TokenId":    l.TokenId,
+		"DeptName":   l.DeptName,
+		"Browser":    l.Browser,
+		"Os":         l.Os,
+		"LoginTime":  l.LoginTime,
+	}
+}
+
+func (l *Logininfo) Unmarshal(mp map[string]string) {
+	mapstructure.Decode(mp, l)
+}
+
+func LoginInfo2UserOnlineInfo(info *Logininfo) *UserOnlineInfo {
+	return &UserOnlineInfo{
+		UserName:  info.UserName,
+		TokenId:   info.TokenId,
+		Ipaddr:    info.Ipaddr,
+		Browser:   info.Browser,
+		Os:        info.Os,
+		LoginTime: info.LoginTime,
 	}
 }

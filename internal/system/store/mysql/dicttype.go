@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -22,7 +23,7 @@ func selectDictTypeVo(db *gorm.DB) *gorm.DB {
 	return db.Table("sys_dict_type")
 }
 
-func (s *mysqlDictType) SelectDictTypeList(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) ([]*v1.SysDictType, error) {
+func (s *mysqlDictType) SelectDictTypeList(ctx context.Context, dictType *v1.SysDictType, opts *api.GetOptions) ([]*v1.SysDictType, int64, error) {
 	query := selectDictTypeVo(s.db)
 	if dictType.DictName != "" {
 		query = query.Where("dict_name like ?", "%"+dictType.DictName+"%")
@@ -37,10 +38,10 @@ func (s *mysqlDictType) SelectDictTypeList(ctx context.Context, dictType *v1.Sys
 
 	var result []*v1.SysDictType
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, "sys_dict_type.create_time"), err
 }
 
-func (s *mysqlDictType) SelectDictTypeAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysDictType, error) {
+func (s *mysqlDictType) SelectDictTypeAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysDictType, int64, error) {
 	return s.SelectDictTypeList(ctx, &v1.SysDictType{}, opts)
 }
 
@@ -51,7 +52,7 @@ func (s *mysqlDictType) SelectDictTypeById(ctx context.Context, dictid int64, op
 	var result v1.SysDictType
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -73,7 +74,7 @@ func (s *mysqlDictType) SelectDictTypeByType(ctx context.Context, dictType strin
 	var result v1.SysDictType
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -119,6 +120,8 @@ func (s *mysqlDictType) UpdateDictType(ctx context.Context, dictType *v1.SysDict
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Where("dict_id = ?", dictType.DictId).Updates(dictType).Error
 	}
+
+	s.CachedDB().CleanCache(ctx)
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(dictType.DictId, ""))
 }
 
@@ -129,7 +132,7 @@ func (s *mysqlDictType) CheckDictTypeUnique(ctx context.Context, dictType string
 	var result v1.SysDictType
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -151,7 +154,7 @@ var dictTypeCache = struct {
 
 func (s *mysqlDictType) CachedDB() *cache.CachedDB {
 	dictTypeCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-dicttypestore-")
 		rdsCli.SetRandomExp(true)
 

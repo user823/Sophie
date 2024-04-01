@@ -29,6 +29,18 @@ type deleteNoticeParam struct {
 	NoticeIds []int64 `json:"noticeIds"`
 }
 
+// NoticeList godoc
+// @Summary 列出公告列表
+// @Description 根据条件查询公告列表
+// @Description 权限：system:notice:list
+// @Param noticeTitle formData string false "公告标题"
+// @Param createBy formData string false "操作人员"
+// @Param noticeType formData string false "公告类型"
+// @Param pageNum formData int false "页面序号"
+// @Param pageSize formData int false "页面大小"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/notice/list [GET]
 func (n *NoticeController) List(ctx context.Context, c *app.RequestContext) {
 	var req noticeRequestParam
 	if err := c.BindAndValidate(&req); err != nil {
@@ -38,7 +50,7 @@ func (n *NoticeController) List(ctx context.Context, c *app.RequestContext) {
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -53,7 +65,7 @@ func (n *NoticeController) List(ctx context.Context, c *app.RequestContext) {
 		User:       &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.BaseResp.Code != code.SUCCESS {
@@ -70,13 +82,21 @@ func (n *NoticeController) List(ctx context.Context, c *app.RequestContext) {
 	core.JSON(c, result)
 }
 
+// GetInfo godoc
+// @Summary 获取公告详情
+// @Description 获取公告详情信息
+// @Description 权限：system:notice:query
+// @Param noticeId query string true "公告id"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/notice/:noticeId [GET]
 func (n *NoticeController) GetInfo(ctx context.Context, c *app.RequestContext) {
 	noticeIdStr := c.Param("noticeId")
 	noticeId, _ := strconv.ParseInt(noticeIdStr, 10, 64)
 
 	resp, err := rpc.Remoting.GetSysNoticeById(ctx, noticeId)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.BaseResp.Code != code.SUCCESS {
@@ -91,6 +111,16 @@ func (n *NoticeController) GetInfo(ctx context.Context, c *app.RequestContext) {
 	})
 }
 
+// NoticeAdd godoc
+// @Summary 创建公告
+// @Description 创建公告
+// @Description 权限：system:notice:add
+// @Param noticeTitle formData string true "标题"
+// @Param noticeType formData string true "类型"
+// @Param noticeContent formData string true "内容"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/notice [POST]
 func (n *NoticeController) Add(ctx context.Context, c *app.RequestContext) {
 	var req noticeRequestParam
 	if err := c.BindAndValidate(&req); err != nil {
@@ -100,7 +130,7 @@ func (n *NoticeController) Add(ctx context.Context, c *app.RequestContext) {
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -109,7 +139,7 @@ func (n *NoticeController) Add(ctx context.Context, c *app.RequestContext) {
 		User:       &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {
@@ -120,6 +150,16 @@ func (n *NoticeController) Add(ctx context.Context, c *app.RequestContext) {
 	core.OK(c, resp.Msg, nil)
 }
 
+// NoticeEdit godoc
+// @Summary 修改公告
+// @Description 修改公告
+// @Description 权限：system:notice:edit
+// @Param noticeTitle formData string true "标题"
+// @Param noticeType formData string true "类型"
+// @Param noticeContent formData string true "内容"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/notice [PUT]
 func (n *NoticeController) Edit(ctx context.Context, c *app.RequestContext) {
 	var req noticeRequestParam
 	if err := c.BindAndValidate(&req); err != nil {
@@ -129,7 +169,7 @@ func (n *NoticeController) Edit(ctx context.Context, c *app.RequestContext) {
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -138,7 +178,7 @@ func (n *NoticeController) Edit(ctx context.Context, c *app.RequestContext) {
 		User:       &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {
@@ -149,13 +189,21 @@ func (n *NoticeController) Edit(ctx context.Context, c *app.RequestContext) {
 	core.OK(c, resp.Msg, nil)
 }
 
+// NoticeRemove godoc
+// @Summary 删除公告
+// @Description 删除公告
+// @Description 权限：system:notice:remove
+// @Param noticeIds query string false "公告id"
+// @Accept application/json
+// @Produce application/json
+// @Router /system/notice/:noticeIds [DELETE]
 func (n *NoticeController) Remove(ctx context.Context, c *app.RequestContext) {
 	noticeIdsStr := c.Param("noticeIds")
 	noticeIds := strutil.Strs2Int64(noticeIdsStr)
 
 	info, err := utils.GetLoginInfoFromCtx(c)
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 
@@ -164,7 +212,7 @@ func (n *NoticeController) Remove(ctx context.Context, c *app.RequestContext) {
 		User:      &info,
 	})
 	if err != nil {
-		core.WriteResponseE(c, err, nil)
+		core.Fail(c, err.Error(), nil)
 		return
 	}
 	if resp.Code != code.SUCCESS {

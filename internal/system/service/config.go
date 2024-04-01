@@ -51,14 +51,14 @@ func (s *configService) SelectConfigByKey(ctx context.Context, configKey string,
 }
 
 func (s *configService) SelectConfigList(ctx context.Context, config *v1.SysConfig, opts *api.GetOptions) *v1.ConfigList {
-	result, err := s.store.Configs().SelectConfigList(ctx, config, opts)
+	result, total, err := s.store.Configs().SelectConfigList(ctx, config, opts)
 	if err != nil {
 		return &v1.ConfigList{
 			ListMeta: api.ListMeta{0},
 		}
 	}
 	return &v1.ConfigList{
-		ListMeta: api.ListMeta{int64(len(result))},
+		ListMeta: api.ListMeta{total},
 		Items:    result,
 	}
 }
@@ -82,7 +82,7 @@ func (s *configService) ResetConfigCache() {
 
 func (s *configService) CheckConfigKeyUnique(ctx context.Context, config *v1.SysConfig, opts *api.GetOptions) bool {
 	info := s.store.Configs().CheckConfigKeyUnique(ctx, config.ConfigKey, opts)
-	if info != nil && info.ConfigId == config.ConfigId {
+	if info != nil && info.ConfigId != config.ConfigId {
 		return false
 	}
 	return true

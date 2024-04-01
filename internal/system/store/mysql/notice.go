@@ -7,6 +7,7 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/pkg/cache"
 	"github.com/user823/Sophie/internal/system/store"
+	"github.com/user823/Sophie/internal/system/utils"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"gorm.io/gorm"
 	"sync"
@@ -29,7 +30,7 @@ func (s *mysqlNoticeStore) SelectNoticeById(ctx context.Context, noticeid int64,
 	var result v1.SysNotice
 	var err error
 	queryFn := func(ctx context.Context, db *gorm.DB, v any) error {
-		return query.First(&result).Error
+		return query.First(v).Error
 	}
 
 	if opts.Cache {
@@ -44,7 +45,7 @@ func (s *mysqlNoticeStore) SelectNoticeById(ctx context.Context, noticeid int64,
 	return &result, nil
 }
 
-func (s *mysqlNoticeStore) SelectNoticeList(ctx context.Context, notice *v1.SysNotice, opts *api.GetOptions) ([]*v1.SysNotice, error) {
+func (s *mysqlNoticeStore) SelectNoticeList(ctx context.Context, notice *v1.SysNotice, opts *api.GetOptions) ([]*v1.SysNotice, int64, error) {
 	query := selectNoticeVo(s.db)
 	if notice.NoticeTitle != "" {
 		query = query.Where("notice_title like ?", "%"+notice.NoticeTitle+"%")
@@ -59,7 +60,7 @@ func (s *mysqlNoticeStore) SelectNoticeList(ctx context.Context, notice *v1.SysN
 
 	var result []*v1.SysNotice
 	err := query.Find(&result).Error
-	return result, err
+	return result, utils.CountQuery(query, opts, ""), err
 }
 
 func (s *mysqlNoticeStore) InsertNotice(ctx context.Context, notice *v1.SysNotice, opts *api.CreateOptions) error {
@@ -75,6 +76,7 @@ func (s *mysqlNoticeStore) UpdateNotice(ctx context.Context, notice *v1.SysNotic
 	execFn := func(ctx context.Context, db *gorm.DB) error {
 		return opts.SQLCondition(s.db).Where("notice_id = ?", notice.NoticeId).Updates(notice).Error
 	}
+
 	return s.CachedDB().Exec(ctx, execFn, s.CacheKey(notice.NoticeId))
 }
 
@@ -103,7 +105,7 @@ var noticeCache = struct {
 
 func (s *mysqlNoticeStore) CachedDB() *cache.CachedDB {
 	noticeCache.once.Do(func() {
-		rdsCli := kv.NewKVStore("redis").(kv.RedisStore)
+		rdsCli := kv.NewKVStore("redis", nil).(kv.RedisStore)
 		rdsCli.SetKeyPrefix("sophie-system-noticestore-")
 		rdsCli.SetRandomExp(true)
 

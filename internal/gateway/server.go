@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/user823/Sophie/api/domain/gateway/v1"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"io"
 	"net/http"
 	"sync"
@@ -19,7 +20,6 @@ import (
 	"github.com/user823/Sophie/internal/gateway/rpc"
 	"github.com/user823/Sophie/internal/pkg/support"
 	"github.com/user823/Sophie/pkg/db/kv"
-	"github.com/user823/Sophie/pkg/db/kv/redis"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
 	"github.com/user823/Sophie/pkg/shutdown"
@@ -41,8 +41,8 @@ func createGatewayServer(config *Config) (*GateWayServer, error) {
 	gs.SetInOrder()
 
 	if config.Log.Aggregation {
-		r := kv.NewKVStore("redis")
-		aggregation.NewAnalytics(config.Aggregation, r.(kv.RedisStore), log.GetRecordMagager())
+		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
+		aggregation.NewAnalytics(config.Aggregation, producer.NewRedisProducer(r))
 	}
 
 	var insecureServer, secureServer *server.Hertz
@@ -90,7 +90,9 @@ func (s *GateWayServer) PrepareRun() *GateWayServer {
 		router.WithHealthz(s.ServerConfig.Healthz),
 		router.WithMiddlewares(s.ServerConfig.Middlewares),
 		router.WithJwtInfo(s.ServerConfig.Jwt),
-		router.WithBaseAPI(s.ServerConfig.ServerRunOptions.BaseAPI)}
+		router.WithBaseAPI(s.ServerConfig.ServerRunOptions.BaseAPI),
+		router.WithAddress(s.ServerConfig.InsecureServing.Addr),
+	}
 	router.InitRouter(s.InsecureServer, routerOpts...)
 	router.InitRouter(s.SecureServer, routerOpts...)
 
@@ -98,15 +100,17 @@ func (s *GateWayServer) PrepareRun() *GateWayServer {
 	viperTask := support.GoTask{}
 	viperTask.Run = func(ctx context.Context) (interface{}, error) {
 		// 每5s 拉取一次配置信息
-		for viperTask.Status() == support.STARTED {
-			viperTask.WaitForRunning(5 * time.Second)
+		for {
+			select {
+			case <-ctx.Done():
+				return nil, nil
+			default:
+				viperTask.WaitForRunning(5 * time.Second)
+			}
 			if err := viper.WatchRemoteConfig(); err != nil {
-				if err := viper.WatchRemoteConfig(); err != nil {
-					log.Debug("Read remoting config err: %s", err.Error())
-				}
+				log.Debug("Read remoting config err: %s", err.Error())
 			}
 		}
-		return nil, nil
 	}
 
 	// 初始化服务组件
@@ -147,9 +151,12 @@ func (s *GateWayServer) PrepareRun() *GateWayServer {
 		return nil
 	})
 
-	// 启动各种定时任务
+	// 启动各种后台任务
 	viperTask.Start()
-	go redis.KeepConnection(ctx, s.ServerConfig.Redis)
+	go kv.KeepConnection(ctx, s.ServerConfig.Redis)
+
+	// 睡眠2s
+	time.Sleep(2 * time.Second)
 	return s
 }
 
@@ -164,33 +171,33 @@ func (s *GateWayServer) Run() error {
 		return err
 	}
 
+	// 最后执行必要服务检查
+	if !kv.Connected() {
+		log.Fatalf("redis connect failed")
+	}
+
+	tracingOpts := []provider.Option{
+		provider.WithEnableTracing(s.ServerConfig.Availability.TraceEnable),
+		provider.WithExportEndpoint(s.ServerConfig.Availability.TraceEndpoint),
+		provider.WithInsecure(),
+		provider.WithEnableMetrics(s.ServerConfig.Availability.MetricEnable),
+	}
+
 	// 运行服务
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
 		defer wg.Done()
-		if s.ServerConfig.Availability.TraceEnable {
-			p := provider.NewOpenTelemetryProvider(
-				provider.WithServiceName(v1.ServiceName+"/http"),
-				// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
-				provider.WithExportEndpoint("localhost:4317"),
-				provider.WithInsecure(),
-			)
-			defer p.Shutdown(context.Background())
-		}
+		opts := append(tracingOpts, provider.WithServiceName(v1.ServiceName+"/http"))
+		p := provider.NewOpenTelemetryProvider(opts...)
+		defer p.Shutdown(context.Background())
 		s.InsecureServer.Spin()
 	}()
 	go func() {
 		defer wg.Done()
-		if s.ServerConfig.Availability.TraceEnable {
-			p := provider.NewOpenTelemetryProvider(
-				provider.WithServiceName(v1.ServiceName+"/https"),
-				// Support setting ExportEndpoint via environment variables: OTEL_EXPORTER_OTLP_ENDPOINT
-				provider.WithExportEndpoint("localhost:4317"),
-				provider.WithInsecure(),
-			)
-			defer p.Shutdown(context.Background())
-		}
+		opts := append(tracingOpts, provider.WithServiceName(v1.ServiceName+"/https"))
+		p := provider.NewOpenTelemetryProvider(opts...)
+		defer p.Shutdown(context.Background())
 		s.SecureServer.Spin()
 	}()
 

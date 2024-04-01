@@ -157,8 +157,6 @@ func (a *App) buildCommand() {
 		}
 	}
 
-	// 设置App启动的默认参数
-	SetDefaultConfig()
 	// 尝试从配置文件或者配置中心拉取配置
 	if a.configurable {
 		flagGroup.AddGlobalFlags(addConfigFlag(a.name))

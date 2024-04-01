@@ -45,20 +45,22 @@ func addConfigFlag(name string) *flag.Flag {
 			log.Warnf("failed to read configuration with configuration file (%s): %s", cfgFile, err.Error())
 		}
 
-		//// 从配置中心中加载 (仅支持json）
-		//if err := viper.AddRemoteProvider("etcd3", viper.GetString("etcd3"), "/sophie-config/"+name+".json"); err != nil {
-		//	log.Warnf("failed to add viper remoting config: %s", err.Error())
-		//}
-		//viper.SetConfigType("json")
-		//if err := viper.ReadRemoteConfig(); err != nil {
-		//	log.Warnf("failed to read configuration from remoting: %s", err.Error())
-		//}
+		// 从配置文件中读取配置中心访问端点
+		configCenter := viper.GetString("config_center.name")
+		endpoint := viper.GetString("config_center.endpoint")
+		if configCenter != "" && endpoint != "" {
+			if err := viper.AddRemoteProvider(configCenter, endpoint, "/sophie-config/"+name+".json"); err != nil {
+				log.Warnf("failed to add viper remoting config: %s", err.Error())
+			} else {
+				if err := viper.ReadRemoteConfig(); err != nil {
+					log.Warnf("failed to read configuration from remoting: %s", err.Error())
+					return
+				}
+
+				// 读取远程配置成功
+				viper.Set("enable_remote", true)
+			}
+		}
 	})
 	return flag.Lookup(configName)
-}
-
-// 运行App基本默认配置
-func SetDefaultConfig() {
-	// 配置中心
-	viper.SetDefault("etcd3", "http://127.0.0.1:2379")
 }

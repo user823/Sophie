@@ -23,7 +23,7 @@ func NewRedisOptions() *RedisOptions {
 	return &RedisOptions{
 		Addrs:                 []string{"127.0.0.1:6379"},
 		Username:              "sophie",
-		Password:              "123456",
+		Password:              "12345678",
 		Database:              0,
 		MasterName:            "",
 		MaxIdle:               2000,

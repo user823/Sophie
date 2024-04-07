@@ -1,6 +1,9 @@
 package worker
 
 import (
+	"net"
+	"strconv"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -11,8 +14,7 @@ import (
 	"github.com/user823/Sophie/pkg/db/sql"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"net"
-	"strconv"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 )
 
 // 运行、创建服务必要配置
@@ -100,4 +102,14 @@ func (cfg *Config) CreateKitexOptions() (result []server.Option) {
 	// 链路追踪
 	result = append(result, server.WithSuite(tracing.NewServerSuite()))
 	return result
+}
+
+func (cfg *Config) BuildAggregation() {
+	if cfg.Aggregation.Producer == "redis" {
+		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
+		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r, cfg.Aggregation.StorageExpirationTime))
+	} else if cfg.Aggregation.Producer == "rocketmq" {
+		rmqProducer := producer.NewRocketMQProducer(cfg.Aggregation.RMQProducerOptions.Endpoints, cfg.Aggregation.RMQProducerOptions.AccessKey, cfg.Aggregation.RMQProducerOptions.AccessSecret)
+		aggregation.NewAnalytics(cfg.Aggregation, rmqProducer)
+	}
 }

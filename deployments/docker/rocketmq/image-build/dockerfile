@@ -4,7 +4,7 @@ FROM eclipse-temurin:11 AS builder
 ARG version
 
 RUN set -eux; \
-    apt-get update; \
+    apt-get -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false update; \
     apt-get install -y curl unzip gnupg; \
     rm -rf /var/lib/apt/lists/*;
 

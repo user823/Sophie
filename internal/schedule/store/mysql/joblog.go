@@ -17,7 +17,7 @@ func selectJobLogVo(db *gorm.DB) *gorm.DB {
 }
 
 func (s *mysqlJobLogStore) SelectJobLogList(ctx context.Context, jobLog *v1.SysJobLog, opts *api.GetOptions) ([]*v1.SysJobLog, int64, error) {
-	query := selectJobVo(s.db)
+	query := selectJobLogVo(s.db)
 	if jobLog.JobName != "" {
 		query = query.Where(query, "jobName like ?", "%"+jobLog.JobName+"%")
 	}

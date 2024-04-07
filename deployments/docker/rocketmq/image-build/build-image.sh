@@ -22,4 +22,4 @@ BASE_IMAGE=$2
 checkVersion $ROCKETMQ_VERSION
 
 # Build rocketmq
-docker build --no-cache -f dockerfile -t apache/rocketmq:${ROCKETMQ_VERSION} --build-arg version=${ROCKETMQ_VERSION} .
+docker build --no-cache -f dockerfile -t sophie/rocketmq:${ROCKETMQ_VERSION} --build-arg version=${ROCKETMQ_VERSION} .

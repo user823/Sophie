@@ -2,11 +2,13 @@ package system
 
 import (
 	"context"
+	"time"
+
 	"github.com/cloudwego/kitex/server"
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
-	"github.com/user823/Sophie/api/domain/system/v1"
+	v1 "github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/api/thrift/system/v1/systemservice"
 	"github.com/user823/Sophie/internal/pkg/support"
 	"github.com/user823/Sophie/internal/system/store/es"
@@ -15,9 +17,7 @@ import (
 	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"github.com/user823/Sophie/pkg/shutdown"
-	"time"
 )
 
 type SystemServer struct {
@@ -36,8 +36,7 @@ func createGatewayServer(cfg *Config) (*SystemServer, error) {
 	gs.SetInOrder()
 
 	if cfg.Log.Aggregation {
-		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
-		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r))
+		cfg.BuildAggregation()
 	}
 
 	generalOpts := cfg.CreateKitexOptions()

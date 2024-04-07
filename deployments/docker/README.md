@@ -16,3 +16,5 @@ SHOW VARIABLES LIKE 'character_set_client';
 export ip=xxxxx
 docker exec --rm sophie-rmq bash mqadmin updatetopic -n ${ip}:9876 -t sophie_record_aggregation -c DefaultCluster
 ```
+
+4. dockerfile 构建Sophie 镜像，构建镜像的时候在项目根目录下运行命令

@@ -3,12 +3,12 @@ package gateway
 import (
 	"context"
 	"fmt"
-	"github.com/user823/Sophie/api/domain/gateway/v1"
-	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"io"
 	"net/http"
 	"sync"
 	"time"
+
+	v1 "github.com/user823/Sophie/api/domain/gateway/v1"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -41,8 +41,7 @@ func createGatewayServer(config *Config) (*GateWayServer, error) {
 	gs.SetInOrder()
 
 	if config.Log.Aggregation {
-		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
-		aggregation.NewAnalytics(config.Aggregation, producer.NewRedisProducer(r))
+		config.BuildAggregation()
 	}
 
 	var insecureServer, secureServer *server.Hertz

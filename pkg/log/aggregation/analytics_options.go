@@ -2,8 +2,9 @@ package aggregation
 
 import (
 	"fmt"
-	flag "github.com/spf13/pflag"
 	"time"
+
+	flag "github.com/spf13/pflag"
 )
 
 type AnalyticsOptions struct {
@@ -12,6 +13,10 @@ type AnalyticsOptions struct {
 	FlushInterval           uint64        `json:"flush_interval" mapstructure:"flush_interval"`
 	StorageExpirationTime   time.Duration `json:"storage_expiration_time" mapstructure:"storage_expiration_time"`
 	EnableDetailedRecording bool          `json:"enable_detailed_recording" mapstructure:"enable_detailed_recording"`
+	Producer                string        `json:"producer" mapstructure:"producer"`
+
+	// 各种producer 相关的option
+	RMQProducerOptions *RMQProducerOptions `json:"rocketmq" mapstructure:"rocketmq"`
 }
 
 // 默认日志传送选项
@@ -22,6 +27,7 @@ func NewAnalyticsOptions() *AnalyticsOptions {
 		FlushInterval:           200,
 		EnableDetailedRecording: true,
 		StorageExpirationTime:   time.Duration(24) * time.Hour,
+		Producer:                "redis",
 	}
 }
 
@@ -31,6 +37,10 @@ func (o *AnalyticsOptions) Validate() error {
 	}
 	if o.FlushInterval < 1 || o.FlushInterval > 1000 {
 		return fmt.Errorf("log-record flush_interval %v must be between 1 and 1000", o.FlushInterval)
+	}
+
+	if o.Producer == "rocketmq" && o.RMQProducerOptions == nil {
+		return fmt.Errorf("use rocketmq producer must provide rocketmq configs")
 	}
 	return nil
 }

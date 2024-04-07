@@ -1,0 +1,67 @@
+generic:
+  # 开启健康检查
+  healthz: true
+  # 需要注册的额外中间件
+  middlewares: cors # accesslog, cache
+  # 服务优雅关停最大等待时间
+  exit_wait_time: 8s
+  # 客户端最大空闲时间
+  max_idle_timeout: 3s
+  # api版本
+#  base_api: v1
+
+insecure:
+  bind_address: ${SOPHIE_LOGSTASH_INSECURE_ADDRESS}
+  bind_port: ${SOPHIE_LOGSTASH_INSECURE_PORT}
+
+log:
+  output_paths: ${LOG_OUTPUT_PATH}
+  error_output_paths: ${LOG_ERR_OUTPUT_PATH}
+  level: ${LOG_LEVEL}
+  disable_caller: false
+  disable_stacktrace: false
+  # 开发者模式
+  development: false
+  # 禁用log
+  disable_logger: false
+  name: sophie-gateway-logger
+  #  skip_caller: 3
+  # 是否开启日志聚合
+  aggregation: ${LOG_AGGREGATION}
+
+# consumer 端配置
+# 订阅redis
+sub_redis:
+  addrs: ${REDIS_HOST}
+  username: ${REDIS_USERNAME}
+  password: ${REDIS_PASSWORD}
+  database: 0
+  optimisation_max_idle: 1000
+  optimisation_max_active: 4000
+  timeout: 0
+  enable_cluster: false
+  use_ssl: false
+
+# 订阅rocketmq
+sub_rocketmq:
+  rmq_endpoints: ${ROCKETMQ_HOST}
+  access_key: ${ROCKETMQ_ACCESSKEY}
+  access_secret: ${ROCKETMQ_ACCESSSECET}
+
+# 指定输出端
+exporters: elasticsearch_exporter
+filters:
+  log_level: 0
+timeout: 3s
+
+# exporter 端配置
+pub_elasticsearch:
+  target_indices: sophie_record_aggregation
+  elasticsearch:
+    addrs: ${ES_ENDPOINT}
+    username: ${ES_USERNAME}
+    password: ${ES_PASSWORD}
+    max_idle: 10
+    max_retry_times: 3
+    use_ssl: false
+    timeout: 3s

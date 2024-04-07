@@ -5,6 +5,7 @@ go 1.21.5
 require (
 	github.com/apache/rocketmq-clients/golang/v5 v5.1.0-rc.1
 	github.com/apache/thrift v0.19.0
+	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/cloudwego/hertz v0.7.3
 	github.com/cloudwego/kitex v0.8.0
 	github.com/elastic/go-elasticsearch/v8 v8.12.0
@@ -20,6 +21,7 @@ require (
 	github.com/hertz-contrib/logger/accesslog v0.0.0-20240128134225-6b18af47a115
 	github.com/hertz-contrib/obs-opentelemetry/tracing v0.3.1
 	github.com/hertz-contrib/requestid v1.1.0
+	github.com/hertz-contrib/swagger v0.1.0
 	github.com/json-iterator/go v1.1.12
 	github.com/kitex-contrib/obs-opentelemetry v0.2.5
 	github.com/kitex-contrib/registry-etcd v0.2.0
@@ -32,6 +34,8 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
+	github.com/swaggo/files v1.0.1
+	github.com/swaggo/swag v1.16.1
 	github.com/xuri/excelize/v2 v2.8.1
 	go.etcd.io/etcd/client/v3 v3.5.12
 	go.uber.org/zap v1.27.0
@@ -59,7 +63,6 @@ require (
 	github.com/bytedance/go-tagexpr/v2 v2.9.11 // indirect
 	github.com/bytedance/gopkg v0.0.0-20231219111115-a5eedbe96960 // indirect
 	github.com/bytedance/sonic v1.10.2 // indirect
-	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/census-instrumentation/opencensus-proto v0.4.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
@@ -118,7 +121,6 @@ require (
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/serf v0.10.1 // indirect
-	github.com/hertz-contrib/swagger v0.1.0 // indirect
 	github.com/huaweicloud/huaweicloud-sdk-go-obs v3.21.12+incompatible // indirect
 	github.com/iancoleman/strcase v0.3.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
@@ -167,8 +169,6 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/swaggo/files v1.0.1 // indirect
-	github.com/swaggo/swag v1.16.1 // indirect
 	github.com/tencentyun/cos-go-sdk-v5 v0.7.36 // indirect
 	github.com/tidwall/gjson v1.17.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
@@ -209,7 +209,6 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.18.0 // indirect
 	google.golang.org/api v0.172.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto v0.0.0-20240123012728-ef4313101c80 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240325203815-454cdb8f5daa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240325203815-454cdb8f5daa // indirect

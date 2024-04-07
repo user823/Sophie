@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"time"
+
 	"github.com/cloudwego/kitex/client/callopt"
 	"github.com/cloudwego/kitex/server"
 	"github.com/google/uuid"
@@ -26,12 +29,9 @@ import (
 	"github.com/user823/Sophie/pkg/errors"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"github.com/user823/Sophie/pkg/shutdown"
-	"go.etcd.io/etcd/client/v3"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
-	"strconv"
-	"time"
 )
 
 // manager 节点
@@ -55,8 +55,7 @@ func createGatewayServer(cfg *Config) (*ScheduleManager, error) {
 	gs.SetInOrder()
 
 	if cfg.Log.Aggregation {
-		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
-		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r))
+		cfg.BuildAggregation()
 	}
 
 	etcdStore, err := kv.NewEtcdClient(cfg.BuildEtcdConfig())

@@ -2,11 +2,12 @@ package gateway
 
 import (
 	"crypto/tls"
+	"net"
+	"strconv"
+
 	"github.com/cloudwego/hertz/pkg/app/server/binding"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/user823/Sophie/pkg/db/kv"
-	"net"
-	"strconv"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	hserver "github.com/cloudwego/hertz/pkg/app/server"
@@ -23,6 +24,7 @@ import (
 	"github.com/user823/Sophie/internal/pkg/options"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 )
 
 // 创建、运行服务必要的配置
@@ -178,4 +180,14 @@ type DiscoverInfo struct {
 	Addrs    []string
 	Username string
 	Password string
+}
+
+func (cfg *Config) BuildAggregation() {
+	if cfg.Aggregation.Producer == "redis" {
+		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
+		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r, cfg.Aggregation.StorageExpirationTime))
+	} else if cfg.Aggregation.Producer == "rocketmq" {
+		rmqProducer := producer.NewRocketMQProducer(cfg.Aggregation.RMQProducerOptions.Endpoints, cfg.Aggregation.RMQProducerOptions.AccessKey, cfg.Aggregation.RMQProducerOptions.AccessSecret)
+		aggregation.NewAnalytics(cfg.Aggregation, rmqProducer)
+	}
 }

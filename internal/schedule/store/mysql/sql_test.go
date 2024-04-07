@@ -47,9 +47,23 @@ func TestJobInsert(t *testing.T) {
 	}
 }
 
+func TestJobLogList(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	list, _, err := sqlCli.JobLogs().SelectJobLogAll(context.Background(), &api.GetOptions{})
+	if err != nil {
+		t.Log(err)
+		return
+	}
+	for i := range list {
+		t.Log(list[i])
+	}
+}
+
 func TestSqlSub(t *testing.T) {
 	InitSQL()
 
 	t.Run("test-jobList", TestJobList)
 	t.Run("test-jobCreate", TestJobInsert)
+
+	t.Run("test-jobLogList", TestJobLogList)
 }

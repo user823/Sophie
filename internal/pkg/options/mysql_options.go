@@ -1,14 +1,15 @@
 package options
 
 import (
-	flag "github.com/spf13/pflag"
 	"time"
+
+	flag "github.com/spf13/pflag"
 )
 
 type MySQLOptions struct {
 	Host                  string        `json:"host,omitempty"                     mapstructure:"host"`
 	Username              string        `json:"username,omitempty"                 mapstructure:"username"`
-	Password              string        `json:"_"                                  mapstructure:"password"`
+	Password              string        `json:"-"                                  mapstructure:"password"`
 	Database              string        `json:"database"                           mapstructure:"database"`
 	MaxIdleConnections    int           `json:"max_idle_connections,omitempty"     mapstructure:"max_idle_connections"`
 	MaxOpenConnections    int           `json:"max_open_connections,omitempty"     mapstructure:"max_open_connections"`
@@ -20,7 +21,7 @@ func NewMySQLOptions() *MySQLOptions {
 	return &MySQLOptions{
 		Host:                  "127.0.0.1:3306",
 		Username:              "sophie",
-		Password:              "123456",
+		Password:              "12345678",
 		Database:              "sophie",
 		MaxIdleConnections:    100,
 		MaxOpenConnections:    100,

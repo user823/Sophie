@@ -1,0 +1,115 @@
+generic:
+  # 开启健康检查
+  healthz: true
+  # 需要注册的额外中间件
+  middlewares: cors # accesslog, cache
+  # 服务优雅关停最大等待时间
+  exit_wait_time: 8s
+  # 客户端最大空闲时间
+  max_idle_timeout: 3s
+  # api版本
+#  base_api: v1
+
+availability:
+  trace_enable: true
+  # jaeger
+  trace_endpoint: ${JAEGER_HOST}
+  # 需要配置promethus
+  metric_enable: false
+  profiling: false
+
+insecure:
+  bind_address: ${SOPHIE_GATEWAY_INSECURE_ADDRESS}
+  bind_port: ${SOPHIE_GATEWAY_INSECURE_PORT}
+
+secure:
+  bind_address: ${SOPHIE_GATEWAY_SECURE_ADDRESS}
+  bind_port: ${SOPHIE_GATEWAY_SECURE_PORT}
+  tls:
+    cert_file: ${SOPHIE_GATEWAY_SECURE_CERT_FILE}
+    private_key_file: ${SOPHIE_GATEWAY_SECURE_PK_FILE}
+
+jwt:
+  realm: sophie jwt
+  key: sophie
+  # token 最大刷新时间
+  max_refresh: 1h
+  # token 有效期
+  timeout: 1h
+
+log:
+  output_paths: ${LOG_OUTPUT_PATH}
+  error_output_paths: ${LOG_ERR_OUTPUT_PATH}
+  level: ${LOG_LEVEL}
+  disable_caller: false
+  disable_stacktrace: false
+  # 开发者模式
+  development: false
+  # 禁用log
+  disable_logger: false
+  name: sophie-gateway-logger
+  #  skip_caller: 3
+  # 是否开启日志聚合
+  aggregation: ${LOG_AGGREGATION}
+
+# 服务发现配置
+server_discover:
+  addrs: ${ETCD_HOST}
+  username: ${ETCD_USERNAME}
+  password: ${ETCD_PASSWORD}
+  max_attemt_times: 5
+#  observer_delay: 10s
+#  retry_delay: 5s
+#  TTL: 60
+
+# 是否开启验证码
+captcha_enable: true
+
+# redis 配置
+redis:
+  addrs: ${REDIS_HOST}
+  username: ${REDIS_USERNAME}
+  password: ${REDIS_PASSWORD}
+#  database: 0
+#  master_name:
+#  optimisation_max_idle: 2000
+#  optimisation_max_active: 4000
+#  timeout: 0
+#  enable_cluster: false
+#  use_ssl: false
+#  ssl_insecure_skip_verify: false
+
+# rpc 客户端（保持默认即可)
+rpc_client:
+  min_idle_per_address: ${RPC_CLIENT_MIN_IDLE_PER_ADDRESS}
+  max_idle_per_address: ${RPC_CLIENT_MAX_IDLE_PER_ADDRESS}
+  max_idle_global: ${RPC_CLIENT_MAX_IDLE_GLOBAL}
+  max_idle_timeout: ${RPC_CLIENT_MAX_IDLE_TIMEOUT}
+  conn_timeout: ${RPC_CLIENT_CONN_TIMEOUT}
+  # rpc 调用超时时间
+  rpc_timeout: ${RPC_CLIENT_RPC_TIMEOUT}
+  # 最大重试次数
+  max_retry_time: ${RPC_CLIENT_MAX_RETRY_TIME}
+  # 复用熔断器
+  max_duration_ms: ${RPC_CLIENT_MAX_DURATION_MS}
+  # 熔断率
+  circuitbreak: ${RPC_CLIENT_CIRCUITBREAK}
+  minsample: ${RPC_CLIENT_MINSAMPLE}
+
+# 日志聚合
+aggregation:
+  # 日志聚合工作线程数
+  pool_size: 50
+  # 日志聚合缓冲区大小
+  records_buffer_size: 1000
+  # 刷新间隔（毫秒）
+  flush_interval: 200
+  # 日志转存时间
+  storage_expiration_time: 24h
+  producer: "redis"
+
+  # 配置rocketmq 转存
+  # producer: "rocketmq"
+  #   endpoints: ${ROCKETMQ_HOST}
+  #   access_key: ${ROCKETMQ_ACCESSKEY}
+  #   access_secret: ${ROCKETMQ_ACCESSSECET}

@@ -60,6 +60,7 @@ type Analytics struct {
 	recordDetail               bool
 	recordCh                   chan string
 	shouldStop                 uint32
+	expireTimeDuration         time.Duration
 }
 
 func init() {
@@ -77,6 +78,7 @@ func NewAnalytics(options *AnalyticsOptions, p RecordProducer) {
 	analytics.recordDetail = options.EnableDetailedRecording
 	analytics.recordBufferSize = recordsBufferSize
 	analytics.recordsBufferFlushInterval = options.FlushInterval
+	analytics.expireTimeDuration = options.StorageExpirationTime
 }
 
 func GetAnalytics() *Analytics {

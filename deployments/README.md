@@ -1,24 +1,34 @@
-# Sophie部署指南
-设置环境变量
+# Sophie 部署指南
 
-## https服务创建
-1. 安装cfssl工具集
+设置环境变量, scripts/environment.sh 提供了默认的环境变量，请根据实际需要进行修改
+
+```
+source scripts/environment.sh
+```
+
+## https 服务创建
+
+1. 安装 cfssl 工具集
+
 ```
 cfssl: 证书签发工具
 cfssljson: 将cfssl生成的证书（json格式）变为文件承载式证书
 ```
 
 执行命令:
+
 ```
-cd ${SOPHIE_ROOT_DIR}/configs
+cd ${SOPHIE_ROOT}/configs
 mkdir cert
-cfssl gencert -initca cfssl/ca-csr.json | cfssljson -bare ca 
+cfssl gencert -initca cfssl/ca-csr.json | cfssljson -bare ca
 ls ca*
 mv ca* cert
 ```
-生成ca-key.pem(私钥) 和 ca.pem(公钥)
 
-2. 修改hosts
+生成 ca-key.pem(私钥) 和 ca.pem(公钥)
+
+2. 修改 hosts
+
 ```
 sudo tee -a /etc/hosts << EOF
 127.0.0.1 sophie.gateway.com
@@ -26,7 +36,8 @@ sudo tee -a /etc/hosts << EOF
 EOF
 ```
 
-3. 配置gateway
+3. 配置 gateway
+
 ```
 cd $SOPHIE_ROOT/configs
 sudo mkdir /var/run/sophie

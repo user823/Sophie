@@ -2,16 +2,17 @@ package test
 
 import (
 	"context"
+	"os"
+	"sync"
+	"testing"
+	"time"
+
 	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
 	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"os"
-	"sync"
-	"testing"
-	"time"
 )
 
 var (
@@ -67,7 +68,7 @@ func TestZap(t *testing.T) {
 }
 
 func TestAggregation(t *testing.T) {
-	pr := producer.NewRedisProducer(redisStore)
+	pr := producer.NewRedisProducer(redisStore, 1000*time.Second)
 	aggregation.NewAnalytics(aggregation.NewAnalyticsOptions(), pr)
 
 	// 开启日志聚合

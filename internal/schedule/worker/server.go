@@ -3,11 +3,15 @@ package worker
 import (
 	"context"
 	"fmt"
+	"net"
+	"strconv"
+	"time"
+
 	"github.com/cloudwego/kitex/server"
 	"github.com/google/uuid"
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/spf13/viper"
-	"github.com/user823/Sophie/api/domain/schedule/v1"
+	v1 "github.com/user823/Sophie/api/domain/schedule/v1"
 	"github.com/user823/Sophie/api/thrift/schedule/v1/workerservice"
 	"github.com/user823/Sophie/internal/pkg/support"
 	"github.com/user823/Sophie/internal/schedule/locker"
@@ -20,15 +24,11 @@ import (
 	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"github.com/user823/Sophie/pkg/shutdown"
 	utils2 "github.com/user823/Sophie/pkg/utils"
 	"github.com/user823/Sophie/pkg/utils/intutil"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"go.etcd.io/etcd/client/v3/concurrency"
-	"net"
-	"strconv"
-	"time"
 )
 
 const (
@@ -76,8 +76,7 @@ func createGatewayServer(cfg *Config) (*ScheduleWorker, error) {
 	gs.SetInOrder()
 
 	if cfg.Log.Aggregation {
-		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
-		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r))
+		cfg.BuildAggregation()
 	}
 
 	etcdStore, err := kv.NewEtcdClient(cfg.Register.BuildEtcdConfig())

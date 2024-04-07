@@ -24,7 +24,7 @@ func NewESOptions() *ESOptions {
 	return &ESOptions{
 		Addrs:         []string{"https://127.0.0.1:9200"},
 		Username:      "sophie",
-		Password:      "123456",
+		Password:      "12345678",
 		APIKey:        "",
 		CloudId:       "",
 		MaxIdle:       10,

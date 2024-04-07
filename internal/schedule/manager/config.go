@@ -1,6 +1,9 @@
 package manager
 
 import (
+	"net"
+	"strconv"
+
 	"github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/pkg/circuitbreak"
 	"github.com/cloudwego/kitex/pkg/connpool"
@@ -19,8 +22,7 @@ import (
 	"github.com/user823/Sophie/pkg/db/sql"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"net"
-	"strconv"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 )
 
 type Config struct {
@@ -167,5 +169,15 @@ func (cfg *Config) BuildEtcdConfig() *kv.EtcdConfig {
 		Endpoints: cfg.Register.Addrs,
 		Username:  cfg.Register.Username,
 		Password:  cfg.Register.Password,
+	}
+}
+
+func (cfg *Config) BuildAggregation() {
+	if cfg.Aggregation.Producer == "redis" {
+		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
+		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r, cfg.Aggregation.StorageExpirationTime))
+	} else if cfg.Aggregation.Producer == "rocketmq" {
+		rmqProducer := producer.NewRocketMQProducer(cfg.Aggregation.RMQProducerOptions.Endpoints, cfg.Aggregation.RMQProducerOptions.AccessKey, cfg.Aggregation.RMQProducerOptions.AccessSecret)
+		aggregation.NewAnalytics(cfg.Aggregation, rmqProducer)
 	}
 }

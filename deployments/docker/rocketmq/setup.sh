@@ -21,8 +21,8 @@ helpMsg() {
 }
 
 checkVersion $1
-setup_dashboard
-dashboard_port
+setup_dashboard=""
+dashboard_port=""
 host_ip
 
 while getopts ":e" opt; do
@@ -46,7 +46,7 @@ while getopts ":e" opt; do
     ;;
     q)
       echo "start sophie-rmq in one container"
-      docker run -d --name sophie-rmq -p 9876:9876 -p 10911:10911 -p 8081:8081 apache/rocketmq:5.1.4 sophie-rmq
+      docker run -d --name sophie-rmq -p 9876:9876 -p 10911:10911 -p 8081:8081 sophie/rocketmq:5.1.4 sophie-rmq
       exit 0
     :)
       # ignore other parameters
@@ -55,8 +55,8 @@ while getopts ":e" opt; do
 done
 
 # 开启namesrv 和 broker
-docker run -d --name rmqnamesrv -p 9876:9876 apache/rocketmq:$1 bash mqnamesrv
-docker run -d --name rmqbroker -p 10911:10911 apache/rocketmq:$1 bash mqbroker -n ${host_ip}:9876 --enable-proxy
+docker run -d --name rmqnamesrv -p 9876:9876 sophie/rocketmq:$1 bash mqnamesrv
+docker run -d --name rmqbroker -p 10911:10911 sophie/rocketmq:$1 bash mqbroker -n ${host_ip}:9876 --enable-proxy
 
 # 开启rocketmq_dashboard
 if [ "$setup_dashboard" = true ]; then

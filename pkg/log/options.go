@@ -3,11 +3,12 @@ package log
 import (
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
+
 	flag "github.com/spf13/pflag"
 	"github.com/user823/Sophie/pkg/ds"
 	"go.uber.org/zap/zapcore"
-	"os"
-	"path/filepath"
 )
 
 const (

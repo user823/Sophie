@@ -8,6 +8,7 @@
 #deployments/minio/
 #deployments
 deployments/
+bin/
 
 # Binaries for programs and plugins
 *.exe

@@ -2,8 +2,8 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"github.com/hertz-contrib/swagger"
+	"github.com/spf13/viper"
 	swaggerFiles "github.com/swaggo/files"
 	system2 "github.com/user823/Sophie/api/domain/system/v1"
 	"github.com/user823/Sophie/internal/gateway/controller/v1/file"
@@ -82,7 +82,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 
 	// 获取基础组件
 	logsaver := &rpcLogSaver{}
-	captchaController := NewCaptchaController(false)
+	captchaController := NewCaptchaController(viper.GetBool("captcha_enable"))
 
 	// 安装通用中间件
 	if h == nil {
@@ -276,6 +276,14 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		job_.PUT("/changeStatus", secure.RequirePermissions("monitor:job:changeStatus"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), jobController.ChangeStatus)
 		job_.PUT("/run", secure.RequirePermissions("monitor:job:changeStatus"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), jobController.Run)
 		job_.DELETE("/:jobIds", secure.RequirePermissions("monitor:job:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), jobController.Remove)
+
+		// 定时任务日志
+		log_ := job_.Group("/log")
+		log_.GET("/list", secure.RequirePermissions("monitor:job:list"), jobController.ListJobLog)
+		log_.POST("/export", secure.RequirePermissions("monitor:job:export"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_EXPORT}), jobController.ExportJobLog)
+		log_.GET("/jobLogId", secure.RequirePermissions("monitor:job:query"), jobController.JobLogInfo)
+		log_.DELETE("/jobLogIds", secure.RequirePermissions("monitor:job:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), jobController.RemoveJobLog)
+		log_.DELETE("/clean", secure.RequirePermissions("monitor:job:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "定时任务日志", mw.BUSINESSTYE: system2.BUSINESSTYPE_CLEAN}), jobController.CleanJobLog)
 	}
 	//
 	// 代码生成模块
@@ -306,9 +314,11 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		h.GET("/health", healthCheck)
 	}
 
+	url := swagger.URL("swagger/doc.json")
 	// swagger 接口
-	url := swagger.URL(fmt.Sprintf("http://%s/swagger/doc.json", opt.Address))
-	h.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler, url, swagger.DefaultModelsExpandDepth(-1)))
+	h.GET("/swagger/*any", func(ctx context.Context, c *app.RequestContext) {
+		swagger.WrapHandler(swaggerFiles.Handler, url, swagger.DefaultModelsExpandDepth(-1))(ctx, c)
+	})
 }
 
 type rpcLogSaver struct{}

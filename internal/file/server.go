@@ -2,6 +2,8 @@ package file
 
 import (
 	"context"
+	"time"
+
 	"github.com/cloudwego/kitex/server"
 	"github.com/kitex-contrib/obs-opentelemetry/provider"
 	"github.com/spf13/viper"
@@ -12,9 +14,7 @@ import (
 	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 	"github.com/user823/Sophie/pkg/shutdown"
-	"time"
 )
 
 type FileServer struct {
@@ -33,8 +33,7 @@ func createGatewayServer(cfg *Config) (*FileServer, error) {
 	gs.SetInOrder()
 
 	if cfg.Log.Aggregation {
-		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
-		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r))
+		cfg.BuildAggregation()
 	}
 
 	generalOpts := cfg.CreateKitexOptions()

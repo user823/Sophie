@@ -1,0 +1,93 @@
+log:
+  output_paths: ${LOG_OUTPUT_PATH}
+  error_output_paths: ${LOG_ERR_OUTPUT_PATH}
+  level: ${LOG_LEVEL}
+  disable_caller: false
+  disable_stacktrace: false
+  # 开发者模式
+  development: false
+  # 禁用log
+  disable_logger: false
+  name: sophie-schedule-worker-logger
+  #  skip_caller: 3
+  # 是否开启日志聚合
+  aggregation: ${LOG_AGGREGATION}
+
+# 可观测性配置
+availability:
+  trace_enable: true
+  # jaeger
+  trace_endpoint: ${JAEGER_HOST}
+  # 需要配置promethus
+  metric_enable: false
+  profiling: false
+
+# rpc_server配置
+rpc_server:
+  bind_address: ${SOPHIE_SCHEDULE_WORKER_ADDRESS}
+  bind_port: ${SOPHIE_SCHEDULE_WORKER_PORT}
+  # 多路复用
+  enable_mux_connection: true
+  max_conn_idle_time: 30m
+  # 限流
+  qps_limit: ${SOPHIE_SCHEDULE_WORKER_QPS}
+  # 连接数限制
+  connection_limit: ${SOPHIE_SCHEDULE_WORKER_CONN_LIMIT}
+  # 关停时间
+  # exit_wait_time: 8s
+
+
+# mysql 配置
+mysql:
+  host: ${MYSQL_HOST}
+  username: ${MYSQL_USERNAME}
+  password: ${MYSQL_PASSWORD}
+  database: ${SOPHIE_SYSTEM_MYSQL_DATABASE}
+  max_idle_connections: 100
+  max_open_connections: 100
+  max_connection_life_time: 10s
+  # 1 表示silent
+  log_level: 1
+
+# 服务注册
+service_register:
+  addrs: ${ETCD_HOST}
+  username: ${ETCD_USERNAME}
+  password: ${ETCD_PASSWORD}
+  max_attemt_times: 5
+#  observer_delay: 10s
+#  retry_delay: 5s
+#  TTL: 60
+
+# redis 配置
+redis:
+  addrs: ${REDIS_HOST}
+  username: ${REDIS_USERNAME}
+  password: ${REDIS_PASSWORD}
+#  database: 0
+#  master_name:
+#  optimisation_max_idle: 2000
+#  optimisation_max_active: 4000
+
+# 日志聚合
+aggregation:
+  # 日志聚合工作线程数
+  pool_size: 50
+  # 日志聚合缓冲区大小
+  records_buffer_size: 1000
+  # 刷新间隔（毫秒）
+  flush_interval: 200
+  # 日志转存时间
+  storage_expiration_time: 24h
+  producer: "redis"
+
+  # 配置rocketmq 转存
+  # producer: "rocketmq"
+  #   endpoints: ${ROCKETMQ_HOST}
+  #   access_key: ${ROCKETMQ_ACCESSKEY}
+  #   access_secret: ${ROCKETMQ_ACCESSSECET}
+#  timeout: 0
+#  enable_cluster: false
+#  use_ssl: false
+#  ssl_insecure_skip_verify: false
+

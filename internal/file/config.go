@@ -1,6 +1,10 @@
 package file
 
 import (
+	"net"
+	"strconv"
+	"time"
+
 	"github.com/cloudwego/kitex/pkg/limit"
 	"github.com/cloudwego/kitex/pkg/rpcinfo"
 	"github.com/cloudwego/kitex/server"
@@ -12,9 +16,7 @@ import (
 	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/log/aggregation"
-	"net"
-	"strconv"
-	"time"
+	"github.com/user823/Sophie/pkg/log/aggregation/producer"
 )
 
 // 运行、创建服务必要配置
@@ -119,4 +121,14 @@ type RegisterInfo struct {
 	ObserverDelay time.Duration
 	// 服务发现重试时延
 	RetryDelay time.Duration
+}
+
+func (cfg *Config) BuildAggregation() {
+	if cfg.Aggregation.Producer == "redis" {
+		r := kv.NewKVStore("redis", nil).(kv.RedisStore)
+		aggregation.NewAnalytics(cfg.Aggregation, producer.NewRedisProducer(r, cfg.Aggregation.StorageExpirationTime))
+	} else if cfg.Aggregation.Producer == "rocketmq" {
+		rmqProducer := producer.NewRocketMQProducer(cfg.Aggregation.RMQProducerOptions.Endpoints, cfg.Aggregation.RMQProducerOptions.AccessKey, cfg.Aggregation.RMQProducerOptions.AccessSecret)
+		aggregation.NewAnalytics(cfg.Aggregation, rmqProducer)
+	}
 }

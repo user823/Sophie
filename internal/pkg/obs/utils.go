@@ -2,13 +2,15 @@ package obs
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
-	"github.com/user823/Sophie/pkg/utils/hash"
-	"github.com/user823/Sophie/pkg/utils/strutil"
 	"net/url"
 	"path"
 	"path/filepath"
 	"time"
+
+	"github.com/spf13/viper"
+	"github.com/user823/Sophie/pkg/utils"
+	"github.com/user823/Sophie/pkg/utils/hash"
+	"github.com/user823/Sophie/pkg/utils/strutil"
 )
 
 var (
@@ -30,7 +32,7 @@ func GetNewFileName(fileName string, userId int64) string {
 
 	createdTime := time.Now().Format(timeFormat)
 	fileName = fmt.Sprintf("%d%s", userId, fileName)
-	return hasher.HashKey(fileName) + "-" + createdTime + prefix
+	return hasher.HashKey(utils.S2b(fileName)) + "-" + createdTime + prefix
 }
 
 // 拼接访问的url

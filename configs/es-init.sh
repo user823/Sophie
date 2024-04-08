@@ -1,6 +1,9 @@
 #!/bin/bash
 
 # 建立对应于mysql的elasticsearch 索引
+docker cp sophie-es:/usr/share/elasticsearch/config/certs/http_ca.crt ${HOME}/.cert
+docker exec -it sophie-es /usr/share/elasticsearch/bin/elasticsearch-reset-password -u elastic
+docker exec -it sophie-es /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana --url https://localhost:9200
 
 endpoint='https://localhost:9200'
 cacert_file="${HOME}/.cert/http_ca.crt"
@@ -56,8 +59,40 @@ sys_logininfor=$(cat << EOF
 EOF
 )
 
-curl --cacert "${cacert_file}" -u sophie:123456 -XPUT "${endpoint}/sys_oper_log" -H "Content-Type: application/json" -d "$sys_oper_log"
-curl --cacert "${cacert_file}" -u sophie:123456 -XPUT "${endpoint}/sys_logininfor" -H "Content-Type: application/json" -d "$sys_sys_logininfor"
+sophie_record_aggregation=$(cat << EOF
+{
+  "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "level": {"type": "keyword"},
+        "timestamp": {"type": "text"},
+        "logger": {"type": "keyword"},
+        "message": {"type": "keyword"},
+        "caller": {"type": "keyword"},
+        "stack": {"type": "text"},
+        "additional": {
+          "type": "nested",
+          "properties": {
+            "key": {
+              "type": "keyword"
+            },
+            "value": {
+              "type": "text"
+            }
+          }
+        }
+      }
+    }
+}
+EOF
+)
+
+curl --cacert "${cacert_file}" -u sophie:12345678 -XPUT "${endpoint}/sys_oper_log" -H "Content-Type: application/json" -d "$sys_oper_log"
+curl --cacert "${cacert_file}" -u sophie:12345678 -XPUT "${endpoint}/sys_logininfor" -H "Content-Type: application/json" -d "$sys_sys_logininfor"
+curl --cacert "${cacert_file}" -u sophie:12345678 -XPUT "${endpoint}/sophie_record_aggregation" -H "Content-Type: application/json" -d "$sophie_record_aggregation"
 
 # sys_user
 #sys_user=$(cat << EOF

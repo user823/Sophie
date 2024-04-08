@@ -120,8 +120,11 @@ insert into sys_menu
 values ('110', '定时任务', '2', '2', 'job', 'monitor/job/index', '', 1, 0, 'C', '0', '0', 'monitor:job:list', 'job',
         'admin', sysdate(), '', null, '定时任务菜单', null);
 insert into sys_menu
-values ('111', 'tracing', '2', '3', 'http://localhost:16686', '', '', 0, 0, 'C', '0', '0',
+values ('111', 'tracing', '2', '3', 'http://www.my-sophie.love:16686', '', '', 0, 0, 'C', '0', '0',
         'monitor:tracing:list', 'sentinel', 'admin', sysdate(), '', null, '链路追踪菜单', null);
+insert into sys_menu
+values ('112', 'kibana', '2', '4', 'http://www.my-sophie.love:5601', '', '', 0, 0, 'C', '0', '0',
+        'monitor:aggregation:list', 'nacos', 'admin', sysdate(), '', null, '日志聚合菜单', null);
 insert into sys_menu
 values ('114', '表单构建', '3', '1', 'build', 'tool/build/index', '', 1, 0, 'C', '0', '0', 'tool:build:list', 'build',
         'admin', sysdate(), '', null, '表单构建菜单', null);
@@ -129,7 +132,7 @@ insert into sys_menu
 values ('115', '代码生成', '3', '2', 'gen', 'tool/gen/index', '', 1, 0, 'C', '0', '0', 'tool:gen:list', 'code', 'admin',
         sysdate(), '', null, '代码生成菜单', null);
 insert into sys_menu
-values ('116', '系统接口', '3', '3', 'http://localhost:8082/swagger/index.html', '', '', 0, 0, 'C', '0', '0',
+values ('116', '系统接口', '3', '3', 'http://www.my-sophie.love:8082/swagger/index.html', '', '', 0, 0, 'C', '0', '0',
         'tool:swagger:list', 'swagger', 'admin', sysdate(), '', null, '系统接口菜单', null);
 -- 三级菜单
 insert into sys_menu

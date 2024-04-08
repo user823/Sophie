@@ -168,16 +168,16 @@ func connectionIsOpen() bool {
 	if c == nil {
 		return false
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	testKey := "redis-conn-test-" + uuid.New().String()
-	if err := c.Set(ctx, testKey, "test", time.Second).Err(); err != nil {
+	if err := c.Set(ctx, testKey, "test", 1*time.Second).Err(); err != nil {
 		log.Warnf("Error trying to set test key: %s", err.Error())
 		return false
 	}
 
-	if _, err := c.Get(ctx, testKey).Result(); err != nil {
+	if _, err := c.Get(ctx, testKey).Result(); err != redis.Nil && err != nil {
 		log.Warnf("Error trying to get test key: %s", err.Error())
 		return false
 	}
@@ -187,7 +187,7 @@ func connectionIsOpen() bool {
 
 // 开启协程保持长连接状态
 func KeepConnection(ctx context.Context, config *RedisConfig) {
-	tick := time.NewTicker(time.Second)
+	tick := time.NewTicker(3 * time.Second)
 	defer tick.Stop()
 	connectSingleton(config)
 	redisUp.Store(connectionIsOpen())
@@ -1038,7 +1038,8 @@ func (r *RedisClient) MGetFromHash(ctx context.Context, keys []string) ([]map[st
 	for _, key := range keys {
 		cacheKey := r.cacheKey(key)
 		result, err := c.HGetAll(ctx, cacheKey).Result()
-		if err != nil {
+		// 需要判断空
+		if err != nil || len(result) == 0 {
 			continue
 		}
 		results = append(results, result)

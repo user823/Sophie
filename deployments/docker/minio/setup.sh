@@ -1,1 +1,1 @@
-sudo docker run -d --name sophie-obs -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER="minio-access-key" -e MINIO_ROOT_PASSWORD="minio-secret-key" -v ./data:/bitnami/minio/data bitnami/minio
+sudo docker run -d --name sophie-obs -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER="sophie" -e MINIO_ROOT_PASSWORD="12345678" -v ./data:/bitnami/minio/data bitnami/minio

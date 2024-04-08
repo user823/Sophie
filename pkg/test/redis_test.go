@@ -3,6 +3,7 @@ package test
 import (
 	"context"
 	"fmt"
+	sv1 "github.com/user823/Sophie/api/thrift/system/v1"
 	"github.com/user823/Sophie/pkg/db/kv"
 	"github.com/user823/Sophie/pkg/utils"
 	"reflect"
@@ -14,8 +15,8 @@ var (
 	client           kv.RedisStore
 	ctx              = context.Background()
 	connectionConfig = &kv.RedisConfig{
-		Addrs:    []string{"127.0.0.1:6379"},
-		Password: "123456",
+		Addrs:    []string{"49.234.183.205:6379"},
+		Password: "12345678",
 		Database: 0,
 	}
 )
@@ -1049,5 +1050,22 @@ func TestGetRowingWindows(t *testing.T) {
 	t.Logf("总记录数为: %d", l)
 	for i := range res {
 		t.Logf("%v", res[i])
+	}
+}
+
+func TestMGetFromHash(t *testing.T) {
+	client.SetKeyPrefix(kv.SYS_LOGIN_USER)
+	l, res := client.GetRollingWindow(ctx, kv.SYS_LOGIN_USER_IDS, (1000 * time.Second).Milliseconds(), true)
+	t.Logf("总记录数为: %d", l)
+
+	list, err := client.MGetFromHash(ctx, res)
+	if err != nil {
+		t.Log(err)
+		return
+	}
+	for i := range list {
+		var loginUser sv1.Logininfo
+		loginUser.Unmarshal(list[i])
+		t.Log(loginUser)
 	}
 }

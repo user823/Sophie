@@ -83,7 +83,7 @@ spring.datasource:
   address: 127.0.0.1:3306 
   database: canal_manager
   username: sophie
-  password: 123456
+  password: 12345678
   driver-class-name: com.mysql.jdbc.Driver
   url: jdbc:mysql://${spring.datasource.address}/${spring.datasource.database}?useUnicode=true&characterEncoding=UTF-8&useSSL=false
   hikari:
@@ -137,7 +137,7 @@ canal.admin.register.name =
 ```yaml
 # username/password
 canal.instance.dbUsername=sophie
-canal.instance.dbPassword=123456
+canal.instance.dbPassword=12345678
 canal.instance.connectionCharset = UTF-8
 # enable druid Decrypt database password
 canal.instance.enableDruid=false
@@ -153,7 +153,7 @@ canal.instance.enableDruid=false
     defaultDS:
       url: jdbc:mysql://127.0.0.1:3306/sophie?useUnicode=true
       username: sophie
-      password: 123456
+      password: 12345678
     canalAdapters:
     - instance: example # canal instance Name or mq topic name
       groups:
@@ -165,7 +165,7 @@ canal.instance.enableDruid=false
               hosts: https://127.0.0.1:9200 # 127.0.0.1:9200 for rest mode
               properties:
                 mode: rest # or rest
-                security.auth: sophie:123456 #  only used for rest mode
+                security.auth: sophie:12345678 #  only used for rest mode
                 cluster.name: docker-cluster
 ```
 

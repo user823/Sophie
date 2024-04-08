@@ -18,9 +18,9 @@ var (
 
 func testInit() {
 	cfg := &sql.MysqlConfig{
-		Host:                  "127.0.0.1:3306",
+		Host:                  "49.234.183.205:3306",
 		Username:              "sophie",
-		Password:              "123456",
+		Password:              "12345678",
 		Database:              "sophie",
 		MaxIdleConnections:    10,
 		MaxOpenConnections:    10,
@@ -55,8 +55,8 @@ func testInit() {
 	ctx = context.WithValue(context.Background(), api.LOGIN_INFO_KEY, testLogininfo)
 
 	connectionConfig := &kv.RedisConfig{
-		Addrs:    []string{"127.0.0.1:6379"},
-		Password: "123456",
+		Addrs:    []string{"49.234.183.205:6379"},
+		Password: "12345678",
 		Database: 0,
 	}
 
@@ -79,6 +79,8 @@ func TestSelectUserList(t *testing.T) {
 		IsAsc:         false,
 
 		EndTime: time.Now().Unix(),
+
+		Cache: true,
 	}
 	sysUser := &v1.SysUser{}
 	result, total, err := sqlCli.Users().SelectUserList(ctx, sysUser, getOpt)

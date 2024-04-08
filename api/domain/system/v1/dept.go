@@ -50,6 +50,10 @@ func (s *SysDept) Validate() error {
 	return nil
 }
 
+func (s *SysDept) Filter() *SysDept {
+	return s
+}
+
 func buildDeptErrMsg(err validator.FieldError) error {
 	switch err.StructNamespace() {
 	case "SysDept.DictName":

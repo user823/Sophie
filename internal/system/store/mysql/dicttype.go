@@ -34,11 +34,12 @@ func (s *mysqlDictType) SelectDictTypeList(ctx context.Context, dictType *v1.Sys
 	if dictType.DictType != "" {
 		query = query.Where("dict_type like ?", "%"+dictType.DictType+"%")
 	}
+	total := utils.CountQuery(query, opts, "sys_dict_type.create_time")
 	query = opts.SQLCondition(query, "sys_dict_type.create_time")
 
 	var result []*v1.SysDictType
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, "sys_dict_type.create_time"), err
+	return result, total, err
 }
 
 func (s *mysqlDictType) SelectDictTypeAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysDictType, int64, error) {

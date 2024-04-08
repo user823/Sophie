@@ -44,6 +44,17 @@ func (s *SysRole) Unmarshal(str string) {
 	jsoniter.Unmarshal(data, s)
 }
 
+func (s *SysRole) Filter() *SysRole {
+	s.MenuCheckStrictly = false
+	s.DeptCheckStrictly = false
+	s.Flag = false
+	s.DataScope = ""
+	s.MenuIds = []int64{}
+	s.DeptIds = []int64{}
+	s.Permissions = []string{}
+	return s
+}
+
 type RoleList struct {
 	api.ListMeta `json:",inline"`
 	Items        []*SysRole `json:"items"`

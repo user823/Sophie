@@ -48,12 +48,14 @@ func (s *mysqlOperLogStore) SelectOperLogList(ctx context.Context, operlog *v1.S
 	if operlog.OperName != "" {
 		query = query.Where("oper_name like ?", "%"+operlog.OperName+"%")
 	}
+
+	total := utils.CountQuery(query, opts, "")
 	query = opts.SQLCondition(query, "")
 	query = query.Order("oper_id DESC")
 
 	var result []*v1.SysOperLog
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, ""), err
+	return result, total, err
 }
 
 func (s *mysqlOperLogStore) DeleteOperLogByIds(ctx context.Context, operids []int64, opts *api.DeleteOptions) error {

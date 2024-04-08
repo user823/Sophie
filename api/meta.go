@@ -93,7 +93,6 @@ func (g *GetOptions) StartPage() {
 }
 
 func (g *GetOptions) SQLCondition(db *gorm.DB, timeRangeColumn string) *gorm.DB {
-
 	if timeRangeColumn != "" {
 		if g.BeginTime != 0 {
 			db = db.Where(timeRangeColumn+" >= ?", utils.Second2Time(g.BeginTime))
@@ -120,7 +119,6 @@ func (g *GetOptions) SQLCondition(db *gorm.DB, timeRangeColumn string) *gorm.DB 
 }
 
 func (g *GetOptions) SQLConditionWithoutPage(db *gorm.DB, timeRangeColumn string) *gorm.DB {
-
 	if timeRangeColumn != "" {
 		if g.BeginTime != 0 {
 			db = db.Where(timeRangeColumn+" >= ?", utils.Second2Time(g.BeginTime))

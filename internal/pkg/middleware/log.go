@@ -12,7 +12,6 @@ import (
 	"github.com/user823/Sophie/pkg/log"
 	"github.com/user823/Sophie/pkg/utils"
 	"github.com/user823/Sophie/pkg/utils/strutil"
-	"net/http"
 	"time"
 )
 
@@ -126,24 +125,18 @@ func buildExtraInfo(c *app.RequestContext, extraInfo *OperLogExtra, operLog *v1.
 	operLog.OperatorType = extraInfo.OperatorType
 	// 需要保存请求参数
 	if extraInfo.IsSaveRequestData {
-		params := make(map[string]string)
-		method := utils.B2s(c.Request.Method())
-		visitFn := func(key []byte, value []byte) {
-			k, v := utils.B2s(key), utils.B2s(value)
-			if !strutil.ContainsAny(k, extraInfo.ExcludeParamNames...) {
-				params[k] = v
+		params := make(map[string]any)
+		if err := c.BindAndValidate(&params); err == nil {
+			for k := range params {
+				if strutil.ContainsAny(k, extraInfo.ExcludeParamNames...) {
+					delete(params, k)
+				}
 			}
-		}
 
-		if method == http.MethodPost {
-			c.Request.PostArgs().VisitAll(visitFn)
-		} else {
-			c.Request.URI().QueryArgs().VisitAll(visitFn)
+			data, _ := jsoniter.Marshal(params)
+			jsonStr := utils.B2s(data)
+			operLog.OperParam = jsonStr
 		}
-
-		data, _ := jsoniter.Marshal(params)
-		jsonStr := utils.B2s(data)
-		operLog.OperParam = jsonStr
 	}
 
 	// 需要保存响应参数

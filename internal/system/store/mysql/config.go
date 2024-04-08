@@ -71,11 +71,12 @@ func (s *mysqlConfigStore) SelectConfigList(ctx context.Context, config *v1.SysC
 	if config.ConfigKey != "" {
 		query = query.Where("config_key like ?", "%"+config.ConfigKey+"%")
 	}
+	total := utils.CountQuery(query, opts, "sys_config.create_time")
 	query = opts.SQLCondition(query, "sys_config.create_time")
 
 	var result []*v1.SysConfig
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, "sys_config.create_time"), err
+	return result, total, err
 }
 
 func (s *mysqlConfigStore) CheckConfigKeyUnique(ctx context.Context, configKey string, opts *api.GetOptions) *v1.SysConfig {

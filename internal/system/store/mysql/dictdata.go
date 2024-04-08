@@ -34,12 +34,13 @@ func (s *mysqlDictDataStore) SelectDictDataList(ctx context.Context, dictData *v
 	if dictData.Status != "" {
 		query = query.Where("status = ?", dictData.Status)
 	}
+	total := utils.CountQuery(query, opts, "")
 	query = opts.SQLCondition(query, "")
 	query = query.Order("dict_sort ASC")
 
 	var result []*v1.SysDictData
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, ""), err
+	return result, total, err
 }
 
 func (s *mysqlDictDataStore) SelectDictDataByType(ctx context.Context, dictType string, opts *api.GetOptions) ([]*v1.SysDictData, int64, error) {

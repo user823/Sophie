@@ -34,11 +34,12 @@ func (s *mysqlPostStore) SelectPostList(ctx context.Context, post *v1.SysPost, o
 	if post.PostName != "" {
 		query = query.Where("post_name like ?", "%"+post.PostName+"%")
 	}
+	total := utils.CountQuery(query, opts, "")
 	query = opts.SQLCondition(query, "")
 
 	var result []*v1.SysPost
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, ""), err
+	return result, total, err
 }
 
 func (s *mysqlPostStore) SelectPostAll(ctx context.Context, opts *api.GetOptions) ([]*v1.SysPost, int64, error) {

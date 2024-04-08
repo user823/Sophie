@@ -11,7 +11,7 @@ type SysMenu struct {
 	api.ObjectMeta `json:"metadata,omitempty"`
 	MenuId         int64      `json:"menuId,omitempty" gorm:"column:menu_id" query:"menuId"`
 	MenuName       string     `json:"menuName,omitempty" gorm:"column:menu_name" query:"menuName"`
-	ParentName     string     `json:"parentName,omitempty" gorm:"column:parent_name" query:"parentName"`
+	ParentName     string     `json:"parentName,omitempty" gorm:"-" query:"parentName"`
 	ParentId       int64      `json:"parentId,omitempty" gorm:"column:parent_id" query:"parentId"`
 	OrderNum       int64      `json:"orderNum,omitempty" gorm:"column:order_num" query:"orderNum"`
 	Path           string     `json:"path,omitempty" gorm:"column:path" query:"path"`

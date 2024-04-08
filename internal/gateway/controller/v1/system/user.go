@@ -75,11 +75,16 @@ func (u *UserController) List(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	users := v1.MUserInfo2SysUser(resp.Rows)
+	for i := range users {
+		users[i].Filter()
+	}
+
 	core.JSON(c, map[string]any{
 		"code":  resp.BaseResp.Code,
 		"msg":   resp.BaseResp.Msg,
 		"total": resp.Total,
-		"rows":  resp.Rows,
+		"rows":  users,
 	})
 }
 
@@ -119,7 +124,11 @@ func (u *UserController) Export(ctx context.Context, c *app.RequestContext) {
 		core.Fail(c, resp.BaseResp.Msg, nil)
 		return
 	}
-	utils.ExportExcel(c, resp.SheetName, v1.MUserInfo2SysUser(resp.List))
+	users := v1.MUserInfo2SysUser(resp.List)
+	for i := range users {
+		users[i].Filter()
+	}
+	utils.ExportExcel(c, resp.SheetName, users)
 }
 
 // UserInfo godoc

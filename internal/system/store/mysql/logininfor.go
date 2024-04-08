@@ -31,12 +31,13 @@ func (s *mysqlLogininforStore) SelectLogininforList(ctx context.Context, loginin
 	if logininfor.UserName != "" {
 		query = query.Where("user_name like ?", "%"+logininfor.UserName+"%")
 	}
+	total := utils.CountQuery(query, opts, "create_time")
 	query = opts.SQLCondition(query, "create_time")
 	query = query.Order("info_id DESC")
 
 	var result []*v1.SysLogininfor
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, "create_time"), err
+	return result, total, err
 }
 
 func (s *mysqlLogininforStore) DeleteLogininforByIds(ctx context.Context, ids []int64, opts *api.DeleteOptions) error {

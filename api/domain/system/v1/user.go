@@ -61,6 +61,18 @@ func (u *SysUser) Validate() error {
 	return nil
 }
 
+// 过滤掉敏感数据
+func (u *SysUser) Filter() *SysUser {
+	u.Password = ""
+	u.LoginIp = ""
+	u.LoginDate = nil
+	u.Dept.Filter()
+	for i := range u.Roles {
+		u.Roles[i].Filter()
+	}
+	return u
+}
+
 func buildUserErrMsg(err validator.FieldError) error {
 	switch err.StructNamespace() {
 	case "SysUser.Username":

@@ -41,6 +41,7 @@ func (s *mysqlRoleStore) SelectRoleList(ctx context.Context, role *v1.SysRole, o
 	if role.RoleKey != "" {
 		query = query.Where("r.role_key like ?", "%"+role.RoleKey+"%")
 	}
+	total := utils.CountQuery(query, opts, "r.create_time")
 	query = opts.SQLCondition(query, "r.create_time")
 	query, err := dateScopeFromCtx(ctx, query, "", "d")
 	if err != nil {
@@ -49,7 +50,7 @@ func (s *mysqlRoleStore) SelectRoleList(ctx context.Context, role *v1.SysRole, o
 
 	var result []*v1.SysRole
 	err = query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, "r.create_time"), err
+	return result, total, err
 }
 
 func (s *mysqlRoleStore) SelectRolePermissionByUserId(ctx context.Context, userid int64, opts *api.GetOptions) ([]*v1.SysRole, error) {

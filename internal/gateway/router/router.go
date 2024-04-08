@@ -191,7 +191,7 @@ func InitRouter(h *server.Hertz, opts ...Option) {
 		menu_.GET("/:menuId", secure.RequirePermissions("system:menu:query"), menuController.GetInfo)
 		menu_.GET("/treeselect", menuController.TreeSelect)
 		menu_.GET("/roleMenuTreeselect/:roleId", menuController.RoleMenuTreeselect)
-		menu_.POST("/add", secure.RequirePermissions("system:menu:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "菜单服务", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), menuController.Add)
+		menu_.POST("", secure.RequirePermissions("system:menu:add"), mw.Log(logsaver, map[string]any{mw.TITLE: "菜单服务", mw.BUSINESSTYE: system2.BUSINESSTYPE_INSERT}), menuController.Add)
 		menu_.PUT("", secure.RequirePermissions("system:menu:edit"), mw.Log(logsaver, map[string]any{mw.TITLE: "菜单服务", mw.BUSINESSTYE: system2.BUSINESSTYPE_UPDATE}), menuController.Edit)
 		menu_.DELETE("/:menuId", secure.RequirePermissions("system:menu:remove"), mw.Log(logsaver, map[string]any{mw.TITLE: "菜单服务", mw.BUSINESSTYE: system2.BUSINESSTYPE_DELETE}), menuController.Remove)
 		menu_.GET("/getRouters", menuController.GetRouters)

@@ -697,7 +697,11 @@ func TestInsertOperLog(t *testing.T) {
 
 func TestSelectOperLogList(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
-	result, _, err := sqlCli.OperLogs().SelectOperLogList(ctx, &v1.SysOperLog{}, &api.GetOptions{})
+	result, total, err := sqlCli.OperLogs().SelectOperLogList(ctx, &v1.SysOperLog{}, &api.GetOptions{
+		PageNum:  4,
+		PageSize: 10,
+	})
+	fmt.Println(total)
 	if err != nil {
 		t.Error(err)
 	}

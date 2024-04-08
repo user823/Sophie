@@ -56,11 +56,12 @@ func (s *mysqlNoticeStore) SelectNoticeList(ctx context.Context, notice *v1.SysN
 	if notice.CreateBy != "" {
 		query = query.Where("create_by like ?", "%"+notice.CreateBy+"%")
 	}
+	total := utils.CountQuery(query, opts, "")
 	query = opts.SQLCondition(query, "")
 
 	var result []*v1.SysNotice
 	err := query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, ""), err
+	return result, total, err
 }
 
 func (s *mysqlNoticeStore) InsertNotice(ctx context.Context, notice *v1.SysNotice, opts *api.CreateOptions) error {

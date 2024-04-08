@@ -41,6 +41,7 @@ func (s *mysqlUserStore) SelectUserList(ctx context.Context, sysUser *v1.SysUser
 		query = query.Where("u.dept_id = ? OR u.dept_id in (select t.dept_id from sys_dept t where find_in_set(?, ancestors) ))", sysUser.DeptId, sysUser.DeptId)
 	}
 	query, err := dateScopeFromCtx(ctx, query, "u", "sys_dept")
+	total := utils.CountQuery(query, opts, "u.create_time")
 	query = opts.SQLCondition(query, "u.create_time")
 
 	if err != nil {
@@ -49,7 +50,7 @@ func (s *mysqlUserStore) SelectUserList(ctx context.Context, sysUser *v1.SysUser
 
 	var result []*v1.SysUser
 	err = query.Find(&result).Error
-	return result, utils.CountQuery(query, opts, "u.create_time"), err
+	return result, total, err
 }
 
 // 查询分配了角色的用户列表

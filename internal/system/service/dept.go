@@ -161,13 +161,6 @@ func (s *deptService) CheckDeptDataScope(ctx context.Context, deptId int64, opts
 }
 
 func (s *deptService) InsertDept(ctx context.Context, dept *v1.SysDept, opts *api.CreateOptions) error {
-	// 首先验证格式
-	if opts.Validate {
-		if err := dept.Validate(); err != nil {
-			return err
-		}
-	}
-
 	if dept.ParentId != 0 {
 		info, err := s.store.Depts().SelectDeptById(ctx, dept.ParentId, &api.GetOptions{Cache: true})
 		if err != nil {

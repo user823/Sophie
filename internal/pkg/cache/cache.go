@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"github.com/user823/Sophie/pkg/errors"
 	"time"
 )
 
@@ -22,6 +23,10 @@ type Cache interface {
 	Clean(ctx context.Context) error
 }
 
+var (
+	ErrKeyNotFound = errors.New("未找到数据")
+)
+
 const (
 	// 默认过期时间为 1h
 	expireTime = 3600
@@ -29,4 +34,8 @@ const (
 	notFoundExpireTime = 600
 	// 未找到占位符
 	placeHolder = "not found"
+	// 布隆过滤器元素个数
+	bloomCap = 100000
+	// 布隆过滤器错误率
+	bloomFalsePositive = 0.01
 )

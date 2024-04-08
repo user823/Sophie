@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"github.com/bits-and-blooms/bloom/v3"
 	"gorm.io/gorm"
 	"time"
 )
@@ -20,14 +21,16 @@ type (
 )
 
 type CachedDB struct {
-	db    *gorm.DB
-	cache Cache
+	db     *gorm.DB
+	cache  Cache
+	filter *bloom.BloomFilter
 }
 
 func NewCachedDB(db *gorm.DB, cache Cache) *CachedDB {
 	return &CachedDB{
-		db:    db,
-		cache: cache,
+		db:     db,
+		cache:  cache,
+		filter: bloom.NewWithEstimates(bloomCap, bloomFalsePositive),
 	}
 }
 
@@ -42,6 +45,9 @@ func (c *CachedDB) DelCache(ctx context.Context, keys ...string) error {
 
 // 从缓存中获取key
 func (c *CachedDB) GetCache(ctx context.Context, key string, dst any) error {
+	if !c.filter.TestString(key) {
+		return ErrKeyNotFound
+	}
 	return c.cache.Get(ctx, key, dst)
 }
 
@@ -61,9 +67,15 @@ func (c *CachedDB) Exec(ctx context.Context, execFn ExecFn, keys ...string) erro
 
 // 使用读缓存策略执行给定查询
 func (c *CachedDB) QueryRow(ctx context.Context, key string, v any, query QueryFn) error {
-	return c.cache.Take(ctx, key, expireTime*time.Second, v, func(v any) error {
+	queryFn := func(v any) error {
+		c.filter.AddString(key)
 		return query(ctx, c.db, v)
-	})
+	}
+
+	if c.filter.TestString(key) {
+		return c.cache.Take(ctx, key, expireTime*time.Second, v, queryFn)
+	}
+	return queryFn(v)
 }
 
 // 使用读缓存策略执行唯一索引上的查询
@@ -78,6 +90,7 @@ func (c *CachedDB) QueryRowIndex(ctx context.Context, key string, v any, keyer f
 			return err
 		}
 		found = true
+		c.filter.AddString(keyer(primaryKey))
 		return c.cache.Set(ctx, keyer(primaryKey), v)
 	}); err != nil {
 		return err
@@ -87,8 +100,15 @@ func (c *CachedDB) QueryRowIndex(ctx context.Context, key string, v any, keyer f
 		return nil
 	}
 
-	// 唯一索引未找到值， 从主键索引查询
-	return c.cache.Take(ctx, keyer(primaryKey), expireTime*time.Second, v, func(val any) error {
+	primaryQueryFn := func(val any) error {
+		c.filter.AddString(keyer(primaryKey))
 		return primaryQuery(ctx, c.db, primaryKey, v)
-	})
+	}
+
+	// 唯一索引未找到值， 从主键索引查询
+	if c.filter.TestString(keyer(primaryKey)) {
+		return c.cache.Take(ctx, keyer(primaryKey), expireTime*time.Second, v, primaryQueryFn)
+	}
+
+	return primaryQueryFn(v)
 }

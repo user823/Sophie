@@ -93,6 +93,8 @@ func (r *redisCache) IsNotFound(err error) bool {
 	switch err {
 	case redis.Nil:
 		return true
+	case ErrKeyNotFound:
+		return true
 	default:
 		return false
 	}

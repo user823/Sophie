@@ -16,7 +16,7 @@ service SystemService {
 
     // dept service
     ListDeptsResponse ListDepts(1:ListDeptsRequest req)
-    ListDeptsResponse ListDeptsExcludeChild(1:i64 id)
+    ListDeptsResponse ListDeptsExcludeChild(1:ListDeptsExcludeChildRequest req)
     DeptResponse GetDeptById(1:GetDeptByIdReq req)
     BaseResp CreateDept(1:CreateDeptRequest req)
     BaseResp UpdateDept(1:UpdateDeptRequest req)
@@ -229,6 +229,11 @@ struct DeptInfo {
 
 struct ListDeptsRequest {
     1:DeptInfo deptInfo
+    2:LoginUser loginUser
+}
+
+struct ListDeptsExcludeChildRequest {
+    1:i64 id
     2:LoginUser loginUser
 }
 

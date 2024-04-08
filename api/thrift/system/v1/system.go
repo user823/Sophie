@@ -5196,6 +5196,232 @@ func (p *ListDeptsRequest) Field2DeepEqual(src *LoginUser) bool {
 	return true
 }
 
+type ListDeptsExcludeChildRequest struct {
+	Id        int64      `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+	LoginUser *LoginUser `thrift:"loginUser,2" frugal:"2,default,LoginUser" json:"loginUser"`
+}
+
+func NewListDeptsExcludeChildRequest() *ListDeptsExcludeChildRequest {
+	return &ListDeptsExcludeChildRequest{}
+}
+
+func (p *ListDeptsExcludeChildRequest) InitDefault() {
+	*p = ListDeptsExcludeChildRequest{}
+}
+
+func (p *ListDeptsExcludeChildRequest) GetId() (v int64) {
+	return p.Id
+}
+
+var ListDeptsExcludeChildRequest_LoginUser_DEFAULT *LoginUser
+
+func (p *ListDeptsExcludeChildRequest) GetLoginUser() (v *LoginUser) {
+	if !p.IsSetLoginUser() {
+		return ListDeptsExcludeChildRequest_LoginUser_DEFAULT
+	}
+	return p.LoginUser
+}
+func (p *ListDeptsExcludeChildRequest) SetId(val int64) {
+	p.Id = val
+}
+func (p *ListDeptsExcludeChildRequest) SetLoginUser(val *LoginUser) {
+	p.LoginUser = val
+}
+
+var fieldIDToName_ListDeptsExcludeChildRequest = map[int16]string{
+	1: "id",
+	2: "loginUser",
+}
+
+func (p *ListDeptsExcludeChildRequest) IsSetLoginUser() bool {
+	return p.LoginUser != nil
+}
+
+func (p *ListDeptsExcludeChildRequest) Read(iprot thrift.TProtocol) (err error) {
+
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ListDeptsExcludeChildRequest[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ListDeptsExcludeChildRequest) ReadField1(iprot thrift.TProtocol) error {
+
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		p.Id = v
+	}
+	return nil
+}
+func (p *ListDeptsExcludeChildRequest) ReadField2(iprot thrift.TProtocol) error {
+	p.LoginUser = NewLoginUser()
+	if err := p.LoginUser.Read(iprot); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *ListDeptsExcludeChildRequest) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ListDeptsExcludeChildRequest"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ListDeptsExcludeChildRequest) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.Id); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *ListDeptsExcludeChildRequest) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("loginUser", thrift.STRUCT, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.LoginUser.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *ListDeptsExcludeChildRequest) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ListDeptsExcludeChildRequest(%+v)", *p)
+
+}
+
+func (p *ListDeptsExcludeChildRequest) DeepEqual(ano *ListDeptsExcludeChildRequest) bool {
+	if p == ano {
+		return true
+	} else if p == nil || ano == nil {
+		return false
+	}
+	if !p.Field1DeepEqual(ano.Id) {
+		return false
+	}
+	if !p.Field2DeepEqual(ano.LoginUser) {
+		return false
+	}
+	return true
+}
+
+func (p *ListDeptsExcludeChildRequest) Field1DeepEqual(src int64) bool {
+
+	if p.Id != src {
+		return false
+	}
+	return true
+}
+func (p *ListDeptsExcludeChildRequest) Field2DeepEqual(src *LoginUser) bool {
+
+	if !p.LoginUser.DeepEqual(src) {
+		return false
+	}
+	return true
+}
+
 type ListDeptsResponse struct {
 	BaseResp *BaseResp   `thrift:"baseResp,1" frugal:"1,default,BaseResp" json:"baseResp"`
 	Data     []*DeptInfo `thrift:"data,2" frugal:"2,default,list<DeptInfo>" json:"data"`
@@ -47585,7 +47811,7 @@ type SystemService interface {
 
 	ListDepts(ctx context.Context, req *ListDeptsRequest) (r *ListDeptsResponse, err error)
 
-	ListDeptsExcludeChild(ctx context.Context, id int64) (r *ListDeptsResponse, err error)
+	ListDeptsExcludeChild(ctx context.Context, req *ListDeptsExcludeChildRequest) (r *ListDeptsResponse, err error)
 
 	GetDeptById(ctx context.Context, req *GetDeptByIdReq) (r *DeptResponse, err error)
 
@@ -47866,9 +48092,9 @@ func (p *SystemServiceClient) ListDepts(ctx context.Context, req *ListDeptsReque
 	}
 	return _result.GetSuccess(), nil
 }
-func (p *SystemServiceClient) ListDeptsExcludeChild(ctx context.Context, id int64) (r *ListDeptsResponse, err error) {
+func (p *SystemServiceClient) ListDeptsExcludeChild(ctx context.Context, req *ListDeptsExcludeChildRequest) (r *ListDeptsResponse, err error) {
 	var _args SystemServiceListDeptsExcludeChildArgs
-	_args.Id = id
+	_args.Req = req
 	var _result SystemServiceListDeptsExcludeChildResult
 	if err = p.Client_().Call(ctx, "ListDeptsExcludeChild", &_args, &_result); err != nil {
 		return
@@ -49232,7 +49458,7 @@ func (p *systemServiceProcessorListDeptsExcludeChild) Process(ctx context.Contex
 	var err2 error
 	result := SystemServiceListDeptsExcludeChildResult{}
 	var retval *ListDeptsResponse
-	if retval, err2 = p.handler.ListDeptsExcludeChild(ctx, args.Id); err2 != nil {
+	if retval, err2 = p.handler.ListDeptsExcludeChild(ctx, args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListDeptsExcludeChild: "+err2.Error())
 		oprot.WriteMessageBegin("ListDeptsExcludeChild", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
@@ -56359,7 +56585,7 @@ func (p *SystemServiceListDeptsResult) Field0DeepEqual(src *ListDeptsResponse) b
 }
 
 type SystemServiceListDeptsExcludeChildArgs struct {
-	Id int64 `thrift:"id,1" frugal:"1,default,i64" json:"id"`
+	Req *ListDeptsExcludeChildRequest `thrift:"req,1" frugal:"1,default,ListDeptsExcludeChildRequest" json:"req"`
 }
 
 func NewSystemServiceListDeptsExcludeChildArgs() *SystemServiceListDeptsExcludeChildArgs {
@@ -56370,15 +56596,24 @@ func (p *SystemServiceListDeptsExcludeChildArgs) InitDefault() {
 	*p = SystemServiceListDeptsExcludeChildArgs{}
 }
 
-func (p *SystemServiceListDeptsExcludeChildArgs) GetId() (v int64) {
-	return p.Id
+var SystemServiceListDeptsExcludeChildArgs_Req_DEFAULT *ListDeptsExcludeChildRequest
+
+func (p *SystemServiceListDeptsExcludeChildArgs) GetReq() (v *ListDeptsExcludeChildRequest) {
+	if !p.IsSetReq() {
+		return SystemServiceListDeptsExcludeChildArgs_Req_DEFAULT
+	}
+	return p.Req
 }
-func (p *SystemServiceListDeptsExcludeChildArgs) SetId(val int64) {
-	p.Id = val
+func (p *SystemServiceListDeptsExcludeChildArgs) SetReq(val *ListDeptsExcludeChildRequest) {
+	p.Req = val
 }
 
 var fieldIDToName_SystemServiceListDeptsExcludeChildArgs = map[int16]string{
-	1: "id",
+	1: "req",
+}
+
+func (p *SystemServiceListDeptsExcludeChildArgs) IsSetReq() bool {
+	return p.Req != nil
 }
 
 func (p *SystemServiceListDeptsExcludeChildArgs) Read(iprot thrift.TProtocol) (err error) {
@@ -56401,7 +56636,7 @@ func (p *SystemServiceListDeptsExcludeChildArgs) Read(iprot thrift.TProtocol) (e
 
 		switch fieldId {
 		case 1:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField1(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -56438,11 +56673,9 @@ ReadStructEndError:
 }
 
 func (p *SystemServiceListDeptsExcludeChildArgs) ReadField1(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadI64(); err != nil {
+	p.Req = NewListDeptsExcludeChildRequest()
+	if err := p.Req.Read(iprot); err != nil {
 		return err
-	} else {
-		p.Id = v
 	}
 	return nil
 }
@@ -56476,10 +56709,10 @@ WriteStructEndError:
 }
 
 func (p *SystemServiceListDeptsExcludeChildArgs) writeField1(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteI64(p.Id); err != nil {
+	if err := p.Req.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -56506,15 +56739,15 @@ func (p *SystemServiceListDeptsExcludeChildArgs) DeepEqual(ano *SystemServiceLis
 	} else if p == nil || ano == nil {
 		return false
 	}
-	if !p.Field1DeepEqual(ano.Id) {
+	if !p.Field1DeepEqual(ano.Req) {
 		return false
 	}
 	return true
 }
 
-func (p *SystemServiceListDeptsExcludeChildArgs) Field1DeepEqual(src int64) bool {
+func (p *SystemServiceListDeptsExcludeChildArgs) Field1DeepEqual(src *ListDeptsExcludeChildRequest) bool {
 
-	if p.Id != src {
+	if !p.Req.DeepEqual(src) {
 		return false
 	}
 	return true

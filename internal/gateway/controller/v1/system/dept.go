@@ -67,7 +67,16 @@ func (d *DeptController) ExcludeChild(ctx context.Context, c *app.RequestContext
 	deptIdStr := c.Param("deptId")
 	deptId, _ := strconv.ParseInt(deptIdStr, 10, 64)
 
-	resp, err := rpc.Remoting.ListDeptsExcludeChild(ctx, deptId)
+	info, err := utils.GetLoginInfoFromCtx(c)
+	if err != nil {
+		core.Fail(c, err.Error(), nil)
+		return
+	}
+
+	resp, err := rpc.Remoting.ListDeptsExcludeChild(ctx, &v1.ListDeptsExcludeChildRequest{
+		Id:        deptId,
+		LoginUser: &info,
+	})
 	if err != nil {
 		core.Fail(c, err.Error(), nil)
 		return

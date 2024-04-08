@@ -296,7 +296,7 @@ func newSystemServiceListDeptsResult() interface{} {
 func listDeptsExcludeChildHandler(ctx context.Context, handler interface{}, arg, result interface{}) error {
 	realArg := arg.(*v1.SystemServiceListDeptsExcludeChildArgs)
 	realResult := result.(*v1.SystemServiceListDeptsExcludeChildResult)
-	success, err := handler.(v1.SystemService).ListDeptsExcludeChild(ctx, realArg.Id)
+	success, err := handler.(v1.SystemService).ListDeptsExcludeChild(ctx, realArg.Req)
 	if err != nil {
 		return err
 	}
@@ -1958,9 +1958,9 @@ func (p *kClient) ListDepts(ctx context.Context, req *v1.ListDeptsRequest) (r *v
 	return _result.GetSuccess(), nil
 }
 
-func (p *kClient) ListDeptsExcludeChild(ctx context.Context, id int64) (r *v1.ListDeptsResponse, err error) {
+func (p *kClient) ListDeptsExcludeChild(ctx context.Context, req *v1.ListDeptsExcludeChildRequest) (r *v1.ListDeptsResponse, err error) {
 	var _args v1.SystemServiceListDeptsExcludeChildArgs
-	_args.Id = id
+	_args.Req = req
 	var _result v1.SystemServiceListDeptsExcludeChildResult
 	if err = p.c.Call(ctx, "ListDeptsExcludeChild", &_args, &_result); err != nil {
 		return

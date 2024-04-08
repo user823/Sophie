@@ -20,7 +20,7 @@ type Client interface {
 	DeleteConfig(ctx context.Context, req *v1.DeleteConfigReqeust, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	RefreshConfig(ctx context.Context, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	ListDepts(ctx context.Context, req *v1.ListDeptsRequest, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error)
-	ListDeptsExcludeChild(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error)
+	ListDeptsExcludeChild(ctx context.Context, req *v1.ListDeptsExcludeChildRequest, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error)
 	GetDeptById(ctx context.Context, req *v1.GetDeptByIdReq, callOptions ...callopt.Option) (r *v1.DeptResponse, err error)
 	CreateDept(ctx context.Context, req *v1.CreateDeptRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
 	UpdateDept(ctx context.Context, req *v1.UpdateDeptRequest, callOptions ...callopt.Option) (r *v1.BaseResp, err error)
@@ -183,9 +183,9 @@ func (p *kSystemServiceClient) ListDepts(ctx context.Context, req *v1.ListDeptsR
 	return p.kClient.ListDepts(ctx, req)
 }
 
-func (p *kSystemServiceClient) ListDeptsExcludeChild(ctx context.Context, id int64, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error) {
+func (p *kSystemServiceClient) ListDeptsExcludeChild(ctx context.Context, req *v1.ListDeptsExcludeChildRequest, callOptions ...callopt.Option) (r *v1.ListDeptsResponse, err error) {
 	ctx = client.NewCtxWithCallOptions(ctx, callOptions)
-	return p.kClient.ListDeptsExcludeChild(ctx, id)
+	return p.kClient.ListDeptsExcludeChild(ctx, req)
 }
 
 func (p *kSystemServiceClient) GetDeptById(ctx context.Context, req *v1.GetDeptByIdReq, callOptions ...callopt.Option) (r *v1.DeptResponse, err error) {

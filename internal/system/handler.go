@@ -145,18 +145,20 @@ func (s *SystemServiceImpl) ListDepts(ctx context.Context, req *v1.ListDeptsRequ
 }
 
 // ListDeptsExcludeChild implements the SystemServiceImpl interface.
-func (s *SystemServiceImpl) ListDeptsExcludeChild(ctx context.Context, id int64) (resp *v1.ListDeptsResponse, err error) {
+func (s *SystemServiceImpl) ListDeptsExcludeChild(ctx context.Context, req *v1.ListDeptsExcludeChildRequest) (resp *v1.ListDeptsResponse, err error) {
 	store, _ := es.GetESFactoryOr(nil)
 	sysDepts := service.NewDepts(store).SelectDeptList(ctx, &v13.SysDept{}, &api.GetOptions{Cache: true})
 	depts := make([]*v1.DeptInfo, 0, sysDepts.TotalCount)
+	loginInfo := req.LoginUser
+	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 
 c:
 	for i := range sysDepts.Items {
-		if sysDepts.Items[i].DeptId == id {
+		if sysDepts.Items[i].DeptId == req.Id {
 			continue
 		}
 		ancestors := strings.Split(sysDepts.Items[i].Ancestors, ",")
-		strid := strconv.FormatInt(id, 10)
+		strid := strconv.FormatInt(req.Id, 10)
 		for _, ancestor := range ancestors {
 			if ancestor == strid {
 				continue c
@@ -202,6 +204,12 @@ func (s *SystemServiceImpl) CreateDept(ctx context.Context, req *v1.CreateDeptRe
 	if !deptSrv.CheckDeptNameUnique(ctx, sysDept, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增部门 %s 失败，部门名称已存在", sysDept.DeptName)), nil
 	}
+
+	// 首先验证格式
+	if err = sysDept.Validate(); err != nil {
+		return utils.Fail(err.Error()), nil
+	}
+
 	sysDept.CreateBy = loginInfo.User.UserName
 	if err = deptSrv.InsertDept(ctx, sysDept, &api.CreateOptions{Validate: true}); err != nil {
 		return utils.Fail("系统内部错误"), nil
@@ -318,6 +326,12 @@ func (s *SystemServiceImpl) CreateDictData(ctx context.Context, req *v1.CreateDi
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
 	sysDictData := v1.DictData2SysDictData(req.GetDictData())
+
+	// 首先验证格式
+	if err = sysDictData.Validate(); err != nil {
+		return utils.Fail(err.Error()), nil
+	}
+
 	sysDictData.CreateBy = loginInfo.User.UserName
 	if err = service.NewDictDatas(store).InsertDictData(ctx, sysDictData, &api.CreateOptions{Validate: true}); err != nil {
 		return utils.Fail("系统内部错误"), nil
@@ -397,6 +411,11 @@ func (s *SystemServiceImpl) CreateDictType(ctx context.Context, req *v1.CreateDi
 	dictTypeSrv := service.NewDictTypes(store)
 	if !dictTypeSrv.CheckDictTypeUnique(ctx, sysDictType, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增字典 %s 失败，字典类型已存在", sysDictType.DictName)), nil
+	}
+
+	// 验证格式
+	if err = sysDictType.Validate(); err != nil {
+		return utils.Fail(err.Error()), nil
 	}
 
 	sysDictType.CreateBy = loginInfo.User.UserName
@@ -1374,6 +1393,10 @@ func (s *SystemServiceImpl) CreateSysUser(ctx context.Context, req *v1.CreateSys
 	sysUser := v1.UserInfo2SysUser(req.GetUserInfo())
 	loginInfo := req.User
 	ctx = context.WithValue(ctx, api.LOGIN_INFO_KEY, loginInfo)
+
+	if err = sysUser.Validate(); err != nil {
+		return utils.Fail(err.Error()), nil
+	}
 
 	if !userSrv.CheckUserNameUnique(ctx, sysUser, &api.GetOptions{Cache: false}) {
 		return utils.Fail(fmt.Sprintf("新增用户 %s 失败，登录账号已存在", sysUser.Username)), nil

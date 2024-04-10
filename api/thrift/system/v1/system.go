@@ -31722,13 +31722,11 @@ type UserInfo struct {
 	Password    string            `thrift:"password,15" frugal:"15,default,string" json:"password"`
 	Status      string            `thrift:"status,16" frugal:"16,default,string" json:"status"`
 	DelFlag     string            `thrift:"delFlag,17" frugal:"17,default,string" json:"delFlag"`
-	LoginIp     string            `thrift:"loginIp,18" frugal:"18,default,string" json:"loginIp"`
-	LoginDate   string            `thrift:"loginDate,19" frugal:"19,default,string" json:"loginDate"`
-	Dept        *DeptInfo         `thrift:"dept,20" frugal:"20,default,DeptInfo" json:"dept"`
-	Roles       []*RoleInfo       `thrift:"roles,21" frugal:"21,default,list<RoleInfo>" json:"roles"`
-	RoleIds     []int64           `thrift:"roleIds,22" frugal:"22,default,list<i64>" json:"roleIds"`
-	PostIds     []int64           `thrift:"postIds,23" frugal:"23,default,list<i64>" json:"postIds"`
-	RoleId      int64             `thrift:"roleId,24" frugal:"24,default,i64" json:"roleId"`
+	Dept        *DeptInfo         `thrift:"dept,18" frugal:"18,default,DeptInfo" json:"dept"`
+	Roles       []*RoleInfo       `thrift:"roles,19" frugal:"19,default,list<RoleInfo>" json:"roles"`
+	RoleIds     []int64           `thrift:"roleIds,20" frugal:"20,default,list<i64>" json:"roleIds"`
+	PostIds     []int64           `thrift:"postIds,21" frugal:"21,default,list<i64>" json:"postIds"`
+	RoleId      int64             `thrift:"roleId,22" frugal:"22,default,i64" json:"roleId"`
 }
 
 func NewUserInfo() *UserInfo {
@@ -31807,14 +31805,6 @@ func (p *UserInfo) GetDelFlag() (v string) {
 	return p.DelFlag
 }
 
-func (p *UserInfo) GetLoginIp() (v string) {
-	return p.LoginIp
-}
-
-func (p *UserInfo) GetLoginDate() (v string) {
-	return p.LoginDate
-}
-
 var UserInfo_Dept_DEFAULT *DeptInfo
 
 func (p *UserInfo) GetDept() (v *DeptInfo) {
@@ -31890,12 +31880,6 @@ func (p *UserInfo) SetStatus(val string) {
 func (p *UserInfo) SetDelFlag(val string) {
 	p.DelFlag = val
 }
-func (p *UserInfo) SetLoginIp(val string) {
-	p.LoginIp = val
-}
-func (p *UserInfo) SetLoginDate(val string) {
-	p.LoginDate = val
-}
 func (p *UserInfo) SetDept(val *DeptInfo) {
 	p.Dept = val
 }
@@ -31930,13 +31914,11 @@ var fieldIDToName_UserInfo = map[int16]string{
 	15: "password",
 	16: "status",
 	17: "delFlag",
-	18: "loginIp",
-	19: "loginDate",
-	20: "dept",
-	21: "roles",
-	22: "roleIds",
-	23: "postIds",
-	24: "roleId",
+	18: "dept",
+	19: "roles",
+	20: "roleIds",
+	21: "postIds",
+	22: "roleId",
 }
 
 func (p *UserInfo) IsSetDept() bool {
@@ -32099,7 +32081,7 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 18:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField18(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -32107,7 +32089,7 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 19:
-			if fieldTypeId == thrift.STRING {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField19(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -32115,7 +32097,7 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 20:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.LIST {
 				if err = p.ReadField20(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -32131,24 +32113,8 @@ func (p *UserInfo) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 22:
-			if fieldTypeId == thrift.LIST {
-				if err = p.ReadField22(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 23:
-			if fieldTypeId == thrift.LIST {
-				if err = p.ReadField23(iprot); err != nil {
-					goto ReadFieldError
-				}
-			} else if err = iprot.Skip(fieldTypeId); err != nil {
-				goto SkipFieldError
-			}
-		case 24:
 			if fieldTypeId == thrift.I64 {
-				if err = p.ReadField24(iprot); err != nil {
+				if err = p.ReadField22(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -32356,31 +32322,13 @@ func (p *UserInfo) ReadField17(iprot thrift.TProtocol) error {
 	return nil
 }
 func (p *UserInfo) ReadField18(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.LoginIp = v
-	}
-	return nil
-}
-func (p *UserInfo) ReadField19(iprot thrift.TProtocol) error {
-
-	if v, err := iprot.ReadString(); err != nil {
-		return err
-	} else {
-		p.LoginDate = v
-	}
-	return nil
-}
-func (p *UserInfo) ReadField20(iprot thrift.TProtocol) error {
 	p.Dept = NewDeptInfo()
 	if err := p.Dept.Read(iprot); err != nil {
 		return err
 	}
 	return nil
 }
-func (p *UserInfo) ReadField21(iprot thrift.TProtocol) error {
+func (p *UserInfo) ReadField19(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -32399,7 +32347,7 @@ func (p *UserInfo) ReadField21(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *UserInfo) ReadField22(iprot thrift.TProtocol) error {
+func (p *UserInfo) ReadField20(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -32421,7 +32369,7 @@ func (p *UserInfo) ReadField22(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *UserInfo) ReadField23(iprot thrift.TProtocol) error {
+func (p *UserInfo) ReadField21(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -32443,7 +32391,7 @@ func (p *UserInfo) ReadField23(iprot thrift.TProtocol) error {
 	}
 	return nil
 }
-func (p *UserInfo) ReadField24(iprot thrift.TProtocol) error {
+func (p *UserInfo) ReadField22(iprot thrift.TProtocol) error {
 
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
@@ -32545,14 +32493,6 @@ func (p *UserInfo) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField22(oprot); err != nil {
 			fieldId = 22
-			goto WriteFieldError
-		}
-		if err = p.writeField23(oprot); err != nil {
-			fieldId = 23
-			goto WriteFieldError
-		}
-		if err = p.writeField24(oprot); err != nil {
-			fieldId = 24
 			goto WriteFieldError
 		}
 	}
@@ -32874,10 +32814,10 @@ WriteFieldEndError:
 }
 
 func (p *UserInfo) writeField18(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("loginIp", thrift.STRING, 18); err != nil {
+	if err = oprot.WriteFieldBegin("dept", thrift.STRUCT, 18); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := oprot.WriteString(p.LoginIp); err != nil {
+	if err := p.Dept.Write(oprot); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -32891,41 +32831,7 @@ WriteFieldEndError:
 }
 
 func (p *UserInfo) writeField19(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("loginDate", thrift.STRING, 19); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := oprot.WriteString(p.LoginDate); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 19 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 19 end error: ", p), err)
-}
-
-func (p *UserInfo) writeField20(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("dept", thrift.STRUCT, 20); err != nil {
-		goto WriteFieldBeginError
-	}
-	if err := p.Dept.Write(oprot); err != nil {
-		return err
-	}
-	if err = oprot.WriteFieldEnd(); err != nil {
-		goto WriteFieldEndError
-	}
-	return nil
-WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 20 begin error: ", p), err)
-WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 20 end error: ", p), err)
-}
-
-func (p *UserInfo) writeField21(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("roles", thrift.LIST, 21); err != nil {
+	if err = oprot.WriteFieldBegin("roles", thrift.LIST, 19); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteListBegin(thrift.STRUCT, len(p.Roles)); err != nil {
@@ -32944,13 +32850,13 @@ func (p *UserInfo) writeField21(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 21 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 19 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 21 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 19 end error: ", p), err)
 }
 
-func (p *UserInfo) writeField22(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("roleIds", thrift.LIST, 22); err != nil {
+func (p *UserInfo) writeField20(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("roleIds", thrift.LIST, 20); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteListBegin(thrift.I64, len(p.RoleIds)); err != nil {
@@ -32969,13 +32875,13 @@ func (p *UserInfo) writeField22(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 22 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 20 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 22 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 20 end error: ", p), err)
 }
 
-func (p *UserInfo) writeField23(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("postIds", thrift.LIST, 23); err != nil {
+func (p *UserInfo) writeField21(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("postIds", thrift.LIST, 21); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteListBegin(thrift.I64, len(p.PostIds)); err != nil {
@@ -32994,13 +32900,13 @@ func (p *UserInfo) writeField23(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 23 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 21 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 23 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 21 end error: ", p), err)
 }
 
-func (p *UserInfo) writeField24(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("roleId", thrift.I64, 24); err != nil {
+func (p *UserInfo) writeField22(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("roleId", thrift.I64, 22); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteI64(p.RoleId); err != nil {
@@ -33011,9 +32917,9 @@ func (p *UserInfo) writeField24(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 24 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 22 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 24 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 22 end error: ", p), err)
 }
 
 func (p *UserInfo) String() string {
@@ -33081,25 +32987,19 @@ func (p *UserInfo) DeepEqual(ano *UserInfo) bool {
 	if !p.Field17DeepEqual(ano.DelFlag) {
 		return false
 	}
-	if !p.Field18DeepEqual(ano.LoginIp) {
+	if !p.Field18DeepEqual(ano.Dept) {
 		return false
 	}
-	if !p.Field19DeepEqual(ano.LoginDate) {
+	if !p.Field19DeepEqual(ano.Roles) {
 		return false
 	}
-	if !p.Field20DeepEqual(ano.Dept) {
+	if !p.Field20DeepEqual(ano.RoleIds) {
 		return false
 	}
-	if !p.Field21DeepEqual(ano.Roles) {
+	if !p.Field21DeepEqual(ano.PostIds) {
 		return false
 	}
-	if !p.Field22DeepEqual(ano.RoleIds) {
-		return false
-	}
-	if !p.Field23DeepEqual(ano.PostIds) {
-		return false
-	}
-	if !p.Field24DeepEqual(ano.RoleId) {
+	if !p.Field22DeepEqual(ano.RoleId) {
 		return false
 	}
 	return true
@@ -33230,28 +33130,14 @@ func (p *UserInfo) Field17DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *UserInfo) Field18DeepEqual(src string) bool {
-
-	if strings.Compare(p.LoginIp, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *UserInfo) Field19DeepEqual(src string) bool {
-
-	if strings.Compare(p.LoginDate, src) != 0 {
-		return false
-	}
-	return true
-}
-func (p *UserInfo) Field20DeepEqual(src *DeptInfo) bool {
+func (p *UserInfo) Field18DeepEqual(src *DeptInfo) bool {
 
 	if !p.Dept.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *UserInfo) Field21DeepEqual(src []*RoleInfo) bool {
+func (p *UserInfo) Field19DeepEqual(src []*RoleInfo) bool {
 
 	if len(p.Roles) != len(src) {
 		return false
@@ -33264,7 +33150,7 @@ func (p *UserInfo) Field21DeepEqual(src []*RoleInfo) bool {
 	}
 	return true
 }
-func (p *UserInfo) Field22DeepEqual(src []int64) bool {
+func (p *UserInfo) Field20DeepEqual(src []int64) bool {
 
 	if len(p.RoleIds) != len(src) {
 		return false
@@ -33277,7 +33163,7 @@ func (p *UserInfo) Field22DeepEqual(src []int64) bool {
 	}
 	return true
 }
-func (p *UserInfo) Field23DeepEqual(src []int64) bool {
+func (p *UserInfo) Field21DeepEqual(src []int64) bool {
 
 	if len(p.PostIds) != len(src) {
 		return false
@@ -33290,7 +33176,7 @@ func (p *UserInfo) Field23DeepEqual(src []int64) bool {
 	}
 	return true
 }
-func (p *UserInfo) Field24DeepEqual(src int64) bool {
+func (p *UserInfo) Field22DeepEqual(src int64) bool {
 
 	if p.RoleId != src {
 		return false

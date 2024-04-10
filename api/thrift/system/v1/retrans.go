@@ -39,16 +39,11 @@ func SysUser2UserInfo(user *v1.SysUser) *UserInfo {
 		Password:    user.Password,
 		Status:      user.Status,
 		DelFlag:     user.DelFlag,
-		LoginIp:     user.LoginIp,
 		Dept:        deptInfo,
 		Roles:       roles,
 		RoleIds:     user.RoleIds,
 		PostIds:     user.PostIds,
 		RoleId:      user.RoleId,
-	}
-
-	if user.LoginDate != nil {
-		userInfo.LoginDate = utils.Time2Str(*user.LoginDate)
 	}
 	return userInfo
 }

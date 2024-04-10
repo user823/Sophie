@@ -6,7 +6,6 @@ import (
 	"github.com/user823/Sophie/api/domain/system/v1"
 	vo2 "github.com/user823/Sophie/api/domain/vo"
 	"github.com/user823/Sophie/pkg/utils"
-	"time"
 )
 
 func UserInfo2SysUser(userinfo *UserInfo) *v1.SysUser {
@@ -19,11 +18,6 @@ func UserInfo2SysUser(userinfo *UserInfo) *v1.SysUser {
 		if r != nil {
 			roles = append(roles, *RoleInfo2SysRole(r))
 		}
-	}
-	var loginDate *time.Time
-	if userinfo.LoginDate != "" {
-		temp := utils.Str2Time(userinfo.GetLoginDate())
-		loginDate = &temp
 	}
 
 	user := &v1.SysUser{
@@ -46,8 +40,6 @@ func UserInfo2SysUser(userinfo *UserInfo) *v1.SysUser {
 		Password:    userinfo.GetPassword(),
 		Status:      userinfo.GetStatus(),
 		DelFlag:     userinfo.GetDelFlag(),
-		LoginIp:     userinfo.GetLoginIp(),
-		LoginDate:   loginDate,
 		Roles:       roles,
 		RoleIds:     userinfo.RoleIds,
 		PostIds:     userinfo.PostIds,

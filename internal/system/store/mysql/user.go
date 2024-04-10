@@ -160,7 +160,7 @@ func (s *mysqlUserStore) UpdateUser(ctx context.Context, sysUser *v1.SysUser, op
 		return fmt.Errorf("更新用户必须指明id")
 	}
 	execFn := func(ctx context.Context, db *gorm.DB) error {
-		return opts.SQLCondition(s.db).Model(sysUser).Where("user_id = ?", sysUser.UserId).Error
+		return opts.SQLCondition(s.db).Model(sysUser).Where("user_id = ?", sysUser.UserId).Updates(sysUser).Error
 	}
 
 	s.CachedDB().CleanCache(ctx)

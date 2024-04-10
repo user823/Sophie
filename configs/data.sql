@@ -40,11 +40,11 @@ values (109, 102, '0,100,102', '财务部门', 2, '雪菲', '15888888888', 'soph
 -- ----------------------------
 insert into sys_user
 values (1, 103, 'admin', '雪菲', '00', 'sophie@163.com', '15888888888', '1', '',
-        '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), 'admin',
+        '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', 'admin',
         sysdate(), '', null, '管理员', null);
 insert into sys_user
 values (2, 105, 'sophie', '雪菲', '00', 'sophie@qq.com', '15666666666', '1', '',
-        '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', sysdate(), 'admin',
+        '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', 'admin',
         sysdate(), '', null, '测试员', null);
 
 -- ----------------------------

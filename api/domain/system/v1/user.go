@@ -6,28 +6,25 @@ import (
 	"github.com/user823/Sophie/api"
 	"github.com/user823/Sophie/pkg/utils"
 	"github.com/user823/Sophie/pkg/validators"
-	"time"
 )
 
 type SysUser struct {
 	api.ObjectMeta `json:",inline,omitempty"`
-	UserId         int64      `json:"userId,omitempty" gorm:"column:user_id" query:"userId" xlsx:"n:用户编号"`
-	DeptId         int64      `json:"deptId,omitempty" gorm:"column:dept_id" query:"deptId" xlsx:"n:部门编号"`
-	Username       string     `json:"userName,omitempty" gorm:"column:user_name" query:"userName" validate:"required,min=0,max=30,xss" xlsx:"n:登录名称"`
-	Nickname       string     `json:"nickName,omitempty" gorm:"column:nick_name" query:"nickName" validate:"min=0,max=30,xss" xlsx:"n:用户名称"`
-	Email          string     `json:"email,omitempty" gorm:"column:email" query:"email" validate:"email,min=0,max=50" xlsx:"n:用户邮箱"`
-	Phonenumber    string     `json:"phonenumber,omitempty" gorm:"column:phonenumber" query:"phonenumber" validate:"min=0,max=11" xlsx:"n:手机号码"`
-	Sex            string     `json:"sex,omitempty" gorm:"column:sex" query:"sex" xlsx:"n:用户性别;exp:0=男,1=女,2=未知"`
-	Avatar         string     `json:"avatar,omitempty" gorm:"column:avatar" query:"avatar" `
-	Password       string     `json:"password,omitempty" gorm:"column:password" query:"password"`
-	Status         string     `json:"status,omitempty" gorm:"column:status" query:"status" xlsx:"n:账号状态;exp:0=正常,1=停用"`
-	DelFlag        string     `json:"delFlag,omitempty" gorm:"column:del_flag" query:"delFlag"`
-	LoginIp        string     `json:"loginIp,omitempty" gorm:"column:login_ip" query:"loginIp" xlsx:"n:最后登录IP"`
-	LoginDate      *time.Time `json:"loginDate,omitempty" gorm:"column:login_date" query:"loginDate" xlsx:"最后登录时间"`
-	Dept           SysDept    `json:"dept,omitempty" gorm:"foreignKey:DeptId;references:DeptId" query:"dept"`
-	Roles          []SysRole  `json:"roles,omitempty" gorm:"many2many:sys_user_role;foreignKey:UserId;joinForeignKey:UserId;references:RoleId;joinReferences:RoleId" query:"roles"`
-	RoleIds        []int64    `json:"roleIds,omitempty" gorm:"-" query:"roleIds"`
-	PostIds        []int64    `json:"postIds,omitempty" gorm:"-" query:"postIds"`
+	UserId         int64     `json:"userId,omitempty" gorm:"column:user_id" query:"userId" xlsx:"n:用户编号"`
+	DeptId         int64     `json:"deptId,omitempty" gorm:"column:dept_id" query:"deptId" xlsx:"n:部门编号"`
+	Username       string    `json:"userName,omitempty" gorm:"column:user_name" query:"userName" validate:"required,min=0,max=30,xss" xlsx:"n:登录名称"`
+	Nickname       string    `json:"nickName,omitempty" gorm:"column:nick_name" query:"nickName" validate:"min=0,max=30,xss" xlsx:"n:用户名称"`
+	Email          string    `json:"email,omitempty" gorm:"column:email" query:"email" validate:"email,min=0,max=50" xlsx:"n:用户邮箱"`
+	Phonenumber    string    `json:"phonenumber,omitempty" gorm:"column:phonenumber" query:"phonenumber" validate:"min=0,max=11" xlsx:"n:手机号码"`
+	Sex            string    `json:"sex,omitempty" gorm:"column:sex" query:"sex" xlsx:"n:用户性别;exp:0=男,1=女,2=未知"`
+	Avatar         string    `json:"avatar,omitempty" gorm:"column:avatar" query:"avatar" `
+	Password       string    `json:"password,omitempty" gorm:"column:password" query:"password"`
+	Status         string    `json:"status,omitempty" gorm:"column:status" query:"status" xlsx:"n:账号状态;exp:0=正常,1=停用"`
+	DelFlag        string    `json:"delFlag,omitempty" gorm:"column:del_flag" query:"delFlag"`
+	Dept           SysDept   `json:"dept,omitempty" gorm:"foreignKey:DeptId;references:DeptId" query:"dept"`
+	Roles          []SysRole `json:"roles,omitempty" gorm:"many2many:sys_user_role;foreignKey:UserId;joinForeignKey:UserId;references:RoleId;joinReferences:RoleId" query:"roles"`
+	RoleIds        []int64   `json:"roleIds,omitempty" gorm:"-" query:"roleIds"`
+	PostIds        []int64   `json:"postIds,omitempty" gorm:"-" query:"postIds"`
 	// 仅用于查询角色分配的用户，不参与存储
 	RoleId int64 `json:"roleId,omitempty" gorm:"-" query:"roleId"`
 }
@@ -64,8 +61,6 @@ func (u *SysUser) Validate() error {
 // 过滤掉敏感数据
 func (u *SysUser) Filter() *SysUser {
 	u.Password = ""
-	u.LoginIp = ""
-	u.LoginDate = nil
 	u.Dept.Filter()
 	for i := range u.Roles {
 		u.Roles[i].Filter()

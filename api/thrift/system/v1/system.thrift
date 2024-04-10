@@ -770,13 +770,11 @@ struct UserInfo {
     15:string password
     16:string status
     17:string delFlag
-    18:string loginIp
-    19:string loginDate
-    20:DeptInfo dept
-    21:list<RoleInfo> roles
-    22:list<i64> roleIds
-    23:list<i64> postIds
-    24:i64 roleId
+    18:DeptInfo dept
+    19:list<RoleInfo> roles
+    20:list<i64> roleIds
+    21:list<i64> postIds
+    22:i64 roleId
 }
 
 struct LoginUser {

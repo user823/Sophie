@@ -154,7 +154,7 @@ func (u *UserController) GetInfo(ctx context.Context, c *app.RequestContext) {
 	}
 
 	res := map[string]any{
-		"user":        resp.Data,
+		"user":        v1.UserInfo2SysUser(resp.Data).Filter(),
 		"roles":       resp.Roles,
 		"permissions": resp.Permissions,
 	}
@@ -182,7 +182,7 @@ func (u *UserController) GetInfoWithName(ctx context.Context, c *app.RequestCont
 	}
 
 	data := map[string]any{
-		"sysUser":     resp.Data,
+		"sysUser":     v1.UserInfo2SysUser(resp.Data).Filter(),
 		"permissions": resp.Permissions,
 		"roles":       resp.Roles,
 	}
@@ -232,7 +232,7 @@ func (u *UserController) GetInfoWithId(ctx context.Context, c *app.RequestContex
 		"posts":   resp.Posts,
 		"postIds": resp.PostIds,
 		"roleIds": resp.RoleIds,
-		"data":    resp.Data,
+		"data":    v1.UserInfo2SysUser(resp.Data).Filter(),
 	}
 	core.JSON(c, result)
 }

@@ -18,7 +18,7 @@ var (
 
 func testInit() {
 	cfg := &sql.MysqlConfig{
-		Host:                  "49.234.183.205:3306",
+		Host:                  "10.211.55.3:3306",
 		Username:              "sophie",
 		Password:              "12345678",
 		Database:              "sophie",
@@ -55,7 +55,7 @@ func testInit() {
 	ctx = context.WithValue(context.Background(), api.LOGIN_INFO_KEY, testLogininfo)
 
 	connectionConfig := &kv.RedisConfig{
-		Addrs:    []string{"49.234.183.205:6379"},
+		Addrs:    []string{"10.211.55.3:6379"},
 		Password: "12345678",
 		Database: 0,
 	}
@@ -164,12 +164,77 @@ func TestInsertUser(t *testing.T) {
 func TestUpdateUser(t *testing.T) {
 	sqlCli, _ := GetMySQLFactoryOr(nil)
 	err := sqlCli.Users().UpdateUser(ctx, &v1.SysUser{
-		UserId: 1,
-		Avatar: "123",
+		UserId:   102,
+		Nickname: "test2",
 	}, &api.UpdateOptions{})
 	if err != nil {
 		t.Error(err)
 	}
+}
+
+func TestUpdateUserService(t *testing.T) {
+	sqlCli, _ := GetMySQLFactoryOr(nil)
+	tx := sqlCli.Begin()
+	user := &v1.SysUser{
+		UserId:      102,
+		Username:    "test",
+		Nickname:    "test3",
+		Sex:         "2",
+		Phonenumber: "17771219793",
+		Email:       "869860837@qq.com",
+		DeptId:      100,
+		Dept: v1.SysDept{
+			Ancestors: "0",
+			DeptName:  "sophie",
+			Email:     "sophie@qq.com",
+		},
+	}
+	if err := tx.UserRoles().DeleteUserRoleByUserId(ctx, user.UserId, &api.DeleteOptions{}); err != nil {
+		tx.Rollback()
+		t.Log(err)
+		return
+	}
+
+	// 新增用户和角色的关联
+	if len(user.RoleIds) > 0 {
+		list := make([]*v1.SysUserRole, 0, len(user.RoleIds))
+		for i := range user.RoleIds {
+			list = append(list, &v1.SysUserRole{UserId: user.UserId, RoleId: user.RoleIds[i]})
+		}
+		if err := tx.UserRoles().BatchUserRole(ctx, list, &api.CreateOptions{}); err != nil {
+			tx.Rollback()
+			t.Log(err)
+			return
+		}
+	}
+
+	// 删除用户与岗位的关联
+	if err := tx.UserPosts().DeleteUserPostByUserId(ctx, user.UserId, &api.DeleteOptions{}); err != nil {
+		tx.Rollback()
+		t.Log(err)
+		return
+	}
+
+	// 新增用户与岗位关联
+	if len(user.PostIds) > 0 {
+		list := make([]*v1.SysUserPost, 0, len(user.PostIds))
+		for i := range user.PostIds {
+			list = append(list, &v1.SysUserPost{UserId: user.UserId, PostId: user.PostIds[i]})
+		}
+		if err := tx.UserPosts().BatchUserPost(ctx, list, &api.CreateOptions{}); err != nil {
+			tx.Rollback()
+			t.Log(err)
+			return
+		}
+	}
+
+	// 更新用户信息
+	if err := tx.Users().UpdateUser(ctx, user, &api.UpdateOptions{}); err != nil {
+		tx.Rollback()
+		t.Log(err)
+		return
+	}
+	t.Log(tx.Commit())
 }
 
 func TestUpdateUserAvatar(t *testing.T) {
@@ -784,6 +849,7 @@ func TestSub(t *testing.T) {
 	t.Run("test-CheckUserNameUnique", TestCheckUserNameUnique)
 	t.Run("test-InsertUser", TestInsertUser)
 	t.Run("test-UpdateUser", TestUpdateUser)
+	t.Run("test-UpdateUserService", TestUpdateUserService)
 	t.Run("test-UpdateUserAvatar", TestUpdateUserAvatar)
 	t.Run("test-DeleteUserById", TestDeleteUserById)
 	t.Run("test-DeleteUserByIds", TestDeleteUserByIds)

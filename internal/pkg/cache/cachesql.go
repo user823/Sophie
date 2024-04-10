@@ -75,7 +75,11 @@ func (c *CachedDB) QueryRow(ctx context.Context, key string, v any, query QueryF
 	if c.filter.TestString(key) {
 		return c.cache.Take(ctx, key, expireTime*time.Second, v, queryFn)
 	}
-	return queryFn(v)
+
+	if err := queryFn(v); err != nil {
+		return err
+	}
+	return c.cache.Set(ctx, key, v)
 }
 
 // 使用读缓存策略执行唯一索引上的查询
@@ -110,5 +114,8 @@ func (c *CachedDB) QueryRowIndex(ctx context.Context, key string, v any, keyer f
 		return c.cache.Take(ctx, keyer(primaryKey), expireTime*time.Second, v, primaryQueryFn)
 	}
 
-	return primaryQueryFn(v)
+	if err := primaryQueryFn(v); err != nil {
+		return err
+	}
+	return c.cache.Set(ctx, keyer(primaryKey), v)
 }

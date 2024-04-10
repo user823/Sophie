@@ -46,11 +46,11 @@ Sophie is a front-end and back-end separated permission management system design
 Demo: [https://49.234.183.205/](https://49.234.183.205/)
 
 ## Project Details
-[Requirement Analysis](docs/devel/requirements_analysis.md)
-[Technical Selection](docs/devel/technology_selection.md)
-[System Architecture](docs/devel/architecture.md)
-[Deployment Guide](docs/guide/deployment.md)
-[App Startup Configuration and Startup Process](docs/guide/app.md)
+ - [Requirement Analysis](docs/devel/requirements_analysis.md)
+ - [Technical Selection](docs/devel/technology_selection.md)
+ - [System Architecture](docs/devel/architecture.md)
+ - [Deployment Guide](docs/guide/deployment.md)
+ - [App Startup Configuration and Startup Process](docs/guide/app.md)
 
 ## Related Projects
 - [Sophie-ui](https://github.com/user823/Sophie-ui)

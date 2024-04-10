@@ -37,9 +37,9 @@ type Options struct {
 
 ## app 启动流程
 app 通过buildCommand完成自身构建，然后进入执行流程，整体来看：
-[app 构建流程](../images/app.png)
+![app 构建流程](../images/app.png)
 
 构建app后，app运行时执行的runCommand 实际上对应每个组件的app.go 的run方法
 run方法依次执行：创建server运行的配置、初始化log、创建server
-[server 执行流程](../images/server.png)
+![server 执行流程](../images/server.png)
 

@@ -6,6 +6,8 @@
 [![Static Badge](https://img.shields.io/badge/website-sophie-green)](https://49.234.183.205/)
 [![Static Badge](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/user823/Sophie/blob/main/LICENSE)
 
+![sophie](docs/images/sophie.jpg)
+
 Sophie 基于Hertz + Kitex + Element UI 设计的前后端分离权限管理系统，个人及企业可基于此系统快速开发
 
 ## 特点

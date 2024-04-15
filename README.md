@@ -6,9 +6,12 @@ English | [中文](README_cn.md)
 [![Static Badge](https://img.shields.io/badge/website-sophie-green)](https://49.234.183.205/)
 [![Static Badge](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/user823/Sophie/blob/main/LICENSE)
 
+![sophie](docs/images/sophie.jpg)
+
 Sophie is a front-end and back-end separated permission management system designed based on Hertz + Kitex + Element UI. Individuals and enterprises can quickly develop based on this system.
 
 ## Features
+
 - Adopting a front-end and back-end separation model, allowing independent deployment and modification of front-end and back-end applications, with strong flexibility.
 - The back-end adopts Hertz and Kitex frameworks from [ByteDance](https://www.cloudwego.io/), which provide numerous extension interfaces, ensuring high performance while maintaining strong scalability.
 - The back-end adopts a gateway architecture, with microservices of various components exposed to the outside world through a unified sophie-gateway.
@@ -19,6 +22,7 @@ Sophie is a front-end and back-end separated permission management system design
 - The project includes rich documentation and testing, making it easy to understand.
 
 ## Architecture
+
 ![architecture](docs/images/architecture.png)
 
 ## Built-in Functions
@@ -41,24 +45,30 @@ Sophie is a front-end and back-end separated permission management system design
 16. Form Builder: Users define pages by dragging components and setting component properties.
 
 ## Demo
+
 - admin/admin123
 
 Demo: [https://49.234.183.205/](https://49.234.183.205/)
 
 ## Project Details
- - [Requirement Analysis](docs/devel/requirements_analysis.md)
- - [Technical Selection](docs/devel/technology_selection.md)
- - [System Architecture](docs/devel/architecture.md)
- - [Deployment Guide](docs/guide/deployment.md)
- - [App Startup Configuration and Startup Process](docs/guide/app.md)
+
+- [Requirement Analysis](docs/devel/requirements_analysis.md)
+- [Technical Selection](docs/devel/technology_selection.md)
+- [System Architecture](docs/devel/architecture.md)
+- [Project Structure](docs/guide/project_structure.md)
+- [Deployment Guide](docs/guide/deployment.md)
+- [App Startup Configuration and Startup Process](docs/guide/app.md)
 
 ## Related Projects
+
 - [Sophie-ui](https://github.com/user823/Sophie-ui)
 
 ## Open Source License
+
 Sophie is licensed under the [Apache License 2.0](LICENSE)
 
 ## Contact Information
+
 - Email: hq869860837@163.com
 - Issues: [Issues](https://github.com/user823/Sophie/issues)
 - QQ: 869860837

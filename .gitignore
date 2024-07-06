@@ -1,13 +1,6 @@
-#deployments/docker/mysql/data/
-#deployments/docker/mysql/log/
-#deployments/docker/redis/data/
-#deployments/docker/redis/log/
-#deployments/docker/elasticsearch/
-#deployments/docker/etcd
-#deployments/docker/jaeger
-#deployments/minio/
-#deployments
-deployments/
+deployments/docker/**/conf/
+deployments/docker/**/log/
+deployments/docker/**/data/
 bin/
 
 *.git

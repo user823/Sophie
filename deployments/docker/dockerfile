@@ -1,0 +1,19 @@
+FROM golang:1.22
+
+WORKDIR /opt/sophie
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+      echo "Asia/Shanghai" > /etc/timezone && \
+      mkdir -p /var/log/sophie
+
+# 拷贝相关源文件
+#COPY api bin configs internal pkg scripts templates ./
+COPY api ./api/
+COPY bin ./bin/
+COPY configs ./configs/
+COPY internal ./internal/
+COPY pkg ./pkg/
+COPY scripts ./scripts/
+COPY templates ./templates/
+
+ENTRYPOINT ["./scripts/docker-entrypoint.sh"]

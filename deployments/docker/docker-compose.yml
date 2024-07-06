@@ -1,0 +1,199 @@
+version: "1.0"
+
+name: sophie
+services:
+  mysql:
+    image: mysql:latest
+    container_name: sophie-mysql
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf:/etc/mysql/conf.d
+      - ./mysql/log:/var/log/mysql
+    ports:
+      - 3306:3306
+    environment:
+      character-set-server: utf8mb4
+      collation-server: utf8mb4_unicode_ci
+      MYSQL_ROOT_PASSWORD: 12345678
+
+  redis:
+    image: redis
+    container_name: sophie-redis
+    volumes:
+      - ./redis/conf:/usr/local/etc/redis
+    ports:
+      - 6379:6379
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: sophie-etcd
+    ports:
+      - 2379:2379
+      - 2380:2380
+    environment:
+      ALLOW_NONE_AUTHENTICATION: yes
+
+  minio:
+    image: bitnami/minio
+    container_name: sophie-minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: sophie
+      MINIO_ROOT_PASSWORD: 12345678
+    volumes:
+      - ./minio/data:/bitnami/minio/data
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    container_name: sophie-jaeger
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14250:14250
+      - 14268:14268
+      - 14269:14269
+      - 4317:4317
+      - 4318:4318
+      - 9411:9411
+    environment:
+      COLLECTOR_OTLP_ENABLED: true
+      COLLECTOR_ZIPKIN_HOST_PORT: 9411
+
+  elasticsearch:
+    container_name: sophie-es
+    image: elasticsearch:8.11.3
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xmx512m -Xms256m -Xmn256m
+
+  rocketmq:
+    image: sophie/rocketmq:5.1.4
+    container_name: sophie-rmq
+    ports:
+      - 9876:9876
+      - 10911:10911
+      - 8081:8081
+    command:
+      - sophie-rmq
+
+  # sophie-gateway
+  sophie-gateway:
+    image: sophie
+    ports:
+      - 8082:8082
+      - 8083:8083
+    environment:
+      SOPHIE_GATEWAY_INSECURE_ADDRESS: 0.0.0.0
+      SOPHIE_GATEWAY_INSECURE_PORT: 8082
+      SOPHIE_GATEWAY_SECURE_ADDRESS: 0.0.0.0
+      SOPHIE_GATEWAY_SECURE_PORT: 8083
+      JAEGER_HOST: sophie-jaeger:4317
+      ETCD_HOST: sophie-etcd:2379
+      REDIS_HOST: sophie-redis:6379
+#      LOG_AGGREGATION: true
+    volumes:
+      - ../../configs/cert:/opt/sophie/configs/cert
+    command:
+      - sophie-gateway
+
+  sophie-system:
+    image: sophie
+    ports:
+      - 8084:8084
+    environment:
+      SOPHIE_SYSTEM_ADDRESS: 0.0.0.0
+      SOPHIE_SYSTEM_PORT: 8084
+      MYSQL_HOST: sophie-mysql:3306
+      SOPHIE_SYSTEM_MYSQL_DATABASE: sophie
+      JAEGER_HOST: sophie-jaeger:4317
+      ETCD_HOST: sophie-etcd:2379
+      REDIS_HOST: sophie-redis:6379
+      ES_ENDPOINT: https://elasticsearch:9200
+#      LOG_AGGREGATION: true
+    command:
+      - sophie-system
+
+  sophie-schedule:
+    image: sophie
+    ports:
+      - 8085:8085
+    environment:
+      SOPHIE_SCHEDULE_ADDRESS: 0.0.0.0
+      SOPHIE_SCHEDULE_PORT: 8085
+      MYSQL_HOST: sophie-mysql:3306
+      SOPHIE_SYSTEM_MYSQL_DATABASE: sophie
+      ETCD_HOST: sophie-etcd:2379
+      JAEGER_HOST: sophie-jaeger:4317
+      REDIS_HOST: sophie-redis:6379
+    command:
+      - sophie-schedule
+
+  sophie-schedule-worker:
+    image: sophie
+    ports:
+      - 8091:8091
+    environment:
+      SOPHIE_SCHEDULE_WORKER_ADDRESS: 0.0.0.0
+      SOPHIE_SCHEDULE_WORKER_PORT: 8091
+      JAEGER_HOST: sophie-etcd:4317
+      MYSQL_HOST: sophie-mysql:3306
+      SOPHIE_SYSTEM_MYSQL_DATABASE: sophie
+      ETCD_HOST: sophie-etcd:2379
+      REDIS_HOST: sophie-redis:6379
+    command:
+      - sophie-schedule-worker
+
+  sophie-gen:
+    image: sophie
+    ports:
+      - 8086:8086
+    environment:
+      SOPHIE_GEN_ADDRESS: 0.0.0.0
+      SOPHIE_GEN_PORT: 8086
+      JAEGER_HOST: sophie-etcd:4317
+      MYSQL_HOST: sophie-mysql:3306
+      SOPHIE_GEN_AUTHOR: sophie
+      SOPHIE_SYSTEM_MYSQL_DATABASE: sophie
+      ETCD_HOST: sophie-etcd:2379
+      REDIS_HOST: sophie-redis:6379
+    command:
+      - sophie-gen
+
+  sophie-file:
+    image: sophie
+    ports:
+      - 8087:8087
+    environment:
+      SOPHIE_FILE_ADDRESS: 0.0.0.0
+      SOPHIE_FILE_PORT: 8087
+      # 这个host会用于拼接url
+      MINIO_HOST: www.my-sophie.love:9000
+      JAEGER_HOST: sophie-jaeger:4317
+      ETCD_HOST: sophie-etcd:2379
+      REDIS_HOST: sophie-redis:6379
+    command:
+      - sophie-file
+
+  sophie-logstash:
+    image: sophie
+    ports:
+      - 8088:8088
+    environment:
+      SOPHIE_LOGSTASH_INSECURE_ADDRESS: 0.0.0.0
+      SOPHIE_LOGSTASH_INSECURE_PORT: 8088
+      REDIS_HOST: sophie-redis:6379
+      ROCKETMQ_HOST: sophie-rmq:8081
+      ES_ENDPOINT: https://elasticsearch:9200
+    command:
+      - sophie-logstash
+
+

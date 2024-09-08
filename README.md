@@ -48,7 +48,7 @@ Sophie is a front-end and back-end separated permission management system design
 
 - admin/admin123
 
-Demo: [https://49.234.183.205/](https://49.234.183.205/)
+Demo: [https://www.my-sophie.love/](https://www.my-sophie.love/)
 
 ## Project Details
 

@@ -44,7 +44,7 @@ Sophie 基于Hertz + Kitex + Element UI 设计的前后端分离权限管理系�
 ## 在线演示
  - admin/admin123
 
-演示地址: [https://49.234.183.205/](https://49.234.183.205/)
+演示地址: [https://www.my-sophie.love/](https://www.my-sophie.love/)
 
 ## 项目详情
  - [需求分析](docs/devel/requirements_analysis.md)
